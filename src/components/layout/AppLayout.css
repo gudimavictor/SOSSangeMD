@@ -1,0 +1,77 @@
+.appShell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 2rem;
+    background: var(--color-surface);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.brand {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: -0.02em;
+}
+
+.navList {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.navLink {
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.navLink:hover {
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.navLinkActive {
+    background: var(--color-primary);
+    color: white;
+}
+
+.userArea {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.topbarUser {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}
+
+.topbarUserName {
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.logoutButton {
+    border: none;
+    background: var(--color-bg);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.logoutButton:hover {}

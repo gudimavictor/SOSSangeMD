@@ -1,0 +1,97 @@
+.page {
+    padding: 0;
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #7A1712 100%);
+    color: white;
+    padding: 3rem 2.5rem;
+    margin-bottom: 2rem;
+}
+
+.heroTitle {
+    margin: 0 0 0.5rem;
+    font-size: 2.1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.heroSubtitle {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.9;
+    max-width: 480px;
+}
+
+.body {
+    padding: 0 2.5rem 2.5rem;
+}
+
+.statsRow {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.statNumber {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+.statLabel {
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.sectionTitle {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+}
+
+.navGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.navCard {
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    max-width: 280px;
+    text-decoration: none;
+    color: var(--color-text);
+    display: block;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.navCard:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-3px);
+}
+
+.navCardTitle {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.navCardDesc {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+}
