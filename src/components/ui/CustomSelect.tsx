@@ -6,9 +6,10 @@ type CustomSelectProps = {
     value: string
     onChange: (value: string) => void
     placeholder?: string
+    labels?: Record<string, string>
 }
 
-export function CustomSelect({ options, value, onChange, placeholder }: CustomSelectProps) {
+export function CustomSelect({ options, value, onChange, placeholder, labels }: CustomSelectProps) {
     const [deschis, setDeschis] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
 
@@ -27,6 +28,10 @@ export function CustomSelect({ options, value, onChange, placeholder }: CustomSe
         setDeschis(false)
     }
 
+    function afiseaza(optiune: string) {
+        return labels?.[optiune] ?? optiune
+    }
+
     return (
         <div className="customSelect" ref={containerRef}>
             <button
@@ -34,7 +39,7 @@ export function CustomSelect({ options, value, onChange, placeholder }: CustomSe
                 className="customSelectButton"
                 onClick={() => setDeschis((prev) => !prev)}
             >
-                <span>{value || placeholder || 'Selectează'}</span>
+                <span>{value ? afiseaza(value) : placeholder || 'Selectează'}</span>
                 <span className={`customSelectArrow ${deschis ? 'customSelectArrowOpen' : ''}`}>▼</span>
             </button>
 
@@ -46,7 +51,7 @@ export function CustomSelect({ options, value, onChange, placeholder }: CustomSe
                             className={`customSelectOption ${optiune === value ? 'customSelectOptionSelected' : ''}`}
                             onClick={() => selecteaza(optiune)}
                         >
-                            {optiune}
+                            {afiseaza(optiune)}
                         </div>
                     ))}
                 </div>

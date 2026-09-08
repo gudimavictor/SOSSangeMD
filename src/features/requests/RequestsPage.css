@@ -1,0 +1,193 @@
+.requestsPage {
+    padding: 0;
+}
+
+.reqHero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #7A1712 100%);
+    color: white;
+    padding: 2.5rem 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.reqHeroTitle {
+    margin: 0 0 0.4rem;
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+.reqHeroSubtitle {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.reqBody {
+    padding: 0 2.5rem 2.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.formColumn {
+    width: 100%;
+    max-width: 560px;
+}
+
+.quickFills {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}
+
+.quickFillChip {
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    border-radius: 999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.quickFillChip:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.urgencyPicker {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.urgencyOption {
+    flex: 1;
+    min-width: 140px;
+    border: 2px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+}
+
+.urgencyOption:hover {
+    border-color: var(--color-text-muted);
+}
+
+.urgencyOptionTitle {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.15rem;
+}
+
+.urgencyOptionDesc {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.urgencyOption--critica.urgencyOptionActive {
+    border-color: var(--color-danger);
+    background: var(--color-danger-light);
+}
+.urgencyOption--critica .urgencyOptionTitle {
+    color: var(--color-danger);
+}
+
+.urgencyOption--urgenta.urgencyOptionActive {
+    border-color: var(--color-warning);
+    background: var(--color-warning-light);
+}
+.urgencyOption--urgenta .urgencyOptionTitle {
+    color: var(--color-warning);
+}
+
+.urgencyOption--programata.urgencyOptionActive {
+    border-color: var(--color-success);
+    background: var(--color-success-light);
+}
+.urgencyOption--programata .urgencyOptionTitle {
+    color: var(--color-success);
+}
+
+.pageTitle {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.pageSubtitle {
+    margin: 0.4rem 0 2rem;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.form {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.formField label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.formField input,
+.formField textarea {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    width: 100%;
+}
+
+.submitButton {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    transition: opacity 0.15s ease;
+}
+
+.submitButton:hover {
+    opacity: 0.9;
+}
+
+.successBox {
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
