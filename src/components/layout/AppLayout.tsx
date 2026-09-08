@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate, useLocation } from '@tanstack/react-router'
 import { useAuth } from '../../features/auth/AuthContext'
 import './AppLayout.css'
 
@@ -20,10 +20,17 @@ const navItems = [
 export function AppLayout({ children }: AppLayoutProps) {
     const { user, logout } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
 
     function handleLogout() {
         logout()
         navigate({ to: '/login' })
+    }
+
+    const esteParinaAuth = location.pathname === '/login'
+
+    if (esteParinaAuth) {
+        return <div className="appShell">{children}</div>
     }
 
     return (
@@ -45,7 +52,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     ))}
                 </nav>
 
-                {user && (
+                {user ? (
                     <div className="userArea">
                         <span className="topbarUser">
                             <span className="topbarUserName">{user.nume}</span>
@@ -54,6 +61,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                             Ieși
                         </button>
                     </div>
+                ) : (
+                    <Link to="/login" className="navLink">
+                        Autentificare
+                    </Link>
                 )}
             </header>
 
