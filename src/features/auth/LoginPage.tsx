@@ -4,12 +4,31 @@ import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from './AuthContext'
 import type { GrupaSanguina } from './AuthContext'
 import { findUserByEmail, addUser } from './usersStore'
+import { CustomSelect } from '../../components/ui/CustomSelect'
 import './LoginPage.css'
 
 type Mode = 'login' | 'inregistrare'
 
 const orase = ['Chișinău', 'Bălți', 'Soroca', 'Comrat', 'Cahul']
 const grupeleSanguine: GrupaSanguina[] = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
+
+function IconEye() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    )
+}
+
+function IconEyeOff() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+        </svg>
+    )
+}
 
 export function LoginPage() {
     const { login } = useAuth()
@@ -21,9 +40,12 @@ export function LoginPage() {
     const [parola, setParola] = useState('')
     const [confirmaParola, setConfirmaParola] = useState('')
     const [telefon, setTelefon] = useState('')
-    const [oras, setOras] = useState(orase[0])
-    const [grupaSanguina, setGrupaSanguina] = useState<GrupaSanguina | ''>('')
+    const [oras, setOras] = useState('')
+    const [grupaSanguina, setGrupaSanguina] = useState('')
     const [eroare, setEroare] = useState('')
+    const [aratParola, setAratParola] = useState(false)
+    const [aratParolaR, setAratParolaR] = useState(false)
+    const [aratConfirmare, setAratConfirmare] = useState(false)
 
     function schimbaMode(newMode: Mode) {
         setMode(newMode)
@@ -58,7 +80,7 @@ export function LoginPage() {
         event.preventDefault()
         setEroare('')
 
-        if (!nume || !email || !parola) {
+        if (!nume || !email || !parola || !oras) {
             setEroare('Completează toate câmpurile obligatorii.')
             return
         }
@@ -86,7 +108,7 @@ export function LoginPage() {
             telefon,
             oras,
             esteDonator: false,
-            grupaSanguina: grupaSanguina || null,
+            grupaSanguina: (grupaSanguina || null) as GrupaSanguina | null,
             dataUltimeiDonari: null,
         }
 
@@ -105,150 +127,187 @@ export function LoginPage() {
     }
 
     return (
-        <div className="loginPage">
-            <h1 className="loginTitle">SOS Sânge MD</h1>
-            <p className="loginSubtitle">
-                {mode === 'login' ? 'Intră în contul tău' : 'Creează-ți un cont nou'}
-            </p>
-
-            <div className="loginCard">
-                <div className="authTabs">
-                    <button
-                        type="button"
-                        className={`authTab ${mode === 'login' ? 'authTabActive' : ''}`}
-                        onClick={() => schimbaMode('login')}
-                    >
-                        Autentificare
-                    </button>
-                    <button
-                        type="button"
-                        className={`authTab ${mode === 'inregistrare' ? 'authTabActive' : ''}`}
-                        onClick={() => schimbaMode('inregistrare')}
-                    >
-                        Înregistrare
-                    </button>
-                </div>
-
-                {eroare && <p className="errorText">{eroare}</p>}
-
-                {mode === 'login' ? (
-                    <form onSubmit={handleLogin}>
-                        <div className="loginField">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="ana@exemplu.md"
-                                required
-                            />
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="parola">Parolă</label>
-                            <input
-                                id="parola"
-                                type="password"
-                                value={parola}
-                                onChange={(e) => setParola(e.target.value)}
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="loginButton">
-                            Autentifică-te
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleRegister}>
-                        <div className="loginField">
-                            <label htmlFor="nume">Nume complet</label>
-                            <input
-                                id="nume"
-                                type="text"
-                                value={nume}
-                                onChange={(e) => setNume(e.target.value)}
-                                placeholder="Ana Popescu"
-                                required
-                            />
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="email-r">Email</label>
-                            <input
-                                id="email-r"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="ana@exemplu.md"
-                                required
-                            />
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="telefon">Telefon</label>
-                            <input
-                                id="telefon"
-                                type="text"
-                                value={telefon}
-                                onChange={(e) => setTelefon(e.target.value)}
-                                placeholder="+373 69 123 456"
-                            />
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="oras">Oraș</label>
-                            <select id="oras" value={oras} onChange={(e) => setOras(e.target.value)}>
-                                {orase.map((o) => (
-                                    <option key={o} value={o}>
-                                        {o}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="grupaSanguina">Grupa sanguină (opțional)</label>
-                            <select
-                                id="grupaSanguina"
-                                value={grupaSanguina}
-                                onChange={(e) => setGrupaSanguina(e.target.value as GrupaSanguina | '')}
-                            >
-                                <option value="">Nu știu / prefer să nu spun</option>
-                                {grupeleSanguine.map((g) => (
-                                    <option key={g} value={g}>
-                                        {g}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="parola-r">Parolă</label>
-                            <input
-                                id="parola-r"
-                                type="password"
-                                value={parola}
-                                onChange={(e) => setParola(e.target.value)}
-                                placeholder="Minim 6 caractere"
-                                required
-                            />
-                        </div>
-                        <div className="loginField">
-                            <label htmlFor="confirmaParola">Confirmă parola</label>
-                            <input
-                                id="confirmaParola"
-                                type="password"
-                                value={confirmaParola}
-                                onChange={(e) => setConfirmaParola(e.target.value)}
-                                placeholder="••••••••"
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="loginButton">
-                            Creează cont
-                        </button>
-                    </form>
-                )}
-
-                <p className="loginNote">
-                    Datele sunt salvate momentan local, în browser — vor fi conectate la un server real ulterior.
+        <div className="authShell">
+            <div className="authVisual">
+                <svg className="authVisualIcon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2C12 2 5 10.5 5 15C5 18.866 8.13401 22 12 22C15.866 22 19 18.866 19 15C19 10.5 12 2 12 2Z"
+                        fill="white"
+                    />
+                </svg>
+                <p className="authVisualTitle">Fiecare picătură contează</p>
+                <p className="authVisualText">
+                    Alătură-te comunității de donatori din Moldova și ajută-i pe cei care au nevoie urgentă de sânge.
                 </p>
+            </div>
+
+            <div className="authFormSide">
+                <div className="loginPage">
+                    <h1 className="loginTitle">SOS Sânge MD</h1>
+                    <p className="loginSubtitle">
+                        {mode === 'login' ? 'Intră în contul tău' : 'Creează-ți un cont nou'}
+                    </p>
+
+                    <div className="loginCard">
+                        <div className="authTabs">
+                            <button
+                                type="button"
+                                className={`authTab ${mode === 'login' ? 'authTabActive' : ''}`}
+                                onClick={() => schimbaMode('login')}
+                            >
+                                Autentificare
+                            </button>
+                            <button
+                                type="button"
+                                className={`authTab ${mode === 'inregistrare' ? 'authTabActive' : ''}`}
+                                onClick={() => schimbaMode('inregistrare')}
+                            >
+                                Înregistrare
+                            </button>
+                        </div>
+
+                        {eroare && <p className="errorText">{eroare}</p>}
+
+                        {mode === 'login' ? (
+                            <form onSubmit={handleLogin}>
+                                <div className="loginField">
+                                    <label htmlFor="email">Email</label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="ana@exemplu.md"
+                                        required
+                                    />
+                                </div>
+                                <div className="loginField">
+                                    <label htmlFor="parola">Parolă</label>
+                                    <div className="passwordWrapper">
+                                        <input
+                                            id="parola"
+                                            type={aratParola ? 'text' : 'password'}
+                                            value={parola}
+                                            onChange={(e) => setParola(e.target.value)}
+                                            placeholder="••••••••"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            className="passwordToggle"
+                                            onClick={() => setAratParola((prev) => !prev)}
+                                        >
+                                            {aratParola ? <IconEyeOff /> : <IconEye />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" className="loginButton">
+                                    Autentifică-te
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleRegister}>
+                                <div className="loginField">
+                                    <label htmlFor="nume">Nume complet</label>
+                                    <input
+                                        id="nume"
+                                        type="text"
+                                        value={nume}
+                                        onChange={(e) => setNume(e.target.value)}
+                                        placeholder="Ana Popescu"
+                                        required
+                                    />
+                                </div>
+                                <div className="loginField">
+                                    <label htmlFor="email-r">Email</label>
+                                    <input
+                                        id="email-r"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="ana@exemplu.md"
+                                        required
+                                    />
+                                </div>
+                                <div className="loginField">
+                                    <label htmlFor="telefon">Telefon</label>
+                                    <input
+                                        id="telefon"
+                                        type="text"
+                                        value={telefon}
+                                        onChange={(e) => setTelefon(e.target.value)}
+                                        placeholder="+373 69 123 456"
+                                    />
+                                </div>
+                                <div className="loginField">
+                                    <label>Oraș</label>
+                                    <CustomSelect
+                                        options={orase}
+                                        value={oras}
+                                        onChange={setOras}
+                                        placeholder="Selectează orașul"
+                                    />
+                                </div>
+                                <div className="loginField">
+                                    <label>Grupa sanguină (opțional)</label>
+                                    <CustomSelect
+                                        options={grupeleSanguine}
+                                        value={grupaSanguina}
+                                        onChange={setGrupaSanguina}
+                                        placeholder="Selectează grupa sanguină"
+                                    />
+                                </div>
+                                <div className="loginField">
+                                    <label htmlFor="parola-r">Parolă</label>
+                                    <div className="passwordWrapper">
+                                        <input
+                                            id="parola-r"
+                                            type={aratParolaR ? 'text' : 'password'}
+                                            value={parola}
+                                            onChange={(e) => setParola(e.target.value)}
+                                            placeholder="Minim 6 caractere"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            className="passwordToggle"
+                                            onClick={() => setAratParolaR((prev) => !prev)}
+                                        >
+                                            {aratParolaR ? <IconEyeOff /> : <IconEye />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="loginField">
+                                    <label htmlFor="confirmaParola">Confirmă parola</label>
+                                    <div className="passwordWrapper">
+                                        <input
+                                            id="confirmaParola"
+                                            type={aratConfirmare ? 'text' : 'password'}
+                                            value={confirmaParola}
+                                            onChange={(e) => setConfirmaParola(e.target.value)}
+                                            placeholder="••••••••"
+                                            required
+                                        />
+                                        <button
+                                            type="button"
+                                            className="passwordToggle"
+                                            onClick={() => setAratConfirmare((prev) => !prev)}
+                                        >
+                                            {aratConfirmare ? <IconEyeOff /> : <IconEye />}
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" className="loginButton">
+                                    Creează cont
+                                </button>
+                            </form>
+                        )}
+
+                        <p className="loginNote">
+                            Datele sunt salvate momentan local, în browser — vor fi conectate la un server real ulterior.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     )

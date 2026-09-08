@@ -63,15 +63,51 @@
 }
 
 .logoutButton {
-    border: none;
-    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
     border-radius: 999px;
     padding: 0.4rem 0.9rem;
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     color: var(--color-text-muted);
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.logoutButton:hover {}
+.logoutButton:hover {
+    background: var(--color-danger-light);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.logoutButton:active {
+    transform: scale(0.97);
+}
+
+.pageContent {
+    flex: 1;
+}
+
+.themeToggle {
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    border-radius: 999px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.themeToggle:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.themeToggle svg {
+    width: 18px;
+    height: 18px;
+}

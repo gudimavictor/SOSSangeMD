@@ -1,7 +1,83 @@
+.authShell {
+    min-height: 100vh;
+    display: flex;
+}
+
+.authVisual {
+    flex: 0 0 42%;
+    background: linear-gradient(160deg, var(--color-primary) 0%, #7A1712 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.authVisualIcon {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 1.5rem;
+    opacity: 0.95;
+}
+
+.authVisualTitle {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.01em;
+}
+
+.authVisualText {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    max-width: 320px;
+    line-height: 1.5;
+}
+
+.authVisual::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.authVisual::after {
+    content: "";
+    position: absolute;
+    bottom: -120px;
+    right: -80px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.authFormSide {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg);
+    padding: 2rem 1rem;
+}
+
+@media (max-width: 800px) {
+    .authVisual {
+        display: none;
+    }
+}
+
 .loginPage {
     max-width: 420px;
-    margin: 4rem auto;
-    padding: 0 1rem;
+    width: 100%;
     text-align: center;
 }
 
@@ -107,4 +183,35 @@
     color: var(--color-danger);
     font-size: 0.8rem;
     margin: -0.5rem 0 1rem;
+}
+
+.passwordWrapper {
+    position: relative;
+}
+
+.passwordWrapper input {
+    padding-right: 2.5rem;
+}
+
+.passwordToggle {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    color: var(--color-text-muted);
+}
+
+.passwordToggle:hover {
+    color: var(--color-primary);
+}
+
+.passwordToggle svg {
+    width: 18px;
+    height: 18px;
 }
