@@ -1,0 +1,157 @@
+.customDatePicker {
+    position: relative;
+    width: 100%;
+}
+
+.customDatePickerButton {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    cursor: pointer;
+    text-align: left;
+}
+
+.customDatePickerButton:hover {
+    border-color: var(--color-primary);
+}
+
+.customDatePickerPlaceholder {
+    color: var(--color-text-muted);
+}
+
+.customDatePickerArrow {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+}
+
+.customDatePickerArrowOpen {
+    transform: rotate(180deg);
+}
+
+.customDatePickerDropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 20;
+    padding: 0.85rem;
+    width: 280px;
+}
+
+.customDatePickerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+}
+
+.customDatePickerMonth {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-transform: capitalize;
+}
+
+.customDatePickerNav {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.customDatePickerNav button {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.customDatePickerNav button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.customDatePickerWeekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 0.3rem;
+}
+
+.customDatePickerWeekdays span {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: lowercase;
+}
+
+.customDatePickerGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.customDatePickerDay {
+    aspect-ratio: 1;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.customDatePickerDay:hover:not(:disabled) {
+    background: var(--color-bg);
+}
+
+.customDatePickerDayMuted {
+    color: var(--color-text-muted);
+    opacity: 0.45;
+}
+
+.customDatePickerDayToday {
+    border: 1px solid var(--color-primary);
+    font-weight: 700;
+}
+
+.customDatePickerDaySelected {
+    background: var(--color-primary);
+    color: white;
+    font-weight: 700;
+}
+
+.customDatePickerDaySelected:hover:not(:disabled) {
+    background: var(--color-primary);
+}
+
+.customDatePickerDay:disabled {
+    color: var(--color-text-muted);
+    opacity: 0.3;
+    cursor: not-allowed;
+}

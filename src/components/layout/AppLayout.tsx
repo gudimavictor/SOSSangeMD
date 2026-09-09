@@ -10,13 +10,13 @@ type AppLayoutProps = {
 }
 
 const navItems = [
-    { to: '/', label: 'Acasă' },
-    { to: '/creeaza-cerere', label: 'Creează cerere' },
-    { to: '/cererile-mele', label: 'Cererile mele' },
-    { to: '/sunt-donator', label: 'Sunt donator' },
-    { to: '/cereri-compatibile', label: 'Cereri compatibile' },
-    { to: '/centre', label: 'Centre' },
-    { to: '/suport', label: 'Suport' },
+    { to: '/', label: 'Acasă', authOnly: false },
+    { to: '/creeaza-cerere', label: 'Creează cerere', authOnly: false },
+    { to: '/cererile-mele', label: 'Cererile mele', authOnly: true },
+    { to: '/sunt-donator', label: 'Sunt donator', authOnly: false },
+    { to: '/cereri-compatibile', label: 'Cereri compatibile', authOnly: true },
+    { to: '/centre', label: 'Centre', authOnly: false },
+    { to: '/suport', label: 'Suport', authOnly: false },
 ]
 
 function IconSun() {
@@ -66,17 +66,19 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <span className="brand">SOS Sânge MD</span>
 
                 <nav className="navList">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.to}
-                            to={item.to}
-                            className="navLink"
-                            activeProps={{ className: 'navLink navLinkActive' }}
-                            activeOptions={{ exact: item.to === '/' }}
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
+                    {navItems
+                        .filter((item) => !item.authOnly || user)
+                        .map((item) => (
+                            <Link
+                                key={item.to}
+                                to={item.to}
+                                className="navLink"
+                                activeProps={{ className: 'navLink navLinkActive' }}
+                                activeOptions={{ exact: item.to === '/' }}
+                            >
+                                {item.label}
+                            </Link>
+                        ))}
                 </nav>
 
                 <div className="userArea">

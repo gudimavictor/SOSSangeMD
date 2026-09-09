@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../auth/AuthContext'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { grupeleSanguine } from './compatibilitate'
@@ -27,7 +27,7 @@ export function CreateRequestPage() {
     const navigate = useNavigate()
 
     const [grupa, setGrupa] = useState('')
-    const [oras, setOras] = useState(user?.oras ?? '')
+    const [oras, setOras] = useState('')
     const [urgenta, setUrgenta] = useState<NivelUrgenta>('urgenta')
     const [descriere, setDescriere] = useState('')
     const [trimis, setTrimis] = useState(false)
@@ -43,6 +43,28 @@ export function CreateRequestPage() {
         setTimeout(() => {
             navigate({ to: '/cererile-mele' })
         }, 1200)
+    }
+
+    if (!user) {
+        return (
+            <div className="requestsPage">
+                <div className="reqHero">
+                    <h1 className="reqHeroTitle">Creează o cerere de sânge</h1>
+                    <p className="reqHeroSubtitle">
+                        Completează detaliile — sistemul va căuta automat donatori compatibili
+                    </p>
+                </div>
+
+                <div className="reqBody">
+                    <div className="reqLoginPrompt">
+                        <p>Trebuie să fii autentificat ca să creezi o cerere de sânge.</p>
+                        <Link to="/login" search={{ redirect: '/creeaza-cerere' }} className="reqCta">
+                            Autentifică-te
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     return (

@@ -8,6 +8,7 @@ export type CurrentUser = {
     email: string
     telefon: string
     oras: string
+    varsta: number | null
     esteDonator: boolean
     grupaSanguina: GrupaSanguina | null
     dataUltimeiDonari: string | null

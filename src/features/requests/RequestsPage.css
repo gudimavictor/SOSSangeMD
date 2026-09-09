@@ -28,6 +28,39 @@
     justify-content: center;
 }
 
+.reqLoginPrompt {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    text-align: center;
+    width: 100%;
+    max-width: 560px;
+}
+
+.reqLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.reqCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.reqCta:hover {
+    opacity: 0.9;
+}
+
 .formColumn {
     width: 100%;
     max-width: 560px;

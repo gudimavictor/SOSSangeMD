@@ -1,0 +1,353 @@
+.donorPage {
+    padding: 0;
+}
+
+.donorHero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #7A1712 100%);
+    color: white;
+    padding: 2.5rem 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.donorHeroTitle {
+    margin: 0 0 0.4rem;
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+.donorHeroSubtitle {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.donorBody {
+    padding: 0 2.5rem 2.5rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.donorLoginPrompt {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.donorLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.donorCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.donorCta:hover {
+    opacity: 0.9;
+}
+
+.eligibilityCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.eligibilityTitle {
+    margin: 0 0 1rem;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.eligibilityList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.eligibilityItem {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.eligibilityCheck {
+    color: var(--color-success);
+    font-weight: 700;
+}
+
+.donorFormColumn {
+    width: 100%;
+}
+
+.donorForm {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+}
+
+.donorFormRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.formField label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.formField input {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    width: 100%;
+}
+
+.donorSubmitButton {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+    transition: opacity 0.15s ease;
+}
+
+.donorSubmitButton:hover {
+    opacity: 0.9;
+}
+
+.donorCancelButton {
+    background: none;
+    color: var(--color-text-muted);
+    border: none;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.donorCancelButton:hover {
+    color: var(--color-text);
+}
+
+.donorProfileCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.donorProfileRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.donorProfileItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.donorProfileLabel {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.donorProfileValue {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.donorGroupBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: 999px;
+    padding: 0.2rem 0.75rem;
+    width: fit-content;
+    font-size: 1.05rem;
+}
+
+.donorEligibility {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+.donorEligibilityOk {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.donorEligibilityWait {
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.donorProfileActions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.donorSecondaryButton {
+    flex: 1;
+    min-width: 180px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.donorSecondaryButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.donorSectionTitle {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+}
+
+.donorEmptyState {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.donorRequestsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.donorRequestCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+}
+
+.donorRequestTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.donorRequestGroup {
+    font-weight: 800;
+    color: var(--color-primary);
+    font-size: 1.05rem;
+}
+
+.donorRequestUrgency {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+
+.donorRequestUrgency--critica {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.donorRequestUrgency--urgenta {
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.donorRequestUrgency--programata {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.donorRequestDesc {
+    margin: 0 0 0.5rem;
+    font-size: 0.88rem;
+    color: var(--color-text);
+}
+
+.donorRequestCity {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.donorCtaLink {
+    display: block;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .donorFormRow,
+    .donorProfileRow {
+        grid-template-columns: 1fr;
+    }
+}

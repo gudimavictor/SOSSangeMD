@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useAuth } from './AuthContext'
-import type { GrupaSanguina } from './AuthContext'
 import { findUserByEmail, addUser } from './usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import './LoginPage.css'
@@ -10,7 +9,6 @@ import './LoginPage.css'
 type Mode = 'login' | 'inregistrare'
 
 const orase = ['Chișinău', 'Bălți', 'Soroca', 'Comrat', 'Cahul']
-const grupeleSanguine: GrupaSanguina[] = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
 
 function IconEye() {
     return (
@@ -33,6 +31,8 @@ function IconEyeOff() {
 export function LoginPage() {
     const { login } = useAuth()
     const navigate = useNavigate()
+    const search = useSearch({ strict: false }) as { redirect?: string }
+    const redirectTo = search.redirect || '/'
 
     const [mode, setMode] = useState<Mode>('login')
     const [nume, setNume] = useState('')
@@ -41,7 +41,8 @@ export function LoginPage() {
     const [confirmaParola, setConfirmaParola] = useState('')
     const [telefon, setTelefon] = useState('')
     const [oras, setOras] = useState('')
-    const [grupaSanguina, setGrupaSanguina] = useState('')
+    const [varsta, setVarsta] = useState('')
+    const [confirmVarsta, setConfirmVarsta] = useState(false)
     const [eroare, setEroare] = useState('')
     const [aratParola, setAratParola] = useState(false)
     const [aratParolaR, setAratParolaR] = useState(false)
@@ -69,19 +70,37 @@ export function LoginPage() {
             email: user.email,
             telefon: user.telefon,
             oras: user.oras,
+            varsta: user.varsta,
             esteDonator: user.esteDonator,
             grupaSanguina: user.grupaSanguina,
             dataUltimeiDonari: user.dataUltimeiDonari,
         })
-        navigate({ to: '/' })
+        navigate({ to: redirectTo })
     }
 
     function handleRegister(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
-        if (!nume || !email || !parola || !oras) {
+        if (!nume || !email || !parola || !oras || !varsta) {
             setEroare('Completează toate câmpurile obligatorii.')
+            return
+        }
+
+        const varstaNumar = Number(varsta)
+
+        if (!Number.isInteger(varstaNumar) || varstaNumar < 18) {
+            setEroare('Trebuie să ai minim 18 ani pentru a-ți crea un cont.')
+            return
+        }
+
+        if (varstaNumar > 100) {
+            setEroare('Introdu o vârstă validă.')
+            return
+        }
+
+        if (!confirmVarsta) {
+            setEroare('Trebuie să confirmi că ai cel puțin 18 ani și că datele introduse sunt reale.')
             return
         }
 
@@ -107,8 +126,9 @@ export function LoginPage() {
             parola,
             telefon,
             oras,
+            varsta: varstaNumar,
             esteDonator: false,
-            grupaSanguina: (grupaSanguina || null) as GrupaSanguina | null,
+            grupaSanguina: null,
             dataUltimeiDonari: null,
         }
 
@@ -119,11 +139,12 @@ export function LoginPage() {
             email: newUser.email,
             telefon: newUser.telefon,
             oras: newUser.oras,
+            varsta: newUser.varsta,
             esteDonator: newUser.esteDonator,
             grupaSanguina: newUser.grupaSanguina,
             dataUltimeiDonari: newUser.dataUltimeiDonari,
         })
-        navigate({ to: '/' })
+        navigate({ to: redirectTo })
     }
 
     return (
@@ -249,13 +270,30 @@ export function LoginPage() {
                                     />
                                 </div>
                                 <div className="loginField">
-                                    <label>Grupa sanguină (opțional)</label>
-                                    <CustomSelect
-                                        options={grupeleSanguine}
-                                        value={grupaSanguina}
-                                        onChange={setGrupaSanguina}
-                                        placeholder="Selectează grupa sanguină"
+                                    <label htmlFor="varsta">Vârsta</label>
+                                    <input
+                                        id="varsta"
+                                        type="number"
+                                        min={18}
+                                        max={100}
+                                        value={varsta}
+                                        onChange={(e) => setVarsta(e.target.value)}
+                                        placeholder="Ex: 25"
+                                        required
                                     />
+                                </div>
+                                <div className="confirmField">
+                                    <label className="confirmCheckboxLabel">
+                                        <input
+                                            type="checkbox"
+                                            checked={confirmVarsta}
+                                            onChange={(e) => setConfirmVarsta(e.target.checked)}
+                                        />
+                                        <span>
+                                            Declar pe propria răspundere că am cel puțin 18 ani și că informațiile
+                                            introduse sunt reale.
+                                        </span>
+                                    </label>
                                 </div>
                                 <div className="loginField">
                                     <label htmlFor="parola-r">Parolă</label>

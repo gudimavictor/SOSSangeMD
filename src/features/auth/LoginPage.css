@@ -129,6 +129,29 @@
     background: var(--color-surface);
 }
 
+.confirmField {
+    margin-bottom: 1rem;
+}
+
+.confirmCheckboxLabel {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.confirmCheckboxLabel input[type='checkbox'] {
+    margin-top: 0.15rem;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
 .loginButton {
     width: 100%;
     background: var(--color-primary);
