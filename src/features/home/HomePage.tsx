@@ -129,32 +129,6 @@ export function HomePage() {
                             )}
                         </div>
                     </div>
-
-                    <div className="eligibilityCard">
-                        <p className="eligibilityTitle">Cine poate dona sânge?</p>
-                        <ul className="eligibilityList">
-                            <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
-                                Vârsta între 18 și 60 de ani
-                            </li>
-                            <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
-                                Greutate minimă de 50 kg
-                            </li>
-                            <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
-                                Stare generală bună de sănătate
-                            </li>
-                            <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
-                                Au trecut minim 2 luni de la ultima donare
-                            </li>
-                            <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
-                                Nu ai avut o boală infecțioasă recentă
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
         </div>

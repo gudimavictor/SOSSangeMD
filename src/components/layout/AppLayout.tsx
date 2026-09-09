@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link, useNavigate, useLocation } from '@tanstack/react-router'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useTheme } from '../../hooks/useTheme'
+import { Footer } from './Footer'
 import './AppLayout.css'
 
 type AppLayoutProps = {
@@ -101,6 +102,8 @@ export function AppLayout({ children }: AppLayoutProps) {
             </header>
 
             <main className="pageContent">{children}</main>
+
+            <Footer />
         </div>
     )
 }
