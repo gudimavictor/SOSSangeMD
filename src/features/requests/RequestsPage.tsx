@@ -2,8 +2,10 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../auth/AuthContext'
+import type { GrupaSanguina } from '../auth/AuthContext'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { grupeleSanguine } from './compatibilitate'
+import { addRequest } from './requestsStore'
 import type { NivelUrgenta } from './types'
 import './RequestsPage.css'
 
@@ -35,9 +37,20 @@ export function CreateRequestPage() {
     function handleSubmit(event: FormEvent) {
         event.preventDefault()
 
-        if (!grupa || !oras) return
+        if (!grupa || !oras || !user) return
 
-        // La conectarea cu backend-ul real, aici se trimite cererea catre API
+        addRequest({
+            id: crypto.randomUUID(),
+            solicitantId: user.id,
+            solicitantNume: user.nume,
+            grupaNecesara: grupa as GrupaSanguina,
+            oras,
+            urgenta,
+            descriere,
+            status: 'activa',
+            dataCreare: new Date().toISOString().slice(0, 10),
+        })
+
         setTrimis(true)
 
         setTimeout(() => {
