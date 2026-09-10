@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { CustomSelect } from '../../components/ui/CustomSelect'
@@ -23,6 +24,22 @@ const urgencyInfo: { value: NivelUrgenta; title: string; desc: string }[] = [
     { value: 'urgenta', title: 'Urgentă', desc: 'În câteva zile' },
     { value: 'programata', title: 'Programată', desc: 'Mai mult timp' },
 ]
+
+const urgencyLabel: Record<NivelUrgenta, string> = {
+    critica: 'critică',
+    urgenta: 'urgentă',
+    programata: 'programată',
+}
+
+const staggerContainer = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.07 } },
+} as const
+
+const fadeUpItem = {
+    hidden: { opacity: 0, y: 14 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' } },
+} as const
 
 export function CreateRequestPage() {
     const { user } = useAuth()
@@ -61,9 +78,10 @@ export function CreateRequestPage() {
     if (!user) {
         return (
             <div className="requestsPage">
-                <div className="reqHero">
-                    <h1 className="reqHeroTitle">Creează o cerere de sânge</h1>
-                    <p className="reqHeroSubtitle">
+                <div className="reqPageHeader">
+                    <span className="reqEyebrow">Cerere nouă</span>
+                    <h1 className="reqPageTitle">Creează o cerere de sânge</h1>
+                    <p className="reqPageSubtitle">
                         Completează detaliile — sistemul va căuta automat donatori compatibili
                     </p>
                 </div>
@@ -80,19 +98,37 @@ export function CreateRequestPage() {
         )
     }
 
+    const areCompletare = Boolean(grupa || oras || descriere)
+
     return (
         <div className="requestsPage">
-            <div className="reqHero">
-                <h1 className="reqHeroTitle">Creează o cerere de sânge</h1>
-                <p className="reqHeroSubtitle">
+            <motion.div
+                className="reqPageHeader"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="show"
+            >
+                <motion.span className="reqEyebrow" variants={fadeUpItem}>
+                    Cerere nouă
+                </motion.span>
+                <motion.h1 className="reqPageTitle" variants={fadeUpItem}>
+                    Creează o cerere de sânge
+                </motion.h1>
+                <motion.p className="reqPageSubtitle" variants={fadeUpItem}>
                     Completează detaliile — sistemul va căuta automat donatori compatibili
-                </p>
-            </div>
+                </motion.p>
+            </motion.div>
 
-            <div className="reqBody">
+            <div className="reqBodyGrid">
                 <div className="formColumn">
-                    <form className="form" onSubmit={handleSubmit}>
-                        <div className="formRow">
+                    <motion.form
+                        className="form"
+                        onSubmit={handleSubmit}
+                        variants={staggerContainer}
+                        initial="hidden"
+                        animate="show"
+                    >
+                        <motion.div className="formRow" variants={fadeUpItem}>
                             <div className="formField">
                                 <label>Grupa sanguină necesară</label>
                                 <CustomSelect
@@ -111,28 +147,37 @@ export function CreateRequestPage() {
                                     placeholder="Selectează orașul"
                                 />
                             </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="formRow" style={{ gridTemplateColumns: '1fr' }}>
+                        <motion.div
+                            className="formRow"
+                            style={{ gridTemplateColumns: '1fr' }}
+                            variants={fadeUpItem}
+                        >
                             <div className="formField">
                                 <label>Nivel de urgență</label>
                                 <div className="urgencyPicker">
                                     {urgencyInfo.map((item) => (
-                                        <button
+                                        <motion.button
                                             key={item.value}
                                             type="button"
+                                            whileTap={{ scale: 0.97 }}
                                             className={`urgencyOption urgencyOption--${item.value} ${urgenta === item.value ? 'urgencyOptionActive' : ''}`}
                                             onClick={() => setUrgenta(item.value)}
                                         >
                                             <div className="urgencyOptionTitle">{item.title}</div>
                                             <div className="urgencyOptionDesc">{item.desc}</div>
-                                        </button>
+                                        </motion.button>
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="formRow" style={{ gridTemplateColumns: '1fr' }}>
+                        <motion.div
+                            className="formRow"
+                            style={{ gridTemplateColumns: '1fr' }}
+                            variants={fadeUpItem}
+                        >
                             <div className="formField">
                                 <label htmlFor="descriere">Descriere</label>
                                 <div className="quickFills">
@@ -155,19 +200,100 @@ export function CreateRequestPage() {
                                     placeholder="Ex: Am nevoie de sânge pentru o intervenție chirurgicală urgentă..."
                                 />
                             </div>
-                        </div>
+                        </motion.div>
 
-                        <button type="submit" className="submitButton">
-                            Trimite cererea
-                        </button>
+                        <motion.div variants={fadeUpItem}>
+                            <motion.button
+                                type="submit"
+                                className="submitButton"
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.98 }}
+                                disabled={trimis}
+                            >
+                                {trimis ? 'Se trimite...' : 'Trimite cererea'}
+                            </motion.button>
+                        </motion.div>
 
-                        {trimis && (
-                            <div className="successBox">
-                                Cererea a fost trimisă! Te redirecționăm spre "Cererile mele"...
-                            </div>
-                        )}
-                    </form>
+                        <AnimatePresence>
+                            {trimis && (
+                                <motion.div
+                                    className="successBox"
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0 }}
+                                >
+                                    ✓ Cererea a fost trimisă! Te redirecționăm spre „Cererile mele"...
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.form>
                 </div>
+
+                <motion.div
+                    className="previewColumn"
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="show"
+                >
+                    <motion.div className="previewCard" variants={fadeUpItem}>
+                        <p className="previewCardLabel">Previzualizare</p>
+                        {!areCompletare ? (
+                            <div className="previewEmpty">
+                                <span className="previewEmptyIcon">📝</span>
+                                <p>Completează formularul ca să vezi cum arată cererea ta.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="previewTop">
+                                    <span className="previewGroup">{grupa || '—'}</span>
+                                    <AnimatePresence mode="wait">
+                                        <motion.span
+                                            key={urgenta}
+                                            className={`previewBadge previewBadge--${urgenta}`}
+                                            initial={{ opacity: 0, scale: 0.85 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.85 }}
+                                            transition={{ duration: 0.15 }}
+                                        >
+                                            {urgencyLabel[urgenta]}
+                                        </motion.span>
+                                    </AnimatePresence>
+                                </div>
+                                <p className="previewCity">📍 {oras || 'Oraș neselectat'}</p>
+                                <p className="previewDesc">{descriere || 'Fără descriere adăugată.'}</p>
+                                <div className="previewFooter">
+                                    <span>{user.nume}</span>
+                                    <span>azi</span>
+                                </div>
+                            </>
+                        )}
+                    </motion.div>
+
+                    <motion.div className="nextStepsCard" variants={fadeUpItem}>
+                        <p className="nextStepsTitle">Ce urmează după trimitere</p>
+                        <ul className="nextStepsList">
+                            <li>
+                                <span className="nextStepsNum">1</span>
+                                Cererea ta devine vizibilă imediat pentru donatorii compatibili
+                            </li>
+                            <li>
+                                <span className="nextStepsNum">2</span>
+                                Sistemul identifică donatorii eligibili din orașul tău
+                            </li>
+                            <li>
+                                <span className="nextStepsNum">3</span>
+                                Primul donator disponibil te contactează direct
+                            </li>
+                        </ul>
+                    </motion.div>
+
+                    <motion.div className="tipCard" variants={fadeUpItem}>
+                        <span className="tipIcon">💡</span>
+                        <p className="tipText">
+                            Cererile cu o descriere clară primesc răspuns mai rapid de la donatori.
+                        </p>
+                    </motion.div>
+                </motion.div>
             </div>
         </div>
     )

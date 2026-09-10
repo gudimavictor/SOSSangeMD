@@ -2,39 +2,62 @@
     padding: 0;
 }
 
-.myReqHero {
-    background: linear-gradient(135deg, var(--color-primary) 0%, #7A1712 100%);
-    color: white;
-    padding: 2.5rem 2.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
+.myReqPageHeader {
+    padding: 3rem 2.5rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-.myReqHeroTitle {
-    margin: 0 0 0.4rem;
-    font-size: 1.9rem;
-    font-weight: 800;
+.myReqEyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
 }
 
-.myReqHeroSubtitle {
+.myReqEyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+.myReqPageTitle {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.6rem;
+    color: var(--color-text);
+}
+
+.myReqPageSubtitle {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    max-width: 520px;
+    line-height: 1.6;
     margin: 0;
-    opacity: 0.9;
-    font-size: 0.95rem;
 }
 
 .myReqBody {
     padding: 0 2.5rem 2.5rem;
-    max-width: 780px;
+    max-width: 900px;
     margin: 0 auto;
 }
 
 .myReqLoginPrompt {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
     padding: 1.5rem;
     text-align: center;
+    backdrop-filter: blur(6px);
 }
 
 .myReqLoginPrompt p {
@@ -67,20 +90,21 @@
 }
 
 .myReqStatItem {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
     padding: 1rem;
     text-align: center;
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
+    backdrop-filter: blur(6px);
 }
 
 .myReqStatNumber {
+    font-family: var(--font-display);
     font-size: 1.6rem;
-    font-weight: 800;
+    font-weight: 700;
     color: var(--color-primary);
 }
 
@@ -91,10 +115,18 @@
     letter-spacing: 0.04em;
 }
 
+.myReqControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
 .myReqTabs {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
     background: var(--color-bg);
     border-radius: 999px;
     padding: 0.25rem;
@@ -118,16 +150,36 @@
     color: white;
 }
 
+.myReqSort {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+}
+
+.myReqSortSelect {
+    width: 170px;
+}
+
 .myReqEmptyState {
-    background: var(--color-surface);
-    border: 1px dashed var(--color-border);
-    border-radius: var(--radius);
-    padding: 2rem;
+    background: var(--canvas-surface-tint);
+    border: 1px dashed var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 2.5rem;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.myReqEmptyIcon {
+    font-size: 1.8rem;
 }
 
 .myReqEmptyState p {
-    margin: 0 0 1rem;
+    margin: 0 0 0.5rem;
     color: var(--color-text-muted);
     font-size: 0.9rem;
 }
@@ -139,11 +191,24 @@
 }
 
 .myReqCard {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-left: 4px solid var(--color-border);
+    border-radius: 14px;
     padding: 1.1rem 1.25rem;
+    backdrop-filter: blur(6px);
+}
+
+.myReqCard--critica {
+    border-left-color: var(--color-danger);
+}
+
+.myReqCard--urgenta {
+    border-left-color: var(--color-warning);
+}
+
+.myReqCard--programata {
+    border-left-color: var(--color-success);
 }
 
 .myReqCardTop {
@@ -154,9 +219,10 @@
 }
 
 .myReqGroup {
-    font-weight: 800;
+    font-family: var(--font-display);
+    font-weight: 700;
     color: var(--color-primary);
-    font-size: 1.1rem;
+    font-size: 1.15rem;
 }
 
 .myReqBadges {
@@ -214,17 +280,26 @@
     justify-content: space-between;
     font-size: 0.8rem;
     color: var(--color-text-muted);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.9rem;
 }
 
-.myReqResolveButton {
-    width: 100%;
-    border: 1px solid var(--color-border);
+.myReqActions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.myReqResolveButton,
+.myReqEditButton,
+.myReqDeleteButton {
+    flex: 1;
+    min-width: 110px;
+    border: 1px solid var(--canvas-hairline);
     background: var(--color-bg);
     color: var(--color-text);
     border-radius: 6px;
-    padding: 0.55rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
     transition: border-color 0.15s ease, color 0.15s ease;
@@ -235,13 +310,112 @@
     color: var(--color-success);
 }
 
+.myReqEditButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.myReqDeleteButton:hover {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.myReqEditForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.myReqEditRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.myReqEditUrgency {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.myReqEditUrgencyBtn {
+    flex: 1;
+    border: 1.5px solid var(--canvas-hairline);
+    background: var(--color-surface);
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.myReqEditUrgencyBtnActive {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.myReqEditForm textarea {
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    resize: vertical;
+}
+
+.myReqEditActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.myReqSaveButton {
+    flex: 1;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.myReqSaveButton:hover {
+    opacity: 0.9;
+}
+
+.myReqCancelButton {
+    flex: 1;
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 6px;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
 @media (max-width: 600px) {
     .myReqStatsRow {
         grid-template-columns: 1fr;
     }
 
+    .myReqControls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .myReqCardFooter {
         flex-direction: column;
         gap: 0.2rem;
+    }
+
+    .myReqEditRow {
+        grid-template-columns: 1fr;
     }
 }

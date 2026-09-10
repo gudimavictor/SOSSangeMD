@@ -33,6 +33,15 @@ export function updateRequestStatus(id: string, status: StatusCerere): void {
     }
 }
 
+export function updateRequest(id: string, updates: Partial<BloodRequest>): void {
+    const requests = getRequests()
+    const index = requests.findIndex((r) => r.id === id)
+    if (index !== -1) {
+        requests[index] = { ...requests[index], ...updates }
+        localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests))
+    }
+}
+
 export function deleteRequest(id: string): void {
     const requests = getRequests().filter((r) => r.id !== id)
     localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests))
