@@ -41,6 +41,17 @@
     color: var(--color-text);
 }
 
+.navLinkButton {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: normal;
+    color: inherit;
+}
+
 .navLinkActive {
     background: var(--color-primary);
     color: white;

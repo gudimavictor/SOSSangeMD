@@ -8,6 +8,7 @@ import { donorRoute } from './routes/sunt-donator'
 import { compatibleRequestsRoute } from './routes/cereri-compatibile'
 import { centersRoute } from './routes/centre'
 import { supportRoute } from './routes/suport'
+import { adminRoute } from './routes/admin'
 
 const routeTree = rootRoute.addChildren([
     homeRoute,
@@ -18,6 +19,7 @@ const routeTree = rootRoute.addChildren([
     compatibleRequestsRoute,
     centersRoute,
     supportRoute,
+    adminRoute,
 ])
 
 export const router = createRouter({ routeTree })

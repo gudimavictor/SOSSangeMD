@@ -9,6 +9,7 @@ export type UserRecord = {
     oras: string
     varsta: number | null
     esteDonator: boolean
+    esteAdmin: boolean
     grupaSanguina: GrupaSanguina | null
     dataUltimeiDonari: string | null
 }
@@ -35,6 +36,10 @@ export function addUser(user: UserRecord): void {
     localStorage.setItem(USERS_KEY, JSON.stringify(users))
 }
 
+export function esteInregistrareaPrimuluiUtilizator(): boolean {
+    return getUsers().length === 0
+}
+
 export function updateUser(id: string, updates: Partial<UserRecord>): void {
     const users = getUsers()
     const index = users.findIndex((u) => u.id === id)
@@ -42,4 +47,13 @@ export function updateUser(id: string, updates: Partial<UserRecord>): void {
         users[index] = { ...users[index], ...updates }
         localStorage.setItem(USERS_KEY, JSON.stringify(users))
     }
+}
+
+export function deleteUser(id: string): void {
+    const users = getUsers().filter((u) => u.id !== id)
+    localStorage.setItem(USERS_KEY, JSON.stringify(users))
+}
+
+export function setAdmin(id: string, esteAdmin: boolean): void {
+    updateUser(id, { esteAdmin })
 }

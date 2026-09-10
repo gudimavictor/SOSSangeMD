@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, Polyline, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { centre } from './centers'
 import type { CentruTransfuzie } from './centers'
+import { getCenters } from './centersStore'
 import './CentersPage.css'
 
 function iconPentru(activ: boolean) {
@@ -36,17 +36,18 @@ function distantaKm(lat1: number, lng1: number, lat2: number, lng2: number) {
 }
 
 type MapControllerProps = {
+    centreList: CentruTransfuzie[]
     selectat: string | null
     pozitieUser: { lat: number; lng: number } | null
     rutaCoords: [number, number][] | null
 }
 
-function MapController({ selectat, pozitieUser, rutaCoords }: MapControllerProps) {
+function MapController({ centreList, selectat, pozitieUser, rutaCoords }: MapControllerProps) {
     const map = useMap()
 
     useEffect(() => {
-        if (selectat) return
-        const bounds = L.latLngBounds(centre.map((c) => [c.lat, c.lng]))
+        if (selectat || centreList.length === 0) return
+        const bounds = L.latLngBounds(centreList.map((c) => [c.lat, c.lng]))
         map.fitBounds(bounds, { padding: [50, 50] })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -58,9 +59,9 @@ function MapController({ selectat, pozitieUser, rutaCoords }: MapControllerProps
             return
         }
         if (!selectat) return
-        const c = centre.find((item) => item.id === selectat)
+        const c = centreList.find((item) => item.id === selectat)
         if (c) map.flyTo([c.lat, c.lng], 13, { duration: 0.8 })
-    }, [selectat, rutaCoords, map])
+    }, [selectat, rutaCoords, centreList, map])
 
     useEffect(() => {
         if (!pozitieUser || rutaCoords) return
@@ -71,10 +72,12 @@ function MapController({ selectat, pozitieUser, rutaCoords }: MapControllerProps
 }
 
 export function CentersPage() {
+    const [centreList] = useState<CentruTransfuzie[]>(() => getCenters())
     const [selectat, setSelectat] = useState<string | null>(null)
     const [pozitieUser, setPozitieUser] = useState<{ lat: number; lng: number } | null>(null)
     const [cautaEroare, setCautaEroare] = useState('')
     const [seCauta, setSeCauta] = useState(false)
+    const [mod, setMod] = useState<'masina' | 'pe_jos'>('masina')
     const [rutaCoords, setRutaCoords] = useState<[number, number][] | null>(null)
     const [rutaInfo, setRutaInfo] = useState<{ km: number; minute: number } | null>(null)
     const [rutaSeIncarca, setRutaSeIncarca] = useState(false)
@@ -86,8 +89,19 @@ export function CentersPage() {
             return
         }
 
-        const centru = centre.find((c) => c.id === selectat)
+        const centru = centreList.find((c) => c.id === selectat)
         if (!centru) return
+
+        if (mod === 'pe_jos') {
+            const km = distantaKm(pozitieUser.lat, pozitieUser.lng, centru.lat, centru.lng)
+            setRutaCoords([
+                [pozitieUser.lat, pozitieUser.lng],
+                [centru.lat, centru.lng],
+            ])
+            setRutaInfo({ km, minute: Math.round((km / 5) * 60) })
+            setRutaSeIncarca(false)
+            return
+        }
 
         const controller = new AbortController()
         setRutaSeIncarca(true)
@@ -119,11 +133,16 @@ export function CentersPage() {
             .finally(() => setRutaSeIncarca(false))
 
         return () => controller.abort()
-    }, [pozitieUser, selectat])
+    }, [pozitieUser, selectat, mod, centreList])
 
     function gasesteCelMaiApropiat() {
         if (!navigator.geolocation) {
             setCautaEroare('Browserul tău nu suportă geolocația.')
+            return
+        }
+
+        if (centreList.length === 0) {
+            setCautaEroare('Nu există niciun centru înregistrat momentan.')
             return
         }
 
@@ -135,9 +154,9 @@ export function CentersPage() {
                 const { latitude, longitude } = pos.coords
                 setPozitieUser({ lat: latitude, lng: longitude })
 
-                let mailApropiat: CentruTransfuzie = centre[0]
+                let mailApropiat: CentruTransfuzie = centreList[0]
                 let minDist = Infinity
-                for (const c of centre) {
+                for (const c of centreList) {
                     const d = distantaKm(latitude, longitude, c.lat, c.lng)
                     if (d < minDist) {
                         minDist = d
@@ -155,12 +174,12 @@ export function CentersPage() {
     }
 
     const centreSortate = pozitieUser
-        ? [...centre].sort(
+        ? [...centreList].sort(
             (a, b) =>
                 distantaKm(pozitieUser.lat, pozitieUser.lng, a.lat, a.lng) -
                 distantaKm(pozitieUser.lat, pozitieUser.lng, b.lat, b.lng)
         )
-        : centre
+        : centreList
 
     return (
         <div className="centersPage">
@@ -173,10 +192,30 @@ export function CentersPage() {
                     {seCauta ? 'Se caută...' : '📍 Centrul cel mai apropiat de mine'}
                 </button>
                 {cautaEroare && <p className="centersLocateError">{cautaEroare}</p>}
+
+                {pozitieUser && selectat && (
+                    <div className="centersModeToggle">
+                        <button
+                            className={`centersModeButton ${mod === 'masina' ? 'centersModeButtonActive' : ''}`}
+                            onClick={() => setMod('masina')}
+                        >
+                            🚗 Cu mașina
+                        </button>
+                        <button
+                            className={`centersModeButton ${mod === 'pe_jos' ? 'centersModeButtonActive' : ''}`}
+                            onClick={() => setMod('pe_jos')}
+                        >
+                            🚶 Pe jos
+                        </button>
+                    </div>
+                )}
+
                 {rutaSeIncarca && <p className="centersRouteInfo">Se calculează traseul...</p>}
                 {rutaInfo && !rutaSeIncarca && (
                     <p className="centersRouteInfo">
-                        🚗 {rutaInfo.km.toFixed(1)} km · ~{rutaInfo.minute} min cu mașina
+                        {mod === 'masina'
+                            ? `🚗 ${rutaInfo.km.toFixed(1)} km · ~${rutaInfo.minute} min cu mașina`
+                            : `🚶 ~${rutaInfo.km.toFixed(1)} km în linie dreaptă · ~${rutaInfo.minute} min pe jos`}
                     </p>
                 )}
             </div>
@@ -189,7 +228,12 @@ export function CentersPage() {
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
 
-                        <MapController selectat={selectat} pozitieUser={pozitieUser} rutaCoords={rutaCoords} />
+                        <MapController
+                            centreList={centreList}
+                            selectat={selectat}
+                            pozitieUser={pozitieUser}
+                            rutaCoords={rutaCoords}
+                        />
 
                         {pozitieUser && (
                             <CircleMarker
@@ -204,11 +248,16 @@ export function CentersPage() {
                         {rutaCoords && (
                             <Polyline
                                 positions={rutaCoords}
-                                pathOptions={{ color: '#2563eb', weight: 5, opacity: 0.75 }}
+                                pathOptions={{
+                                    color: '#2563eb',
+                                    weight: mod === 'masina' ? 5 : 4,
+                                    opacity: 0.75,
+                                    dashArray: mod === 'pe_jos' ? '8 8' : undefined,
+                                }}
                             />
                         )}
 
-                        {centre.map((c) => (
+                        {centreList.map((c) => (
                             <Marker
                                 key={c.id}
                                 position={[c.lat, c.lng]}
@@ -228,6 +277,9 @@ export function CentersPage() {
                 </div>
 
                 <div className="centersList">
+                    {centreSortate.length === 0 && (
+                        <p className="centersEmptyState">Nu există centre înregistrate momentan.</p>
+                    )}
                     {centreSortate.map((c) => {
                         const dist = pozitieUser
                             ? distantaKm(pozitieUser.lat, pozitieUser.lng, c.lat, c.lng)

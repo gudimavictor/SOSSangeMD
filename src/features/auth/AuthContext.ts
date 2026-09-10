@@ -10,6 +10,7 @@ export type CurrentUser = {
     oras: string
     varsta: number | null
     esteDonator: boolean
+    esteAdmin: boolean
     grupaSanguina: GrupaSanguina | null
     dataUltimeiDonari: string | null
 }

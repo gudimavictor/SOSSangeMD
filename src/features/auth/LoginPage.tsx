@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useAuth } from './AuthContext'
-import { findUserByEmail, addUser } from './usersStore'
+import { findUserByEmail, addUser, esteInregistrareaPrimuluiUtilizator } from './usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import './LoginPage.css'
 
@@ -72,6 +72,7 @@ export function LoginPage() {
             oras: user.oras,
             varsta: user.varsta,
             esteDonator: user.esteDonator,
+            esteAdmin: user.esteAdmin,
             grupaSanguina: user.grupaSanguina,
             dataUltimeiDonari: user.dataUltimeiDonari,
         })
@@ -119,6 +120,8 @@ export function LoginPage() {
             return
         }
 
+        const esteAdmin = esteInregistrareaPrimuluiUtilizator()
+
         const newUser = {
             id: crypto.randomUUID(),
             nume,
@@ -128,6 +131,7 @@ export function LoginPage() {
             oras,
             varsta: varstaNumar,
             esteDonator: false,
+            esteAdmin,
             grupaSanguina: null,
             dataUltimeiDonari: null,
         }
@@ -141,6 +145,7 @@ export function LoginPage() {
             oras: newUser.oras,
             varsta: newUser.varsta,
             esteDonator: newUser.esteDonator,
+            esteAdmin: newUser.esteAdmin,
             grupaSanguina: newUser.grupaSanguina,
             dataUltimeiDonari: newUser.dataUltimeiDonari,
         })
@@ -164,7 +169,7 @@ export function LoginPage() {
 
             <div className="authFormSide">
                 <div className="loginPage">
-                    <h1 className="loginTitle">SOS Sânge MD</h1>
+                    <h1 className="loginTitle">SOS Sânge</h1>
                     <p className="loginSubtitle">
                         {mode === 'login' ? 'Intră în contul tău' : 'Creează-ți un cont nou'}
                     </p>

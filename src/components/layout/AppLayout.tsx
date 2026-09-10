@@ -10,13 +10,15 @@ type AppLayoutProps = {
 }
 
 const navItems = [
-    { to: '/', label: 'Acasă', authOnly: false },
-    { to: '/creeaza-cerere', label: 'Creează cerere', authOnly: false },
-    { to: '/cererile-mele', label: 'Cererile mele', authOnly: true },
-    { to: '/sunt-donator', label: 'Sunt donator', authOnly: false },
-    { to: '/cereri-compatibile', label: 'Cereri compatibile', authOnly: true },
-    { to: '/centre', label: 'Centre', authOnly: false },
-    { to: '/suport', label: 'Suport', authOnly: false },
+    { to: '/', label: 'Acasă', authOnly: false, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/creeaza-cerere', label: 'Creează cerere', authOnly: false, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/cererile-mele', label: 'Cererile mele', authOnly: true, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/sunt-donator', label: 'Sunt donator', authOnly: false, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/cereri-compatibile', label: 'Cereri compatibile', authOnly: true, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/centre', label: 'Centre', authOnly: false, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/', label: 'Recenzii', authOnly: false, adminOnly: false, scrollTo: 'recenzii' },
+    { to: '/suport', label: 'Suport', authOnly: false, adminOnly: false, scrollTo: undefined as string | undefined },
+    { to: '/admin', label: 'Admin', authOnly: true, adminOnly: true, scrollTo: undefined as string | undefined },
 ]
 
 function IconSun() {
@@ -54,6 +56,17 @@ export function AppLayout({ children }: AppLayoutProps) {
         navigate({ to: '/login' })
     }
 
+    function handleScrollNav(sectionId: string) {
+        if (location.pathname === '/') {
+            document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
+        } else {
+            navigate({ to: '/' })
+            setTimeout(() => {
+                document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' })
+            }, 200)
+        }
+    }
+
     const esteParinaAuth = location.pathname === '/login'
 
     if (esteParinaAuth) {
@@ -63,22 +76,33 @@ export function AppLayout({ children }: AppLayoutProps) {
     return (
         <div className="appShell">
             <header className="topnav">
-                <span className="brand">SOS Sânge MD</span>
+                <span className="brand">SOS Sânge</span>
 
                 <nav className="navList">
                     {navItems
-                        .filter((item) => !item.authOnly || user)
-                        .map((item) => (
-                            <Link
-                                key={item.to}
-                                to={item.to}
-                                className="navLink"
-                                activeProps={{ className: 'navLink navLinkActive' }}
-                                activeOptions={{ exact: item.to === '/' }}
-                            >
-                                {item.label}
-                            </Link>
-                        ))}
+                        .filter((item) => (!item.authOnly || user) && (!item.adminOnly || user?.esteAdmin))
+                        .map((item) =>
+                            item.scrollTo ? (
+                                <button
+                                    key={item.label}
+                                    type="button"
+                                    className="navLink navLinkButton"
+                                    onClick={() => handleScrollNav(item.scrollTo!)}
+                                >
+                                    {item.label}
+                                </button>
+                            ) : (
+                                <Link
+                                    key={item.to}
+                                    to={item.to}
+                                    className="navLink"
+                                    activeProps={{ className: 'navLink navLinkActive' }}
+                                    activeOptions={{ exact: item.to === '/' }}
+                                >
+                                    {item.label}
+                                </Link>
+                            )
+                        )}
                 </nav>
 
                 <div className="userArea">

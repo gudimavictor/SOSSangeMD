@@ -71,7 +71,7 @@ export function Footer() {
                 <div className="footerBrand">
                     <span className="footerLogoRow">
                         <IconDrop />
-                        SOS Sânge MD
+                        SOS Sânge
                     </span>
                     <p className="footerDescription">
                         Conectăm donatori de sânge cu persoane care au nevoie urgentă,
@@ -123,7 +123,7 @@ export function Footer() {
             </div>
 
             <div className="footerBottom">
-                <span className="footerCopy">© {anul} SOS Sânge MD. Proiect de practică.</span>
+                <span className="footerCopy">© {anul} SOS Sânge. Proiect de practică.</span>
             </div>
         </footer>
     )

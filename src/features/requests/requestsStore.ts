@@ -32,3 +32,8 @@ export function updateRequestStatus(id: string, status: StatusCerere): void {
         localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests))
     }
 }
+
+export function deleteRequest(id: string): void {
+    const requests = getRequests().filter((r) => r.id !== id)
+    localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests))
+}

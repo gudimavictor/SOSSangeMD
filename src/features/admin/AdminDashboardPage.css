@@ -1,0 +1,326 @@
+.adminPage {
+    padding: 0;
+}
+
+.adminHero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #7A1712 100%);
+    color: white;
+    padding: 2.5rem 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.adminHeroTitle {
+    margin: 0 0 0.4rem;
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+.adminHeroSubtitle {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.95rem;
+}
+
+.adminBody {
+    padding: 0 2.5rem 2.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.adminLoginPrompt {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.adminLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.adminCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.adminTabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--color-bg);
+    border-radius: 999px;
+    padding: 0.25rem;
+    width: fit-content;
+    flex-wrap: wrap;
+}
+
+.adminTab {
+    padding: 0.5rem 1.1rem;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.adminTabActive {
+    background: var(--color-primary);
+    color: white;
+}
+
+.adminStatsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.adminStatCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.adminStatNumber {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--color-primary);
+}
+
+.adminStatLabel {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.adminEmptyState {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    background: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.adminList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.adminRow {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.adminRowMain {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 200px;
+}
+
+.adminRowGroup {
+    font-weight: 800;
+    color: var(--color-primary);
+    font-size: 1.05rem;
+    flex-shrink: 0;
+    width: 32px;
+}
+
+.adminRowInfo {
+    min-width: 0;
+}
+
+.adminRowTitle {
+    margin: 0 0 0.2rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.adminRowSub {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.adminBadge {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+}
+
+.adminBadgeSecondary {
+    background: var(--color-success-light);
+    color: var(--color-success);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+}
+
+.adminRowActions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.adminSelect {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+}
+
+.adminSecondaryButton {
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.adminSecondaryButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.adminDeleteButton {
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.adminDeleteButton:hover:not(:disabled) {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.adminDeleteButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.adminAddButton {
+    margin-bottom: 1rem;
+}
+
+.adminForm {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.adminFormRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.adminFormRow input {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    width: 100%;
+}
+
+.adminFormActions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.adminSubmitButton {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.adminSubmitButton:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+    .adminStatsGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .adminFormRow {
+        grid-template-columns: 1fr;
+    }
+
+    .adminRow {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .adminRowActions {
+        width: 100%;
+    }
+}
