@@ -1,0 +1,318 @@
+.compatPage {
+    padding: 0;
+}
+
+.compatPageHeader {
+    padding: 3rem 2.5rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.compatEyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+}
+
+.compatEyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+.compatPageTitle {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.6rem;
+    color: var(--color-text);
+}
+
+.compatPageSubtitle {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    max-width: 560px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.compatPageSubtitle strong {
+    color: var(--color-primary);
+}
+
+.compatBody {
+    padding: 0 2.5rem 2.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.compatLoginPrompt {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+.compatLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.compatCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.compatCta:hover {
+    opacity: 0.9;
+}
+
+.compatStatsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.compatStatItem {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    backdrop-filter: blur(6px);
+}
+
+.compatStatNumber {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.compatStatLabel {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.compatControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.compatUrgencyTabs {
+    display: flex;
+    gap: 0.4rem;
+    background: var(--color-bg);
+    border-radius: 999px;
+    padding: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.compatUrgencyTab {
+    padding: 0.45rem 0.9rem;
+    border: none;
+    background: transparent;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.compatUrgencyTabActive {
+    background: var(--color-primary);
+    color: white;
+}
+
+.compatFilters {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.compatFilterSelect {
+    width: 160px;
+}
+
+.compatEmptyState {
+    background: var(--canvas-surface-tint);
+    border: 1px dashed var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.compatEmptyIcon {
+    font-size: 1.8rem;
+}
+
+.compatEmptyState p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.compatList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.compatCard {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-left: 4px solid var(--color-border);
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    backdrop-filter: blur(6px);
+    display: flex;
+    flex-direction: column;
+}
+
+.compatCard--critica {
+    border-left-color: var(--color-danger);
+}
+
+.compatCard--urgenta {
+    border-left-color: var(--color-warning);
+}
+
+.compatCard--programata {
+    border-left-color: var(--color-success);
+}
+
+.compatCardTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+}
+
+.compatCardGroup {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-primary);
+    font-size: 1.15rem;
+}
+
+.compatUrgencyBadge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+}
+
+.compatUrgencyBadge--critica {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+}
+
+.compatUrgencyBadge--urgenta {
+    background: var(--color-warning-light);
+    color: var(--color-warning);
+}
+
+.compatUrgencyBadge--programata {
+    background: var(--color-success-light);
+    color: var(--color-success);
+}
+
+.compatCardDesc {
+    margin: 0 0 0.75rem;
+    font-size: 0.88rem;
+    color: var(--color-text);
+    flex: 1;
+}
+
+.compatCardFooter {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.compatCardRequester {
+    margin: 0 0 0.9rem;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.compatConfirmButton {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.compatConfirmButton:hover:not(:disabled) {
+    opacity: 0.9;
+}
+
+.compatConfirmButtonDone {
+    background: var(--color-success-light);
+    color: var(--color-success);
+    cursor: default;
+}
+
+@media (max-width: 640px) {
+    .compatStatsRow {
+        grid-template-columns: 1fr;
+    }
+
+    .compatControls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .compatFilters {
+        flex-direction: column;
+    }
+
+    .compatFilterSelect {
+        width: 100%;
+    }
+
+    .compatList {
+        grid-template-columns: 1fr;
+    }
+}
