@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
+import { IconPhone, IconMail, IconLocation, IconClock, IconWarning, IconCheck } from '../../components/ui/Icons'
 import './SupportPage.css'
 
 const staggerContainer = {
@@ -48,10 +49,10 @@ const intrebariFrecvente = [
 ]
 
 const contactCards = [
-    { icon: '📞', label: 'Telefon', value: '+373 22 000 000' },
-    { icon: '✉️', label: 'Email', value: 'suport@sossange.md' },
-    { icon: '📍', label: 'Locație', value: 'Chișinău, Moldova' },
-    { icon: '🕒', label: 'Program', value: 'Luni–Vineri, 09:00–18:00' },
+    { icon: IconPhone, label: 'Telefon', value: '+373 22 000 000' },
+    { icon: IconMail, label: 'Email', value: 'suport@sossange.md' },
+    { icon: IconLocation, label: 'Locație', value: 'Chișinău, Moldova' },
+    { icon: IconClock, label: 'Program', value: 'Luni–Vineri, 09:00–18:00' },
 ]
 
 export function SupportPage() {
@@ -103,7 +104,9 @@ export function SupportPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                 >
-                    <span className="urgencyBannerIcon">⚠️</span>
+                    <span className="urgencyBannerIcon">
+                        <IconWarning />
+                    </span>
                     <div className="urgencyBannerText">
                         <p className="urgencyBannerTitle">Ai o urgență medicală reală?</p>
                         <p className="urgencyBannerDesc">
@@ -125,7 +128,9 @@ export function SupportPage() {
                 >
                     {contactCards.map((c) => (
                         <motion.div key={c.label} className="contactCard" variants={fadeUpItem}>
-                            <span className="contactCardIcon">{c.icon}</span>
+                            <span className="contactCardIcon">
+                                <c.icon />
+                            </span>
                             <div>
                                 <p className="contactCardLabel">{c.label}</p>
                                 <p className="contactCardValue">{c.value}</p>
@@ -229,7 +234,9 @@ export function SupportPage() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0 }}
                                     >
-                                        ✓ Mesajul a fost trimis! Îți răspundem în cel mai scurt timp.
+                                        <span className="iconText">
+                                            <IconCheck /> Mesajul a fost trimis! Îți răspundem în cel mai scurt timp.
+                                        </span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>

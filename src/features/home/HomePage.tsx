@@ -5,6 +5,7 @@ import { mockRequests } from '../requests/mockRequests'
 import { esteCompatibil, grupeleSanguine } from '../requests/compatibilitate'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
+import { IconHeart, IconDrop, IconCheck, IconStar } from '../../components/ui/Icons'
 import './HomePage.css'
 
 const staggerContainer = {
@@ -149,7 +150,7 @@ export function HomePage() {
             <div className="body">
 
                 <div className="motivational">
-                    <span className="motivationalIcon">❤️</span>
+                    <span className="motivationalIcon"><IconHeart /></span>
                     <p className="motivationalText">
                         O singură donare de sânge poate salva până la 3 vieți.
                     </p>
@@ -231,7 +232,7 @@ export function HomePage() {
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.2 }}
                                     >
-                                        <span className="resultEmptyIcon">🩸</span>
+                                        <span className="resultEmptyIcon"><IconDrop /></span>
                                         <p className="resultEmpty">Selectează o grupă sanguină mai sus.</p>
                                     </motion.div>
                                 ) : (
@@ -282,35 +283,35 @@ export function HomePage() {
                         <p className="eligibilityTitle">Cine poate dona sânge?</p>
                         <ul className="eligibilityList">
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Vârsta între 18 și 60 de ani
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Greutate minimă de 50 kg
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Stare generală bună de sănătate
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Au trecut minim 2 luni de la ultima donare
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Nu ai avut o boală infecțioasă recentă
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Nu ai consumat alcool în ultimele 24 de ore
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Ai dormit suficient în noaptea precedentă
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Nu ai făcut un tatuaj sau piercing în ultimele 4 luni
                             </li>
                         </ul>
@@ -328,7 +329,7 @@ export function HomePage() {
                     >
                         {recenzii.map((r) => (
                             <motion.div key={r.nume} className="reviewCard" variants={fadeUpItem}>
-                                <div className="reviewStars">★★★★★</div>
+                                <div className="reviewStars"><IconStar /><IconStar /><IconStar /><IconStar /><IconStar /></div>
                                 <p className="reviewText">„{r.text}"</p>
                                 <div className="reviewAuthor">
                                     <div className="reviewAvatar">

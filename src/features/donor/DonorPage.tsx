@@ -9,6 +9,7 @@ import { CustomSelect } from '../../components/ui/CustomSelect'
 import { CustomDatePicker } from '../../components/ui/CustomDatePicker'
 import { esteCompatibil, esteEligibilPentruDonare, grupeleSanguine } from '../requests/compatibilitate'
 import { mockRequests } from '../requests/mockRequests'
+import { IconCheck, IconDrop, IconLocation } from '../../components/ui/Icons'
 import './DonorPage.css'
 
 const orase = ['Chișinău', 'Bălți', 'Soroca', 'Comrat', 'Cahul']
@@ -50,6 +51,7 @@ export function DonorPage() {
     const [oras, setOras] = useState(user?.esteDonator ? user?.oras ?? '' : '')
     const [dataDonare, setDataDonare] = useState(user?.dataUltimeiDonari ?? '')
 
+    // ---------- Vizitator nelogat ----------
     if (!user) {
         return (
             <div className="donorPage">
@@ -73,19 +75,19 @@ export function DonorPage() {
                         <p className="eligibilityTitle">Cine poate dona sânge?</p>
                         <ul className="eligibilityList">
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Vârsta între 18 și 60 de ani
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Greutate minimă de 50 kg
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Stare generală bună de sănătate
                             </li>
                             <li className="eligibilityItem">
-                                <span className="eligibilityCheck">✓</span>
+                                <span className="eligibilityCheck"><IconCheck /></span>
                                 Au trecut minim 2 luni de la ultima donare
                             </li>
                         </ul>
@@ -117,6 +119,7 @@ export function DonorPage() {
         updateUserRecord(user!.id, { dataUltimeiDonari: azi })
     }
 
+    // ---------- Formular înregistrare / editare profil donator ----------
     if (!user.esteDonator || editMode) {
         return (
             <div className="donorPage">
@@ -203,6 +206,7 @@ export function DonorPage() {
         )
     }
 
+    // ---------- Profil donator (deja donator) ----------
     const eligibil = esteEligibilPentruDonare(user.dataUltimeiDonari)
     const progres = progresEligibilitate(user.dataUltimeiDonari)
 
@@ -217,7 +221,7 @@ export function DonorPage() {
     return (
         <div className="donorPage">
             <div className="donorPageHeader">
-                <span className="donorEyebrow">🩸 Ești donator activ</span>
+                <span className="donorEyebrow iconText"><IconDrop /> Ești donator activ</span>
                 <h1 className="donorPageTitle">Profilul tău de donator</h1>
                 <p className="donorPageSubtitle">Mulțumim! Profilul tău e vizibil pentru cei care au nevoie de sânge.</p>
             </div>
@@ -248,9 +252,10 @@ export function DonorPage() {
 
                     <motion.div className="donorEligibilitySection" variants={fadeUpItem}>
                         <div className="donorEligibilityHeader">
-                            <span className={eligibil ? 'donorEligibilityTextOk' : 'donorEligibilityTextWait'}>
+                            <span className={`iconText ${eligibil ? 'donorEligibilityTextOk' : 'donorEligibilityTextWait'}`}>
+                                {eligibil && <IconCheck />}
                                 {eligibil
-                                    ? '✓ Poți dona sânge acum'
+                                    ? 'Poți dona sânge acum'
                                     : `Poți dona din nou pe ${dataUrmatoareiDonari(user.dataUltimeiDonari!)}`}
                             </span>
                             <span className="donorEligibilityPercent">{progres}%</span>
@@ -301,7 +306,7 @@ export function DonorPage() {
                                     </span>
                                 </div>
                                 <p className="donorRequestDesc">{r.descriere}</p>
-                                <span className="donorRequestCity">📍 {r.oras}</span>
+                                <span className="donorRequestCity iconText"><IconLocation /> {r.oras}</span>
                             </motion.div>
                         ))}
                     </motion.div>

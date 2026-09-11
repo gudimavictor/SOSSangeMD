@@ -324,6 +324,7 @@
 
 .motivationalIcon {
     font-size: 1.5rem;
+    color: var(--color-primary);
 }
 
 .motivationalText {
@@ -538,6 +539,8 @@
 
 .resultEmptyIcon {
     font-size: 1.6rem;
+    color: var(--color-primary);
+    opacity: 0.5;
 }
 
 .resultEmpty {

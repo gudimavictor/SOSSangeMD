@@ -304,6 +304,8 @@
 
 .previewEmptyIcon {
     font-size: 1.6rem;
+    color: var(--color-primary);
+    opacity: 0.5;
 }
 
 .previewTop {
@@ -426,6 +428,7 @@
 .tipIcon {
     font-size: 1.1rem;
     flex-shrink: 0;
+    color: var(--color-primary);
 }
 
 .tipText {

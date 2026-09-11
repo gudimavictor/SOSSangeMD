@@ -15,6 +15,7 @@
     "@tanstack/react-router": "^1.170.33",
     "@tanstack/react-router-devtools": "^1.167.1",
     "leaflet": "^1.9.4",
+    "lucide-react": "^1.44.0",
     "motion": "^13.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

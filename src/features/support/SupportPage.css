@@ -65,6 +65,7 @@
 .urgencyBannerIcon {
     font-size: 1.3rem;
     flex-shrink: 0;
+    color: var(--color-warning);
 }
 
 .urgencyBannerTitle {
@@ -108,6 +109,7 @@
 .contactCardIcon {
     font-size: 1.3rem;
     flex-shrink: 0;
+    color: var(--color-primary);
 }
 
 .contactCardLabel {

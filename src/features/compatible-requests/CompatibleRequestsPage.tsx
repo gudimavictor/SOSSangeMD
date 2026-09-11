@@ -8,6 +8,7 @@ import { esteCompatibil } from '../requests/compatibilitate'
 import { addResponse, aRaspunsDeja, getResponsesByDonor } from '../requests/requestResponsesStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
+import { IconDrop, IconLocation, IconCheck } from '../../components/ui/Icons'
 import type { BloodRequest, NivelUrgenta } from '../requests/types'
 import './CompatibleRequestsPage.css'
 
@@ -202,7 +203,7 @@ export function CompatibleRequestsPage() {
 
                 {cereriFiltrate.length === 0 ? (
                     <div className="compatEmptyState">
-                        <span className="compatEmptyIcon">🩸</span>
+                        <span className="compatEmptyIcon"><IconDrop /></span>
                         <p>Nu există cereri compatibile cu filtrele selectate momentan.</p>
                     </div>
                 ) : (
@@ -232,7 +233,7 @@ export function CompatibleRequestsPage() {
                                         <p className="compatCardDesc">{r.descriere || 'Fără descriere.'}</p>
 
                                         <div className="compatCardFooter">
-                                            <span className="compatCardCity">📍 {r.oras}</span>
+                                            <span className="compatCardCity iconText"><IconLocation /> {r.oras}</span>
                                             <span className="compatCardDate">{formateazaData(r.dataCreare)}</span>
                                         </div>
 
@@ -243,7 +244,7 @@ export function CompatibleRequestsPage() {
                                             onClick={() => confirmaDisponibilitate(r)}
                                             disabled={araspuns}
                                         >
-                                            {araspuns ? '✓ Ai confirmat disponibilitatea' : 'Confirmă disponibilitatea'}
+                                            {araspuns ? (<span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>) : 'Confirmă disponibilitatea'}
                                         </button>
                                     </motion.div>
                                 )

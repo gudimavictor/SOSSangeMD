@@ -8,6 +8,7 @@ import { CustomSelect } from '../../components/ui/CustomSelect'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from './types'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
+import { IconDrop, IconLocation } from '../../components/ui/Icons'
 import './MyRequestsPage.css'
 
 type Tab = 'active' | 'rezolvate' | 'toate'
@@ -197,7 +198,7 @@ export function MyRequestsPage() {
 
                 {listaAfisata.length === 0 ? (
                     <div className="myReqEmptyState">
-                        <span className="myReqEmptyIcon">🩸</span>
+                        <span className="myReqEmptyIcon"><IconDrop /></span>
                         <p>
                             {tab === 'active' && 'Nu ai nicio cerere activă momentan.'}
                             {tab === 'rezolvate' && 'Nu ai nicio cerere rezolvată încă.'}
@@ -285,7 +286,7 @@ export function MyRequestsPage() {
                                             <p className="myReqDesc">{r.descriere || 'Fără descriere.'}</p>
 
                                             <div className="myReqCardFooter">
-                                                <span className="myReqCity">📍 {r.oras}</span>
+                                                <span className="myReqCity iconText"><IconLocation /> {r.oras}</span>
                                                 <span className="myReqDate">{zileDeLaCreare(r.dataCreare)}</span>
                                             </div>
 

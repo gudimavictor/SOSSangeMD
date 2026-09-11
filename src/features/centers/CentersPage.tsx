@@ -4,6 +4,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { CentruTransfuzie } from './centers'
 import { getCenters } from './centersStore'
+import { IconLocation, IconCar, IconWalk, IconPhone, IconClock } from '../../components/ui/Icons'
 import './CentersPage.css'
 
 function iconPentru(activ: boolean) {
@@ -188,34 +189,47 @@ export function CentersPage() {
                 <p className="centersHeroSubtitle">
                     Găsește cel mai apropiat centru unde poți dona sânge sau ridica informații.
                 </p>
-                <button className="centersLocateButton" onClick={gasesteCelMaiApropiat} disabled={seCauta}>
-                    {seCauta ? 'Se caută...' : '📍 Centrul cel mai apropiat de mine'}
+                <button className="centersLocateButton iconText" onClick={gasesteCelMaiApropiat} disabled={seCauta}>
+                    {seCauta ? (
+                        'Se caută...'
+                    ) : (
+                        <>
+                            <IconLocation /> Centrul cel mai apropiat de mine
+                        </>
+                    )}
                 </button>
                 {cautaEroare && <p className="centersLocateError">{cautaEroare}</p>}
 
                 {pozitieUser && selectat && (
                     <div className="centersModeToggle">
                         <button
-                            className={`centersModeButton ${mod === 'masina' ? 'centersModeButtonActive' : ''}`}
+                            className={`centersModeButton iconText ${mod === 'masina' ? 'centersModeButtonActive' : ''}`}
                             onClick={() => setMod('masina')}
                         >
-                            🚗 Cu mașina
+                            <IconCar /> Cu mașina
                         </button>
                         <button
-                            className={`centersModeButton ${mod === 'pe_jos' ? 'centersModeButtonActive' : ''}`}
+                            className={`centersModeButton iconText ${mod === 'pe_jos' ? 'centersModeButtonActive' : ''}`}
                             onClick={() => setMod('pe_jos')}
                         >
-                            🚶 Pe jos
+                            <IconWalk /> Pe jos
                         </button>
                     </div>
                 )}
 
                 {rutaSeIncarca && <p className="centersRouteInfo">Se calculează traseul...</p>}
                 {rutaInfo && !rutaSeIncarca && (
-                    <p className="centersRouteInfo">
-                        {mod === 'masina'
-                            ? `🚗 ${rutaInfo.km.toFixed(1)} km · ~${rutaInfo.minute} min cu mașina`
-                            : `🚶 ~${rutaInfo.km.toFixed(1)} km în linie dreaptă · ~${rutaInfo.minute} min pe jos`}
+                    <p className="centersRouteInfo iconText">
+                        {mod === 'masina' ? (
+                            <>
+                                <IconCar /> {rutaInfo.km.toFixed(1)} km · ~{rutaInfo.minute} min cu mașina
+                            </>
+                        ) : (
+                            <>
+                                <IconWalk /> ~{rutaInfo.km.toFixed(1)} km în linie dreaptă · ~{rutaInfo.minute} min pe
+                                jos
+                            </>
+                        )}
                     </p>
                 )}
             </div>
@@ -296,9 +310,15 @@ export function CentersPage() {
                                     {dist !== null && <span className="centerCardDistance">{dist.toFixed(1)} km</span>}
                                 </div>
                                 <p className="centerCardName">{c.nume}</p>
-                                <p className="centerCardAddress">📍 {c.adresa}</p>
-                                <p className="centerCardDetail">📞 {c.telefon}</p>
-                                <p className="centerCardDetail">🕒 {c.program}</p>
+                                <p className="centerCardAddress iconText">
+                                    <IconLocation /> {c.adresa}
+                                </p>
+                                <p className="centerCardDetail iconText">
+                                    <IconPhone /> {c.telefon}
+                                </p>
+                                <p className="centerCardDetail iconText">
+                                    <IconClock /> {c.program}
+                                </p>
                             </button>
                         )
                     })}

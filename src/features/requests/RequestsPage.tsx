@@ -7,6 +7,7 @@ import type { GrupaSanguina } from '../auth/AuthContext'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { grupeleSanguine } from './compatibilitate'
 import { addRequest } from './requestsStore'
+import { IconPencil, IconLocation, IconBulb, IconCheck } from '../../components/ui/Icons'
 import type { NivelUrgenta } from './types'
 import './RequestsPage.css'
 
@@ -222,7 +223,7 @@ export function CreateRequestPage() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0 }}
                                 >
-                                    ✓ Cererea a fost trimisă! Te redirecționăm spre „Cererile mele"...
+                                    <span className="iconText"><IconCheck /> Cererea a fost trimisă! Te redirecționăm spre „Cererile mele"...</span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -239,7 +240,7 @@ export function CreateRequestPage() {
                         <p className="previewCardLabel">Previzualizare</p>
                         {!areCompletare ? (
                             <div className="previewEmpty">
-                                <span className="previewEmptyIcon">📝</span>
+                                <span className="previewEmptyIcon"><IconPencil /></span>
                                 <p>Completează formularul ca să vezi cum arată cererea ta.</p>
                             </div>
                         ) : (
@@ -259,7 +260,7 @@ export function CreateRequestPage() {
                                         </motion.span>
                                     </AnimatePresence>
                                 </div>
-                                <p className="previewCity">📍 {oras || 'Oraș neselectat'}</p>
+                                <p className="previewCity iconText"><IconLocation /> {oras || 'Oraș neselectat'}</p>
                                 <p className="previewDesc">{descriere || 'Fără descriere adăugată.'}</p>
                                 <div className="previewFooter">
                                     <span>{user.nume}</span>
@@ -288,7 +289,7 @@ export function CreateRequestPage() {
                     </motion.div>
 
                     <motion.div className="tipCard" variants={fadeUpItem}>
-                        <span className="tipIcon">💡</span>
+                        <span className="tipIcon"><IconBulb /></span>
                         <p className="tipText">
                             Cererile cu o descriere clară primesc răspuns mai rapid de la donatori.
                         </p>

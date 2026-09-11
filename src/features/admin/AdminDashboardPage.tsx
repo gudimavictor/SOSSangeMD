@@ -7,16 +7,17 @@ import { getRequests, updateRequestStatus, deleteRequest } from '../requests/req
 import type { BloodRequest, StatusCerere } from '../requests/types'
 import { getCenters, addCenter, updateCenter, deleteCenter } from '../centers/centersStore'
 import type { CentruTransfuzie } from '../centers/centers'
-import './AdminDashboardPage.css'
 import { CustomSelect } from '../../components/ui/CustomSelect'
+import { IconChart, IconDrop, IconUsers, IconLocation } from '../../components/ui/Icons'
+import './AdminDashboardPage.css'
 
 type Tab = 'statistici' | 'cereri' | 'utilizatori' | 'centre'
 
-const tabInfo: { value: Tab; label: string; icon: string }[] = [
-    { value: 'statistici', label: 'Statistici', icon: '📊' },
-    { value: 'cereri', label: 'Cereri', icon: '🩸' },
-    { value: 'utilizatori', label: 'Utilizatori', icon: '👥' },
-    { value: 'centre', label: 'Centre', icon: '📍' },
+const tabInfo: { value: Tab; label: string; icon: typeof IconChart }[] = [
+    { value: 'statistici', label: 'Statistici', icon: IconChart },
+    { value: 'cereri', label: 'Cereri', icon: IconDrop },
+    { value: 'utilizatori', label: 'Utilizatori', icon: IconUsers },
+    { value: 'centre', label: 'Centre', icon: IconLocation },
 ]
 
 const statusOptions: StatusCerere[] = ['activa', 'rezolvata', 'expirata']
@@ -158,7 +159,9 @@ export function AdminDashboardPage() {
                                     className={`adminSidebarItem ${tab === item.value ? 'adminSidebarItemActive' : ''}`}
                                     onClick={() => setTab(item.value)}
                                 >
-                                    <span className="adminSidebarIcon">{item.icon}</span>
+                                    <span className="adminSidebarIcon">
+                                        <item.icon />
+                                    </span>
                                     {item.label}
                                 </button>
                             ))}

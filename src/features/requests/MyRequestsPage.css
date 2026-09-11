@@ -176,6 +176,8 @@
 
 .myReqEmptyIcon {
     font-size: 1.8rem;
+    color: var(--color-primary);
+    opacity: 0.5;
 }
 
 .myReqEmptyState p {
