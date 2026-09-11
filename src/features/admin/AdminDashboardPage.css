@@ -23,8 +23,8 @@
 }
 
 .adminBody {
-    padding: 0 2.5rem 2.5rem;
-    max-width: 900px;
+    padding: 0 2rem 2.5rem;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
@@ -54,32 +54,61 @@
     text-decoration: none;
 }
 
-.adminTabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    background: var(--color-bg);
-    border-radius: 999px;
-    padding: 0.25rem;
-    width: fit-content;
-    flex-wrap: wrap;
+.adminLayout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
 }
 
-.adminTab {
-    padding: 0.5rem 1.1rem;
+.adminSidebar {
+    background: #1c1210;
+    border-radius: 8px;
+    padding: 1rem;
+    position: sticky;
+    top: 90px;
+    align-self: stretch;
+}
+
+.adminSidebarNav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.adminSidebarItem {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
     border: none;
     background: transparent;
-    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.65rem 0.8rem;
+    border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--color-text-muted);
     cursor: pointer;
+    text-align: left;
     transition: all 0.15s ease;
+    width: 100%;
 }
 
-.adminTabActive {
+.adminSidebarItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+}
+
+.adminSidebarItemActive {
     background: var(--color-primary);
     color: white;
+}
+
+.adminSidebarIcon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.adminMain {
+    min-width: 0;
 }
 
 .adminStatsGrid {
@@ -232,28 +261,6 @@
     color: var(--color-primary);
 }
 
-.adminDeleteButton {
-    border: 1px solid var(--color-border);
-    background: var(--color-bg);
-    color: var(--color-text-muted);
-    border-radius: 6px;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-}
-
-.adminDeleteButton:hover:not(:disabled) {
-    border-color: var(--color-danger);
-    color: var(--color-danger);
-}
-
-.adminDeleteButton:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
 .adminAddButton {
     margin-bottom: 1rem;
 }
@@ -304,6 +311,193 @@
 
 .adminSubmitButton:hover {
     opacity: 0.9;
+}
+
+.adminEditButton {
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+}
+
+.adminEditButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.adminDeleteButton {
+    border: none;
+    background: var(--color-danger);
+    color: white;
+    border-radius: 6px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+    white-space: nowrap;
+}
+
+.adminDeleteButton:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.adminDeleteButton:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.adminTableCard {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+}
+
+.adminTableToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.adminSearchInput {
+    flex: 1;
+    min-width: 220px;
+    max-width: 360px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-bg);
+}
+
+.adminTableWrap {
+    overflow-x: auto;
+}
+
+.adminTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.adminTable thead th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.adminTable tbody td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.adminTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.adminMuted {
+    color: var(--color-text-muted);
+}
+
+.adminUserCell {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.adminAvatar {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.adminAvatar--critica {
+    background: var(--color-danger);
+}
+
+.adminAvatar--urgenta {
+    background: var(--color-warning);
+}
+
+.adminAvatar--programata {
+    background: var(--color-success);
+}
+
+.adminBadgeGroup {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.adminBadgeNeutral {
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+}
+
+.adminActionsCell {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.adminStatusSelectWrap {
+    width: 130px;
+}
+
+@media (max-width: 800px) {
+    .adminLayout {
+        grid-template-columns: 1fr;
+    }
+
+    .adminSidebar {
+        position: static;
+        padding: 0.5rem;
+    }
+
+    .adminSidebarNav {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .adminSidebarItem {
+        width: auto;
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 640px) {
