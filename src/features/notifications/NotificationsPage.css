@@ -1,0 +1,221 @@
+.notifPage {
+    padding: 0;
+}
+
+.notifPageHeader {
+    padding: 3rem 2.5rem 2rem;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.notifEyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+    margin-bottom: 0.75rem;
+}
+
+.notifEyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+.notifPageTitle {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.6rem;
+    color: var(--color-text);
+}
+
+.notifPageSubtitle {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+.notifBody {
+    padding: 0 2.5rem 2.5rem;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.notifLoginPrompt {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+.notifLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.notifCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.notifCta:hover {
+    opacity: 0.9;
+}
+
+.notifMarkAllButton {
+    display: block;
+    margin: 0 0 1.25rem auto;
+    border: 1px solid var(--canvas-hairline);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.notifMarkAllButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.notifEmptyState {
+    background: var(--canvas-surface-tint);
+    border: 1px dashed var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.notifEmptyIcon {
+    font-size: 1.8rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+}
+
+.notifEmptyState p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+.notifList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.notifCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+    backdrop-filter: blur(6px);
+}
+
+.notifCardUnread {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.notifCardIcon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.notifCardBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.notifCardTitle {
+    margin: 0 0 0.25rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-text);
+}
+
+.notifCardMessage {
+    margin: 0 0 0.6rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+.notifCardFooter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notifCardTime {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.notifCardLink {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.notifCardLink:hover {
+    text-decoration: underline;
+}
+
+.notifMarkButton {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--canvas-hairline);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+}
+
+.notifMarkButton:hover {
+    border-color: var(--color-success);
+    color: var(--color-success);
+}

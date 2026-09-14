@@ -15,6 +15,7 @@ import {
     Check,
     Star,
     Droplet,
+    Bell,
 } from 'lucide-react'
 
 type IconProps = {
@@ -93,4 +94,8 @@ export function IconStar({ className }: IconProps) {
 
 export function IconDrop({ className }: IconProps) {
     return <Droplet style={iconStyle} className={className} fill="currentColor" strokeWidth={0} />
+}
+
+export function IconBell({ className }: IconProps) {
+    return <Bell style={iconStyle} className={className} strokeWidth={2} />
 }

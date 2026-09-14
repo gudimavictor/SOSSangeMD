@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { Link, useNavigate, useLocation } from '@tanstack/react-router'
 import { useAuth } from '../../features/auth/AuthContext'
 import { useTheme } from '../../hooks/useTheme'
+import { getUnreadCount } from '../../features/notifications/notificationsStore'
+import { IconBell } from '../ui/Icons'
 import { Footer } from './Footer'
 import './AppLayout.css'
 
@@ -106,6 +108,17 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </nav>
 
                 <div className="userArea">
+                    {user && (
+                        <Link to="/notificari" className="notifBellLink" title="Notificări">
+                            <IconBell />
+                            {getUnreadCount(user.id) > 0 && (
+                                <span className="notifBellBadge">
+                                    {getUnreadCount(user.id) > 9 ? '9+' : getUnreadCount(user.id)}
+                                </span>
+                            )}
+                        </Link>
+                    )}
+
                     <button className="themeToggle" onClick={toggleTheme} title="Schimbă tema">
                         {theme === 'light' ? <IconMoon /> : <IconSun />}
                     </button>

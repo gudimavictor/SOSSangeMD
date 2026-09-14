@@ -6,6 +6,7 @@ import { mockRequests } from '../requests/mockRequests'
 import { getRequests } from '../requests/requestsStore'
 import { esteCompatibil } from '../requests/compatibilitate'
 import { addResponse, aRaspunsDeja, getResponsesByDonor } from '../requests/requestResponsesStore'
+import { addNotification } from '../notifications/notificationsStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
 import { IconDrop, IconLocation, IconCheck } from '../../components/ui/Icons'
@@ -124,6 +125,18 @@ export function CompatibleRequestsPage() {
             status: 'disponibil',
             data: new Date().toISOString().slice(0, 10),
         })
+
+        addNotification({
+            id: crypto.randomUUID(),
+            userId: r.solicitantId,
+            tip: 'confirmare',
+            titlu: 'Un donator a confirmat disponibilitatea',
+            mesaj: `${user!.nume} (${grupaMea}) a confirmat că poate dona pentru cererea ta din ${r.oras}.`,
+            citita: false,
+            data: new Date().toISOString(),
+            link: '/cererile-mele',
+        })
+
         refresh()
     }
 

@@ -9,6 +9,7 @@ import { compatibleRequestsRoute } from './routes/cereri-compatibile'
 import { centersRoute } from './routes/centre'
 import { supportRoute } from './routes/suport'
 import { adminRoute } from './routes/admin'
+import { notificationsRoute } from './routes/notificari'
 
 const routeTree = rootRoute.addChildren([
     homeRoute,
@@ -20,6 +21,7 @@ const routeTree = rootRoute.addChildren([
     centersRoute,
     supportRoute,
     adminRoute,
+    notificationsRoute,
 ])
 
 export const router = createRouter({ routeTree })

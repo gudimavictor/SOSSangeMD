@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { CustomSelect } from '../../components/ui/CustomSelect'
-import { grupeleSanguine } from './compatibilitate'
+import { grupeleSanguine, esteCompatibil } from './compatibilitate'
 import { addRequest } from './requestsStore'
+import { getUsers } from '../auth/usersStore'
+import { addNotification } from '../notifications/notificationsStore'
 import { IconPencil, IconLocation, IconBulb, IconCheck } from '../../components/ui/Icons'
 import type { NivelUrgenta } from './types'
 import './RequestsPage.css'
@@ -67,6 +69,27 @@ export function CreateRequestPage() {
             descriere,
             status: 'activa',
             dataCreare: new Date().toISOString().slice(0, 10),
+        })
+
+        const donatoriCompatibili = getUsers().filter(
+            (u) =>
+                u.esteDonator &&
+                u.grupaSanguina &&
+                u.id !== user.id &&
+                esteCompatibil(u.grupaSanguina, grupa as GrupaSanguina)
+        )
+
+        donatoriCompatibili.forEach((donator) => {
+            addNotification({
+                id: crypto.randomUUID(),
+                userId: donator.id,
+                tip: 'cerere_compatibila',
+                titlu: 'O cerere nouă compatibilă cu tine',
+                mesaj: `Grupa ${grupa} este necesară în ${oras}. Verifică dacă poți ajuta.`,
+                citita: false,
+                data: new Date().toISOString(),
+                link: '/cereri-compatibile',
+            })
         })
 
         setTrimis(true)

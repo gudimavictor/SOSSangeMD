@@ -99,6 +99,44 @@
     flex: 1;
 }
 
+.notifBellLink {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.notifBellLink:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.notifBellBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: var(--color-danger);
+    color: white;
+    font-size: 0.62rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
 .themeToggle {
     border: 1px solid var(--color-border);
     background: var(--color-bg);
