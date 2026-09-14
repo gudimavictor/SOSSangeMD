@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,7 +17,8 @@ namespace Backend.Api.Migrations
                 name: "transfusion_centers",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     nume = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     oras = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     adresa = table.Column<string>(type: "character varying(300)", maxLength: 300, nullable: false),
@@ -35,11 +37,11 @@ namespace Backend.Api.Migrations
                 columns: new[] { "id", "adresa", "lat", "lng", "nume", "oras", "program", "telefon" },
                 values: new object[,]
                 {
-                    { "balti", "Str. Decebal 113, Bălți", 47.756100000000004, 27.9298, "Centrul Național de Transfuzie a Sângelui — filiala Bălți", "Bălți", "Luni–Vineri, 08:00–14:00", "+373 231 22 555" },
-                    { "cahul", "IMSP Spitalul Raional Cahul", 45.907499999999999, 28.1936, "Cabinet de Transfuzie a Sângelui — Spitalul Raional Cahul", "Cahul", "Luni–Vineri, 08:00–14:00", "+373 299 22 555" },
-                    { "chisinau", "Str. Academiei 11, Chișinău", 47.015900000000002, 28.841899999999999, "Centrul Național de Transfuzie a Sângelui", "Chișinău", "Luni–Vineri, 08:00–15:00", "+373 22 727 511" },
-                    { "comrat", "Str. Odesscaia 2, Comrat", 46.302100000000003, 28.656700000000001, "Cabinet de Transfuzie a Sângelui — Spitalul Raional Comrat \"Isaac Gurfinchel\"", "Comrat", "Luni–Vineri, 08:00–14:00", "+373 298 22 555" },
-                    { "soroca", "IMSP Spitalul Raional Soroca", 48.156700000000001, 28.293900000000001, "Cabinet de Transfuzie a Sângelui — Spitalul Raional Soroca \"A. Prisăcari\"", "Soroca", "Luni–Vineri, 08:00–14:00", "+373 230 22 555" }
+                    { 1, "Str. Academiei 11, Chișinău", 47.015900000000002, 28.841899999999999, "Centrul Național de Transfuzie a Sângelui", "Chișinău", "Luni–Vineri, 08:00–15:00", "+373 22 727 511" },
+                    { 2, "Str. Decebal 113, Bălți", 47.756100000000004, 27.9298, "Centrul Național de Transfuzie a Sângelui — filiala Bălți", "Bălți", "Luni–Vineri, 08:00–14:00", "+373 231 22 555" },
+                    { 3, "IMSP Spitalul Raional Cahul", 45.907499999999999, 28.1936, "Cabinet de Transfuzie a Sângelui — Spitalul Raional Cahul", "Cahul", "Luni–Vineri, 08:00–14:00", "+373 299 22 555" },
+                    { 4, "IMSP Spitalul Raional Soroca", 48.156700000000001, 28.293900000000001, "Cabinet de Transfuzie a Sângelui — Spitalul Raional Soroca \"A. Prisăcari\"", "Soroca", "Luni–Vineri, 08:00–14:00", "+373 230 22 555" },
+                    { 5, "Str. Odesscaia 2, Comrat", 46.302100000000003, 28.656700000000001, "Cabinet de Transfuzie a Sângelui — Spitalul Raional Comrat \"Isaac Gurfinchel\"", "Comrat", "Luni–Vineri, 08:00–14:00", "+373 298 22 555" }
                 });
         }
 

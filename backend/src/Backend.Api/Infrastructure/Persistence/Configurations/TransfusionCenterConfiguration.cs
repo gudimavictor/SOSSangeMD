@@ -10,7 +10,6 @@ public class TransfusionCenterConfiguration : IEntityTypeConfiguration<Transfusi
     {
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.Id).HasMaxLength(64);
         builder.Property(c => c.Nume).HasMaxLength(200).IsRequired();
         builder.Property(c => c.Oras).HasMaxLength(100).IsRequired();
         builder.Property(c => c.Adresa).HasMaxLength(300).IsRequired();
@@ -20,7 +19,7 @@ public class TransfusionCenterConfiguration : IEntityTypeConfiguration<Transfusi
         builder.HasData(
             new TransfusionCenter
             {
-                Id = "chisinau",
+                Id = 1,
                 Nume = "Centrul Național de Transfuzie a Sângelui",
                 Oras = "Chișinău",
                 Adresa = "Str. Academiei 11, Chișinău",
@@ -31,7 +30,7 @@ public class TransfusionCenterConfiguration : IEntityTypeConfiguration<Transfusi
             },
             new TransfusionCenter
             {
-                Id = "balti",
+                Id = 2,
                 Nume = "Centrul Național de Transfuzie a Sângelui — filiala Bălți",
                 Oras = "Bălți",
                 Adresa = "Str. Decebal 113, Bălți",
@@ -42,7 +41,7 @@ public class TransfusionCenterConfiguration : IEntityTypeConfiguration<Transfusi
             },
             new TransfusionCenter
             {
-                Id = "cahul",
+                Id = 3,
                 Nume = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Cahul",
                 Oras = "Cahul",
                 Adresa = "IMSP Spitalul Raional Cahul",
@@ -53,7 +52,7 @@ public class TransfusionCenterConfiguration : IEntityTypeConfiguration<Transfusi
             },
             new TransfusionCenter
             {
-                Id = "soroca",
+                Id = 4,
                 Nume = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Soroca \"A. Prisăcari\"",
                 Oras = "Soroca",
                 Adresa = "IMSP Spitalul Raional Soroca",
@@ -64,7 +63,7 @@ public class TransfusionCenterConfiguration : IEntityTypeConfiguration<Transfusi
             },
             new TransfusionCenter
             {
-                Id = "comrat",
+                Id = 5,
                 Nume = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Comrat \"Isaac Gurfinchel\"",
                 Oras = "Comrat",
                 Adresa = "Str. Odesscaia 2, Comrat",

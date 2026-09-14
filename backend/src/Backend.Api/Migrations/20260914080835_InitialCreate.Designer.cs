@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260914070434_InitialCreate")]
+    [Migration("20260914080835_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -26,10 +26,12 @@ namespace Backend.Api.Migrations
 
             modelBuilder.Entity("Backend.Api.Domain.Entities.TransfusionCenter", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
                         .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Adresa")
                         .IsRequired()
@@ -77,7 +79,7 @@ namespace Backend.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "chisinau",
+                            Id = 1,
                             Adresa = "Str. Academiei 11, Chișinău",
                             Lat = 47.015900000000002,
                             Lng = 28.841899999999999,
@@ -88,7 +90,7 @@ namespace Backend.Api.Migrations
                         },
                         new
                         {
-                            Id = "balti",
+                            Id = 2,
                             Adresa = "Str. Decebal 113, Bălți",
                             Lat = 47.756100000000004,
                             Lng = 27.9298,
@@ -99,7 +101,7 @@ namespace Backend.Api.Migrations
                         },
                         new
                         {
-                            Id = "cahul",
+                            Id = 3,
                             Adresa = "IMSP Spitalul Raional Cahul",
                             Lat = 45.907499999999999,
                             Lng = 28.1936,
@@ -110,7 +112,7 @@ namespace Backend.Api.Migrations
                         },
                         new
                         {
-                            Id = "soroca",
+                            Id = 4,
                             Adresa = "IMSP Spitalul Raional Soroca",
                             Lat = 48.156700000000001,
                             Lng = 28.293900000000001,
@@ -121,7 +123,7 @@ namespace Backend.Api.Migrations
                         },
                         new
                         {
-                            Id = "comrat",
+                            Id = 5,
                             Adresa = "Str. Odesscaia 2, Comrat",
                             Lat = 46.302100000000003,
                             Lng = 28.656700000000001,

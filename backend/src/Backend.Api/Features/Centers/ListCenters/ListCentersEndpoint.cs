@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Centers.ListCenters;
 
 public record CenterResponse(
-    string Id,
+    int Id,
     string Nume,
     string Oras,
     string Adresa,

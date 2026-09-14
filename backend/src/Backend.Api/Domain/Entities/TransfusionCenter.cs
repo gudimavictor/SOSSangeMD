@@ -2,7 +2,7 @@ namespace Backend.Api.Domain.Entities;
 
 public class TransfusionCenter
 {
-    public string Id { get; set; } = default!;
+    public int Id { get; set; }
 
     public string Nume { get; set; } = default!;
     public string Oras { get; set; } = default!;
