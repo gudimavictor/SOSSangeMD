@@ -29,7 +29,7 @@ public class GetCenterByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/centers/{id:int}", async (int id, GetCenterByIdHandler handler, CancellationToken ct) =>
+        app.MapGet("/api/centers/get/{id:int}", async (int id, GetCenterByIdHandler handler, CancellationToken ct) =>
             {
                 var center = await handler.Handle(id, ct);
                 return center is not null ? Results.Ok(center) : Results.NotFound();

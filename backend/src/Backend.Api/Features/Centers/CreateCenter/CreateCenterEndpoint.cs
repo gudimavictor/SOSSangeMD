@@ -66,11 +66,11 @@ public class CreateCenterEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/api/centers",
+        app.MapPost("/api/centers/create",
                 async (CreateCenterRequest request, CreateCenterHandler handler, CancellationToken ct) =>
                 {
                     var response = await handler.Handle(request, ct);
-                    return Results.Created($"/api/centers/{response.Id}", response);
+                    return Results.Created($"/api/centers/get/{response.Id}", response);
                 })
             .WithRequestValidation<CreateCenterRequest>()
             .WithName("CreateCenter")

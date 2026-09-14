@@ -29,7 +29,7 @@ public class ListCentersEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/centers", async (ListCentersHandler handler, CancellationToken ct) =>
+        app.MapGet("/api/centers/list", async (ListCentersHandler handler, CancellationToken ct) =>
             {
                 var centers = await handler.Handle(ct);
                 return Results.Ok(centers);
