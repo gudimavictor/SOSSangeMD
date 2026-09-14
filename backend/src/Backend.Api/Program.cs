@@ -1,9 +1,9 @@
+using Backend.Api.Common.Endpoints;
 using Backend.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -11,9 +11,11 @@ builder.Services.AddDbContext<AppDbContext>(options => options
     .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
     .UseSnakeCaseNamingConvention());
 
+builder.Services.AddHandlers(typeof(Program).Assembly);
+builder.Services.AddEndpoints(typeof(Program).Assembly);
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -24,5 +26,7 @@ app.UseHttpsRedirection();
 
 app.MapGet("/health", () => Results.Ok("OK"))
     .WithName("HealthCheck");
+
+app.MapEndpoints();
 
 app.Run();
