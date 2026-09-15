@@ -50,9 +50,22 @@ public class CreateResponseHandler(AppDbContext db)
         };
 
         db.RequestResponses.Add(entity);
-        await db.SaveChangesAsync(cancellationToken);
 
-        var donator = await db.Users.FirstAsync(u => u.Id == entity.DonatorId, cancellationToken);
+        var bloodRequest = await db.BloodRequests.FirstAsync(r => r.Id == request.BloodRequestId, cancellationToken);
+        var donator = await db.Users.FirstAsync(u => u.Id == request.DonatorId, cancellationToken);
+
+        db.Notificari.Add(new Notificare
+        {
+            UserId = bloodRequest.SolicitantId,
+            Tip = TipNotificare.Confirmare,
+            Titlu = "Cineva a răspuns la cererea ta",
+            Mesaj = $"{donator.Nume} a răspuns la cererea ta de sânge din {bloodRequest.Oras}.",
+            Citita = false,
+            Data = DateTime.UtcNow,
+            Link = "/cererile-mele"
+        });
+
+        await db.SaveChangesAsync(cancellationToken);
 
         return new DonorResponse(entity.Id, entity.BloodRequestId, entity.DonatorId, donator.Nume, entity.Status,
             entity.Data);
