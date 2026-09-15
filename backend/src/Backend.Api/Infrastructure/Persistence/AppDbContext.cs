@@ -8,6 +8,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<TransfusionCenter> TransfusionCenters => Set<TransfusionCenter>();
     public DbSet<User> Users => Set<User>();
     public DbSet<BloodRequest> BloodRequests => Set<BloodRequest>();
+    public DbSet<RequestResponse> RequestResponses => Set<RequestResponse>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
