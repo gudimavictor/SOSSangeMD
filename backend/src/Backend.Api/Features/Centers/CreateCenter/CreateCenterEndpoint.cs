@@ -1,5 +1,4 @@
 using Backend.Api.Common.Endpoints;
-using Backend.Api.Common.Validation;
 using Backend.Api.Domain.Entities;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
@@ -67,12 +66,18 @@ public class CreateCenterEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/centers/create",
-                async (CreateCenterRequest request, CreateCenterHandler handler, CancellationToken ct) =>
+                async (CreateCenterRequest request, CreateCenterValidator validator, CreateCenterHandler handler,
+                    CancellationToken ct) =>
                 {
+                    var validationResult = await validator.ValidateAsync(request, ct);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+
                     var response = await handler.Handle(request, ct);
                     return Results.Created($"/api/centers/get/{response.Id}", response);
                 })
-            .WithRequestValidation<CreateCenterRequest>()
             .WithName("CreateCenter")
             .WithTags("Centers")
             .Produces<CenterResponse>(StatusCodes.Status201Created)

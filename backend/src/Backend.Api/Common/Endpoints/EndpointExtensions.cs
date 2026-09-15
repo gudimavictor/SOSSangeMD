@@ -43,4 +43,18 @@ public static class EndpointExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddValidators(this IServiceCollection services, Assembly assembly)
+    {
+        var validatorTypes = assembly.GetTypes()
+            .Where(t => t is { IsAbstract: false, IsInterface: false, IsClass: true } &&
+                        t.Name.EndsWith("Validator", StringComparison.Ordinal));
+
+        foreach (var type in validatorTypes)
+        {
+            services.AddScoped(type);
+        }
+
+        return services;
+    }
 }

@@ -1,5 +1,4 @@
 using Backend.Api.Common.Endpoints;
-using Backend.Api.Common.Validation;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -69,12 +68,18 @@ public class UpdateCenterEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPut("/api/centers/update/{id:int}",
-                async (int id, UpdateCenterRequest request, UpdateCenterHandler handler, CancellationToken ct) =>
+                async (int id, UpdateCenterRequest request, UpdateCenterValidator validator,
+                    UpdateCenterHandler handler, CancellationToken ct) =>
                 {
+                    var validationResult = await validator.ValidateAsync(request, ct);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+
                     var response = await handler.Handle(id, request, ct);
                     return response is not null ? Results.Ok(response) : Results.NotFound();
                 })
-            .WithRequestValidation<UpdateCenterRequest>()
             .WithName("UpdateCenter")
             .WithTags("Centers")
             .Produces<CenterResponse>()

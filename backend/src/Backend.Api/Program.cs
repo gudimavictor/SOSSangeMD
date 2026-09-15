@@ -1,6 +1,5 @@
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Infrastructure.Persistence;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options
     .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
     .UseSnakeCaseNamingConvention());
 
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddValidators(typeof(Program).Assembly);
 builder.Services.AddHandlers(typeof(Program).Assembly);
 builder.Services.AddEndpoints(typeof(Program).Assembly);
 

@@ -1,5 +1,4 @@
 using Backend.Api.Common.Endpoints;
-using Backend.Api.Common.Validation;
 using Backend.Api.Domain.Enums;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
@@ -96,8 +95,15 @@ public class UpdateUserEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPut("/api/users/update/{id:int}",
-                async (int id, UpdateUserRequest request, UpdateUserHandler handler, CancellationToken ct) =>
+                async (int id, UpdateUserRequest request, UpdateUserValidator validator, UpdateUserHandler handler,
+                    CancellationToken ct) =>
                 {
+                    var validationResult = await validator.ValidateAsync(request, ct);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+
                     var result = await handler.Handle(id, request, ct);
                     return result.Status switch
                     {
@@ -107,7 +113,6 @@ public class UpdateUserEndpoint : IEndpoint
                         _ => Results.Problem()
                     };
                 })
-            .WithRequestValidation<UpdateUserRequest>()
             .WithName("UpdateUser")
             .WithTags("Users")
             .Produces<UserResponse>()

@@ -1,5 +1,4 @@
 using Backend.Api.Common.Endpoints;
-using Backend.Api.Common.Validation;
 using Backend.Api.Domain.Entities;
 using Backend.Api.Domain.Enums;
 using Backend.Api.Infrastructure.Persistence;
@@ -68,12 +67,18 @@ public class CreateRequestEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/requests/create",
-                async (CreateRequestRequest request, CreateRequestHandler handler, CancellationToken ct) =>
+                async (CreateRequestRequest request, CreateRequestValidator validator, CreateRequestHandler handler,
+                    CancellationToken ct) =>
                 {
+                    var validationResult = await validator.ValidateAsync(request, ct);
+                    if (!validationResult.IsValid)
+                    {
+                        return Results.ValidationProblem(validationResult.ToDictionary());
+                    }
+
                     var response = await handler.Handle(request, ct);
                     return Results.Created($"/api/requests/get/{response.Id}", response);
                 })
-            .WithRequestValidation<CreateRequestRequest>()
             .WithName("CreateRequest")
             .WithTags("Requests")
             .Produces<BloodRequestResponse>(StatusCodes.Status201Created)
