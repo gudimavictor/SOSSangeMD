@@ -64,9 +64,7 @@
     background: #1c1210;
     border-radius: 8px;
     padding: 1rem;
-    position: sticky;
-    top: 90px;
-    align-self: stretch;
+    align-self: start;
 }
 
 .adminSidebarNav {
@@ -481,12 +479,19 @@
 
 @media (max-width: 800px) {
     .adminLayout {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 1.5rem;
+        min-height: 70vh;
     }
 
     .adminSidebar {
-        position: static;
-        padding: 0.5rem;
+        background: #1c1210;
+        border-radius: 8px;
+        padding: 1rem;
+        position: sticky;
+        top: 90px;
+        align-self: start;
     }
 
     .adminSidebarNav {
