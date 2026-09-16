@@ -6,6 +6,7 @@ using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Api.Features.Auth.Login;
 
@@ -23,7 +24,12 @@ public record UserResponse(
     BloodType? BloodType,
     DateOnly? LastDonationDate);
 
-public record LoginResponse(string Token, DateTime ExpiresAt, UserResponse User);
+public record LoginResponse(
+    string Token,
+    DateTime ExpiresAt,
+    string RefreshToken,
+    DateTime RefreshTokenExpiresAt,
+    UserResponse User);
 
 public class LoginValidator : AbstractValidator<LoginRequest>
 {
@@ -46,7 +52,12 @@ public record LoginResult(LoginStatus Status, LoginResponse? Response = null)
     public static LoginResult InvalidCredentials() => new(LoginStatus.InvalidCredentials);
 }
 
-public class LoginHandler(AppDbContext db, IPasswordHasher<User> passwordHasher, JwtTokenGenerator tokenGenerator)
+public class LoginHandler(
+    AppDbContext db,
+    IPasswordHasher<User> passwordHasher,
+    JwtTokenGenerator tokenGenerator,
+    RefreshTokenGenerator refreshTokenGenerator,
+    IOptions<JwtSettings> jwtSettings)
 {
     public async Task<LoginResult> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
@@ -64,10 +75,21 @@ public class LoginHandler(AppDbContext db, IPasswordHasher<User> passwordHasher,
 
         var token = tokenGenerator.GenerateToken(user);
 
+        var refreshToken = new RefreshToken
+        {
+            Token = refreshTokenGenerator.Generate(),
+            UserId = user.Id,
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(jwtSettings.Value.RefreshTokenExpiryDays)
+        };
+        db.RefreshTokens.Add(refreshToken);
+        await db.SaveChangesAsync(cancellationToken);
+
         var userResponse = new UserResponse(user.Id, user.Name, user.Email, user.Phone, user.City, user.Age,
             user.IsDonor, user.IsAdmin, user.BloodType, user.LastDonationDate);
 
-        return LoginResult.Success(new LoginResponse(token.Value, token.ExpiresAt, userResponse));
+        return LoginResult.Success(new LoginResponse(token.Value, token.ExpiresAt, refreshToken.Token,
+            refreshToken.ExpiresAt, userResponse));
     }
 }
 
