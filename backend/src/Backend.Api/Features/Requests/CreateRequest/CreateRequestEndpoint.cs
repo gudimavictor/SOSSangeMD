@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Domain.Entities;
 using Backend.Api.Domain.Enums;
+using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Requests.CreateRequest;
 
 public record CreateRequestRequest(
-    int RequesterId,
     BloodType RequiredBloodType,
     string City,
     UrgencyLevel Urgency,
@@ -27,11 +28,8 @@ public record BloodRequestResponse(
 
 public class CreateRequestValidator : AbstractValidator<CreateRequestRequest>
 {
-    public CreateRequestValidator(AppDbContext db)
+    public CreateRequestValidator()
     {
-        RuleFor(x => x.RequesterId)
-            .MustAsync(async (id, cancellationToken) => await db.Users.AnyAsync(u => u.Id == id, cancellationToken))
-            .WithMessage("Solicitantul nu există.");
         RuleFor(x => x.City).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Description).NotEmpty().MaximumLength(1000);
     }
@@ -39,11 +37,12 @@ public class CreateRequestValidator : AbstractValidator<CreateRequestRequest>
 
 public class CreateRequestHandler(AppDbContext db)
 {
-    public async Task<BloodRequestResponse> Handle(CreateRequestRequest request, CancellationToken cancellationToken)
+    public async Task<BloodRequestResponse> Handle(CreateRequestRequest request, int requesterId,
+        CancellationToken cancellationToken)
     {
         var entity = new BloodRequest
         {
-            RequesterId = request.RequesterId,
+            RequesterId = requesterId,
             RequiredBloodType = request.RequiredBloodType,
             City = request.City,
             Urgency = request.Urgency,
@@ -67,8 +66,8 @@ public class CreateRequestEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/requests/create",
-                async (CreateRequestRequest request, CreateRequestValidator validator, CreateRequestHandler handler,
-                    CancellationToken ct) =>
+                async (CreateRequestRequest request, ClaimsPrincipal caller, CreateRequestValidator validator,
+                    CreateRequestHandler handler, CancellationToken ct) =>
                 {
                     var validationResult = await validator.ValidateAsync(request, ct);
                     if (!validationResult.IsValid)
@@ -76,12 +75,14 @@ public class CreateRequestEndpoint : IEndpoint
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
 
-                    var response = await handler.Handle(request, ct);
+                    var response = await handler.Handle(request, caller.GetUserId(), ct);
                     return Results.Created($"/api/requests/get/{response.Id}", response);
                 })
+            .RequireAuthorization()
             .WithName("CreateRequest")
             .WithTags("Requests")
             .Produces<BloodRequestResponse>(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status401Unauthorized)
             .ProducesValidationProblem();
     }
 }

@@ -33,8 +33,11 @@ public class ListResponsesEndpoint : IEndpoint
                 var responses = await handler.Handle(ct);
                 return Results.Ok(responses);
             })
+            .RequireAuthorization("AdminOnly")
             .WithName("ListResponses")
             .WithTags("Responses")
-            .Produces<IReadOnlyList<DonorResponse>>();
+            .Produces<IReadOnlyList<DonorResponse>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
     }
 }

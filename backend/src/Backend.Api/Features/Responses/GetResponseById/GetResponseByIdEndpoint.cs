@@ -34,9 +34,11 @@ public class GetResponseByIdEndpoint : IEndpoint
                     var response = await handler.Handle(id, ct);
                     return response is not null ? Results.Ok(response) : Results.NotFound();
                 })
+            .RequireAuthorization()
             .WithName("GetResponseById")
             .WithTags("Responses")
             .Produces<DonorResponse>()
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized);
     }
 }

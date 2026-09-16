@@ -38,9 +38,11 @@ public class GetRequestByIdEndpoint : IEndpoint
                     var request = await handler.Handle(id, ct);
                     return request is not null ? Results.Ok(request) : Results.NotFound();
                 })
+            .RequireAuthorization()
             .WithName("GetRequestById")
             .WithTags("Requests")
             .Produces<BloodRequestResponse>()
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized);
     }
 }
