@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Backend.Api.Common.Endpoints;
+using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,14 +29,16 @@ public class MarkAllAsReadEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPut("/api/notifications/mark-all-read/{userId:int}",
-                async (int userId, MarkAllAsReadHandler handler, CancellationToken ct) =>
+        app.MapPut("/api/notifications/mark-all-read",
+                async (ClaimsPrincipal caller, MarkAllAsReadHandler handler, CancellationToken ct) =>
                 {
-                    var count = await handler.Handle(userId, ct);
+                    var count = await handler.Handle(caller.GetUserId(), ct);
                     return Results.Ok(new { updated = count });
                 })
+            .RequireAuthorization()
             .WithName("MarkAllAsRead")
             .WithTags("Notifications")
-            .Produces(StatusCodes.Status200OK);
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
     }
 }

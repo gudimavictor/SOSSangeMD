@@ -76,11 +76,14 @@ public class CreateNotificationEndpoint : IEndpoint
                     }
 
                     var response = await handler.Handle(request, ct);
-                    return Results.Created($"/api/notifications/list/{response.UserId}", response);
+                    return Results.Created("/api/notifications/mine", response);
                 })
+            .RequireAuthorization("AdminOnly")
             .WithName("CreateNotification")
             .WithTags("Notifications")
             .Produces<NotificationResponse>(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .ProducesValidationProblem();
     }
 }

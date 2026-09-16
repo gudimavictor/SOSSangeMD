@@ -1,9 +1,11 @@
+using System.Security.Claims;
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Domain.Enums;
+using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Backend.Api.Features.Notifications.ListNotifications;
+namespace Backend.Api.Features.Notifications.ListMyNotifications;
 
 public record NotificationResponse(
     int Id,
@@ -15,7 +17,7 @@ public record NotificationResponse(
     DateTime CreatedAt,
     string? Link);
 
-public class ListNotificationsHandler(AppDbContext db)
+public class ListMyNotificationsHandler(AppDbContext db)
 {
     public async Task<IReadOnlyList<NotificationResponse>> Handle(int userId, CancellationToken cancellationToken)
     {
@@ -28,18 +30,20 @@ public class ListNotificationsHandler(AppDbContext db)
     }
 }
 
-public class ListNotificationsEndpoint : IEndpoint
+public class ListMyNotificationsEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/notifications/list/{userId:int}",
-                async (int userId, ListNotificationsHandler handler, CancellationToken ct) =>
-                {
-                    var notifications = await handler.Handle(userId, ct);
-                    return Results.Ok(notifications);
-                })
-            .WithName("ListNotifications")
+        app.MapGet("/api/notifications/mine", async (ClaimsPrincipal caller, ListMyNotificationsHandler handler,
+                CancellationToken ct) =>
+            {
+                var notifications = await handler.Handle(caller.GetUserId(), ct);
+                return Results.Ok(notifications);
+            })
+            .RequireAuthorization()
+            .WithName("ListMyNotifications")
             .WithTags("Notifications")
-            .Produces<IReadOnlyList<NotificationResponse>>();
+            .Produces<IReadOnlyList<NotificationResponse>>()
+            .Produces(StatusCodes.Status401Unauthorized);
     }
 }
