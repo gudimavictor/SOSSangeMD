@@ -1,5 +1,8 @@
+using Backend.Api.Domain.Entities;
 using Backend.Api.Common.Endpoints;
+using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,10 @@ builder.Services.AddSwaggerGen(options => options.CustomSchemaIds(type => type.F
 builder.Services.AddDbContext<AppDbContext>(options => options
     .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
     .UseSnakeCaseNamingConvention());
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddSingleton<JwtTokenGenerator>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddValidators(typeof(Program).Assembly);
 builder.Services.AddHandlers(typeof(Program).Assembly);
