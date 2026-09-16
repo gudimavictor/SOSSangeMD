@@ -3,14 +3,9 @@ using System.Text.Json.Serialization;
 namespace Backend.Api.Domain.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum GrupaSanguina
+public enum UrgencyLevel
 {
-    OMinus,
-    OPlus,
-    AMinus,
-    APlus,
-    BMinus,
-    BPlus,
-    ABMinus,
-    ABPlus
+    Critical,
+    Urgent,
+    Scheduled
 }

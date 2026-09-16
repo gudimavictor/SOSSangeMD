@@ -17,9 +17,9 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options)
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email),
-            new(ClaimTypes.Name, user.Nume),
-            new("esteAdmin", user.EsteAdmin.ToString()),
-            new("esteDonator", user.EsteDonator.ToString())
+            new(ClaimTypes.Name, user.Name),
+            new("isAdmin", user.IsAdmin.ToString()),
+            new("isDonor", user.IsDonor.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey));

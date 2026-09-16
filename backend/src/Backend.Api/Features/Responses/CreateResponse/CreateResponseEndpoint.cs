@@ -9,16 +9,16 @@ namespace Backend.Api.Features.Responses.CreateResponse;
 
 public record CreateResponseRequest(
     int BloodRequestId,
-    int DonatorId,
-    StatusRaspuns Status);
+    int DonorId,
+    ResponseStatus Status);
 
 public record DonorResponse(
     int Id,
     int BloodRequestId,
-    int DonatorId,
-    string DonatorNume,
-    StatusRaspuns Status,
-    DateTime Data);
+    int DonorId,
+    string DonorName,
+    ResponseStatus Status,
+    DateTime RespondedAt);
 
 public class CreateResponseValidator : AbstractValidator<CreateResponseRequest>
 {
@@ -28,11 +28,11 @@ public class CreateResponseValidator : AbstractValidator<CreateResponseRequest>
             .MustAsync(async (id, cancellationToken) => await db.BloodRequests.AnyAsync(r => r.Id == id, cancellationToken))
             .WithMessage("Cererea nu există.");
 
-        RuleFor(x => x.DonatorId)
+        RuleFor(x => x.DonorId)
             .MustAsync(async (id, cancellationToken) => await db.Users.AnyAsync(u => u.Id == id, cancellationToken))
             .WithMessage("Donatorul nu există.")
-            .MustAsync(async (request, donatorId, cancellationToken) => !await db.RequestResponses.AnyAsync(
-                r => r.BloodRequestId == request.BloodRequestId && r.DonatorId == donatorId, cancellationToken))
+            .MustAsync(async (request, donorId, cancellationToken) => !await db.RequestResponses.AnyAsync(
+                r => r.BloodRequestId == request.BloodRequestId && r.DonorId == donorId, cancellationToken))
             .WithMessage("Acest donator a răspuns deja la această cerere.");
     }
 }
@@ -44,31 +44,31 @@ public class CreateResponseHandler(AppDbContext db)
         var entity = new RequestResponse
         {
             BloodRequestId = request.BloodRequestId,
-            DonatorId = request.DonatorId,
+            DonorId = request.DonorId,
             Status = request.Status,
-            Data = DateTime.UtcNow
+            RespondedAt = DateTime.UtcNow
         };
 
         db.RequestResponses.Add(entity);
 
         var bloodRequest = await db.BloodRequests.FirstAsync(r => r.Id == request.BloodRequestId, cancellationToken);
-        var donator = await db.Users.FirstAsync(u => u.Id == request.DonatorId, cancellationToken);
+        var donor = await db.Users.FirstAsync(u => u.Id == request.DonorId, cancellationToken);
 
-        db.Notificari.Add(new Notificare
+        db.Notifications.Add(new Notification
         {
-            UserId = bloodRequest.SolicitantId,
-            Tip = TipNotificare.Confirmare,
-            Titlu = "Cineva a răspuns la cererea ta",
-            Mesaj = $"{donator.Nume} a răspuns la cererea ta de sânge din {bloodRequest.Oras}.",
-            Citita = false,
-            Data = DateTime.UtcNow,
+            UserId = bloodRequest.RequesterId,
+            Type = NotificationType.Confirmation,
+            Title = "Cineva a răspuns la cererea ta",
+            Message = $"{donor.Name} a răspuns la cererea ta de sânge din {bloodRequest.City}.",
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow,
             Link = "/cererile-mele"
         });
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return new DonorResponse(entity.Id, entity.BloodRequestId, entity.DonatorId, donator.Nume, entity.Status,
-            entity.Data);
+        return new DonorResponse(entity.Id, entity.BloodRequestId, entity.DonorId, donor.Name, entity.Status,
+            entity.RespondedAt);
     }
 }
 

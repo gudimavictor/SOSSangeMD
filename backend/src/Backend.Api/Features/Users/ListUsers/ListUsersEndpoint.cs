@@ -7,24 +7,24 @@ namespace Backend.Api.Features.Users.ListUsers;
 
 public record UserResponse(
     int Id,
-    string Nume,
+    string Name,
     string Email,
-    string Telefon,
-    string Oras,
-    int? Varsta,
-    bool EsteDonator,
-    bool EsteAdmin,
-    GrupaSanguina? GrupaSanguina,
-    DateOnly? DataUltimeiDonari);
+    string Phone,
+    string City,
+    int? Age,
+    bool IsDonor,
+    bool IsAdmin,
+    BloodType? BloodType,
+    DateOnly? LastDonationDate);
 
 public class ListUsersHandler(AppDbContext db)
 {
     public async Task<IReadOnlyList<UserResponse>> Handle(CancellationToken cancellationToken)
     {
         return await db.Users
-            .OrderBy(u => u.Nume)
-            .Select(u => new UserResponse(u.Id, u.Nume, u.Email, u.Telefon, u.Oras, u.Varsta, u.EsteDonator,
-                u.EsteAdmin, u.GrupaSanguina, u.DataUltimeiDonari))
+            .OrderBy(u => u.Name)
+            .Select(u => new UserResponse(u.Id, u.Name, u.Email, u.Phone, u.City, u.Age, u.IsDonor,
+                u.IsAdmin, u.BloodType, u.LastDonationDate))
             .ToListAsync(cancellationToken);
     }
 }

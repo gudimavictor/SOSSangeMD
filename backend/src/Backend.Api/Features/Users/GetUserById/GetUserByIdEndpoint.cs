@@ -7,15 +7,15 @@ namespace Backend.Api.Features.Users.GetUserById;
 
 public record UserResponse(
     int Id,
-    string Nume,
+    string Name,
     string Email,
-    string Telefon,
-    string Oras,
-    int? Varsta,
-    bool EsteDonator,
-    bool EsteAdmin,
-    GrupaSanguina? GrupaSanguina,
-    DateOnly? DataUltimeiDonari);
+    string Phone,
+    string City,
+    int? Age,
+    bool IsDonor,
+    bool IsAdmin,
+    BloodType? BloodType,
+    DateOnly? LastDonationDate);
 
 public class GetUserByIdHandler(AppDbContext db)
 {
@@ -23,8 +23,8 @@ public class GetUserByIdHandler(AppDbContext db)
     {
         return await db.Users
             .Where(u => u.Id == id)
-            .Select(u => new UserResponse(u.Id, u.Nume, u.Email, u.Telefon, u.Oras, u.Varsta, u.EsteDonator,
-                u.EsteAdmin, u.GrupaSanguina, u.DataUltimeiDonari))
+            .Select(u => new UserResponse(u.Id, u.Name, u.Email, u.Phone, u.City, u.Age, u.IsDonor,
+                u.IsAdmin, u.BloodType, u.LastDonationDate))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

@@ -9,7 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<User> Users => Set<User>();
     public DbSet<BloodRequest> BloodRequests => Set<BloodRequest>();
     public DbSet<RequestResponse> RequestResponses => Set<RequestResponse>();
-    public DbSet<Notificare> Notificari => Set<Notificare>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

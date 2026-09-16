@@ -17,11 +17,11 @@ public class RequestResponseConfiguration : IEntityTypeConfiguration<RequestResp
             .HasForeignKey(r => r.BloodRequestId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(r => r.Donator)
+        builder.HasOne(r => r.Donor)
             .WithMany()
-            .HasForeignKey(r => r.DonatorId)
+            .HasForeignKey(r => r.DonorId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(r => new { r.BloodRequestId, r.DonatorId }).IsUnique();
+        builder.HasIndex(r => new { r.BloodRequestId, r.DonorId }).IsUnique();
     }
 }

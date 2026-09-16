@@ -8,21 +8,22 @@ namespace Backend.Api.Features.Notifications.ListNotifications;
 public record NotificationResponse(
     int Id,
     int UserId,
-    TipNotificare Tip,
-    string Titlu,
-    string Mesaj,
-    bool Citita,
-    DateTime Data,
+    NotificationType Type,
+    string Title,
+    string Message,
+    bool IsRead,
+    DateTime CreatedAt,
     string? Link);
 
 public class ListNotificationsHandler(AppDbContext db)
 {
     public async Task<IReadOnlyList<NotificationResponse>> Handle(int userId, CancellationToken cancellationToken)
     {
-        return await db.Notificari
+        return await db.Notifications
             .Where(n => n.UserId == userId)
-            .OrderByDescending(n => n.Data)
-            .Select(n => new NotificationResponse(n.Id, n.UserId, n.Tip, n.Titlu, n.Mesaj, n.Citita, n.Data, n.Link))
+            .OrderByDescending(n => n.CreatedAt)
+            .Select(n => new NotificationResponse(n.Id, n.UserId, n.Type, n.Title, n.Message, n.IsRead, n.CreatedAt,
+                n.Link))
             .ToListAsync(cancellationToken);
     }
 }

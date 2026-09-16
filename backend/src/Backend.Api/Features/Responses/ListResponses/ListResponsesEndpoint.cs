@@ -8,18 +8,18 @@ namespace Backend.Api.Features.Responses.ListResponses;
 public record DonorResponse(
     int Id,
     int BloodRequestId,
-    int DonatorId,
-    string DonatorNume,
-    StatusRaspuns Status,
-    DateTime Data);
+    int DonorId,
+    string DonorName,
+    ResponseStatus Status,
+    DateTime RespondedAt);
 
 public class ListResponsesHandler(AppDbContext db)
 {
     public async Task<IReadOnlyList<DonorResponse>> Handle(CancellationToken cancellationToken)
     {
         return await db.RequestResponses
-            .OrderByDescending(r => r.Data)
-            .Select(r => new DonorResponse(r.Id, r.BloodRequestId, r.DonatorId, r.Donator.Nume, r.Status, r.Data))
+            .OrderByDescending(r => r.RespondedAt)
+            .Select(r => new DonorResponse(r.Id, r.BloodRequestId, r.DonorId, r.Donor.Name, r.Status, r.RespondedAt))
             .ToListAsync(cancellationToken);
     }
 }

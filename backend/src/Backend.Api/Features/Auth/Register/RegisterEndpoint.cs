@@ -9,41 +9,41 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Auth.Register;
 
 public record RegisterRequest(
-    string Nume,
+    string Name,
     string Email,
-    string Parola,
-    string Telefon,
-    string Oras,
-    int? Varsta,
-    bool EsteDonator,
-    GrupaSanguina? GrupaSanguina,
-    DateOnly? DataUltimeiDonari);
+    string Password,
+    string Phone,
+    string City,
+    int? Age,
+    bool IsDonor,
+    BloodType? BloodType,
+    DateOnly? LastDonationDate);
 
 public record UserResponse(
     int Id,
-    string Nume,
+    string Name,
     string Email,
-    string Telefon,
-    string Oras,
-    int? Varsta,
-    bool EsteDonator,
-    bool EsteAdmin,
-    GrupaSanguina? GrupaSanguina,
-    DateOnly? DataUltimeiDonari);
+    string Phone,
+    string City,
+    int? Age,
+    bool IsDonor,
+    bool IsAdmin,
+    BloodType? BloodType,
+    DateOnly? LastDonationDate);
 
 public class RegisterValidator : AbstractValidator<RegisterRequest>
 {
     public RegisterValidator(AppDbContext db)
     {
-        RuleFor(x => x.Nume).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(320)
             .MustAsync(async (email, cancellationToken) =>
                 !await db.Users.AnyAsync(u => u.Email == email, cancellationToken))
             .WithMessage("Există deja un utilizator cu acest email.");
-        RuleFor(x => x.Parola).NotEmpty().MinimumLength(8);
-        RuleFor(x => x.Telefon).NotEmpty().MaximumLength(30);
-        RuleFor(x => x.Oras).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Varsta).InclusiveBetween(1, 120).When(x => x.Varsta is not null);
+        RuleFor(x => x.Password).NotEmpty().MinimumLength(8);
+        RuleFor(x => x.Phone).NotEmpty().MaximumLength(30);
+        RuleFor(x => x.City).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Age).InclusiveBetween(1, 120).When(x => x.Age is not null);
     }
 }
 
@@ -53,24 +53,24 @@ public class RegisterHandler(AppDbContext db, IPasswordHasher<User> passwordHash
     {
         var user = new User
         {
-            Nume = request.Nume,
+            Name = request.Name,
             Email = request.Email,
-            Telefon = request.Telefon,
-            Oras = request.Oras,
-            Varsta = request.Varsta,
-            EsteDonator = request.EsteDonator,
-            EsteAdmin = false,
-            GrupaSanguina = request.GrupaSanguina,
-            DataUltimeiDonari = request.DataUltimeiDonari
+            Phone = request.Phone,
+            City = request.City,
+            Age = request.Age,
+            IsDonor = request.IsDonor,
+            IsAdmin = false,
+            BloodType = request.BloodType,
+            LastDonationDate = request.LastDonationDate
         };
 
-        user.ParolaHash = passwordHasher.HashPassword(user, request.Parola);
+        user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
 
         db.Users.Add(user);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new UserResponse(user.Id, user.Nume, user.Email, user.Telefon, user.Oras, user.Varsta,
-            user.EsteDonator, user.EsteAdmin, user.GrupaSanguina, user.DataUltimeiDonari);
+        return new UserResponse(user.Id, user.Name, user.Email, user.Phone, user.City, user.Age,
+            user.IsDonor, user.IsAdmin, user.BloodType, user.LastDonationDate);
     }
 }
 

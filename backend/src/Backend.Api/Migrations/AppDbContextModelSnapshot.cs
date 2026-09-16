@@ -31,31 +31,31 @@ namespace Backend.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("DataCreare")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("data_creare");
-
-                    b.Property<string>("Descriere")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("descriere");
-
-                    b.Property<string>("GrupaNecesara")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("grupa_necesara");
-
-                    b.Property<string>("Oras")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
-                        .HasColumnName("oras");
+                        .HasColumnName("city");
 
-                    b.Property<int>("SolicitantId")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("RequesterId")
                         .HasColumnType("integer")
-                        .HasColumnName("solicitant_id");
+                        .HasColumnName("requester_id");
+
+                    b.Property<string>("RequiredBloodType")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("required_blood_type");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -63,22 +63,22 @@ namespace Backend.Api.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("status");
 
-                    b.Property<string>("Urgenta")
+                    b.Property<string>("Urgency")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("urgenta");
+                        .HasColumnName("urgency");
 
                     b.HasKey("Id")
                         .HasName("pk_blood_requests");
 
-                    b.HasIndex("SolicitantId")
-                        .HasDatabaseName("ix_blood_requests_solicitant_id");
+                    b.HasIndex("RequesterId")
+                        .HasDatabaseName("ix_blood_requests_requester_id");
 
                     b.ToTable("blood_requests", (string)null);
                 });
 
-            modelBuilder.Entity("Backend.Api.Domain.Entities.Notificare", b =>
+            modelBuilder.Entity("Backend.Api.Domain.Entities.Notification", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,48 +87,48 @@ namespace Backend.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Citita")
-                        .HasColumnType("boolean")
-                        .HasColumnName("citita");
-
-                    b.Property<DateTime>("Data")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("data");
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_read");
 
                     b.Property<string>("Link")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("link");
 
-                    b.Property<string>("Mesaj")
+                    b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
-                        .HasColumnName("mesaj");
+                        .HasColumnName("message");
 
-                    b.Property<string>("Tip")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("tip");
-
-                    b.Property<string>("Titlu")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
-                        .HasColumnName("titlu");
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_notificari");
+                        .HasName("pk_notifications");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_notificari_user_id");
+                        .HasDatabaseName("ix_notifications_user_id");
 
-                    b.ToTable("notificari", (string)null);
+                    b.ToTable("notifications", (string)null);
                 });
 
             modelBuilder.Entity("Backend.Api.Domain.Entities.RequestResponse", b =>
@@ -144,13 +144,13 @@ namespace Backend.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("blood_request_id");
 
-                    b.Property<DateTime>("Data")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("data");
-
-                    b.Property<int>("DonatorId")
+                    b.Property<int>("DonorId")
                         .HasColumnType("integer")
-                        .HasColumnName("donator_id");
+                        .HasColumnName("donor_id");
+
+                    b.Property<DateTime>("RespondedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("responded_at");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -161,12 +161,12 @@ namespace Backend.Api.Migrations
                     b.HasKey("Id")
                         .HasName("pk_request_responses");
 
-                    b.HasIndex("DonatorId")
-                        .HasDatabaseName("ix_request_responses_donator_id");
+                    b.HasIndex("DonorId")
+                        .HasDatabaseName("ix_request_responses_donor_id");
 
-                    b.HasIndex("BloodRequestId", "DonatorId")
+                    b.HasIndex("BloodRequestId", "DonorId")
                         .IsUnique()
-                        .HasDatabaseName("ix_request_responses_blood_request_id_donator_id");
+                        .HasDatabaseName("ix_request_responses_blood_request_id_donor_id");
 
                     b.ToTable("request_responses", (string)null);
                 });
@@ -180,11 +180,17 @@ namespace Backend.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Adresa")
+                    b.Property<string>("Address")
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)")
-                        .HasColumnName("adresa");
+                        .HasColumnName("address");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("city");
 
                     b.Property<double>("Lat")
                         .HasColumnType("double precision")
@@ -194,29 +200,23 @@ namespace Backend.Api.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("lng");
 
-                    b.Property<string>("Nume")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
-                        .HasColumnName("nume");
+                        .HasColumnName("name");
 
-                    b.Property<string>("Oras")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("oras");
-
-                    b.Property<string>("Program")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("program");
-
-                    b.Property<string>("Telefon")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
-                        .HasColumnName("telefon");
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("schedule");
 
                     b.HasKey("Id")
                         .HasName("pk_transfusion_centers");
@@ -227,57 +227,57 @@ namespace Backend.Api.Migrations
                         new
                         {
                             Id = 1,
-                            Adresa = "Str. Academiei 11, Chișinău",
+                            Address = "Str. Academiei 11, Chișinău",
+                            City = "Chișinău",
                             Lat = 47.015900000000002,
                             Lng = 28.841899999999999,
-                            Nume = "Centrul Național de Transfuzie a Sângelui",
-                            Oras = "Chișinău",
-                            Program = "Luni–Vineri, 08:00–15:00",
-                            Telefon = "+373 22 727 511"
+                            Name = "Centrul Național de Transfuzie a Sângelui",
+                            Phone = "+373 22 727 511",
+                            Schedule = "Luni–Vineri, 08:00–15:00"
                         },
                         new
                         {
                             Id = 2,
-                            Adresa = "Str. Decebal 113, Bălți",
+                            Address = "Str. Decebal 113, Bălți",
+                            City = "Bălți",
                             Lat = 47.756100000000004,
                             Lng = 27.9298,
-                            Nume = "Centrul Național de Transfuzie a Sângelui — filiala Bălți",
-                            Oras = "Bălți",
-                            Program = "Luni–Vineri, 08:00–14:00",
-                            Telefon = "+373 231 22 555"
+                            Name = "Centrul Național de Transfuzie a Sângelui — filiala Bălți",
+                            Phone = "+373 231 22 555",
+                            Schedule = "Luni–Vineri, 08:00–14:00"
                         },
                         new
                         {
                             Id = 3,
-                            Adresa = "IMSP Spitalul Raional Cahul",
+                            Address = "IMSP Spitalul Raional Cahul",
+                            City = "Cahul",
                             Lat = 45.907499999999999,
                             Lng = 28.1936,
-                            Nume = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Cahul",
-                            Oras = "Cahul",
-                            Program = "Luni–Vineri, 08:00–14:00",
-                            Telefon = "+373 299 22 555"
+                            Name = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Cahul",
+                            Phone = "+373 299 22 555",
+                            Schedule = "Luni–Vineri, 08:00–14:00"
                         },
                         new
                         {
                             Id = 4,
-                            Adresa = "IMSP Spitalul Raional Soroca",
+                            Address = "IMSP Spitalul Raional Soroca",
+                            City = "Soroca",
                             Lat = 48.156700000000001,
                             Lng = 28.293900000000001,
-                            Nume = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Soroca \"A. Prisăcari\"",
-                            Oras = "Soroca",
-                            Program = "Luni–Vineri, 08:00–14:00",
-                            Telefon = "+373 230 22 555"
+                            Name = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Soroca \"A. Prisăcari\"",
+                            Phone = "+373 230 22 555",
+                            Schedule = "Luni–Vineri, 08:00–14:00"
                         },
                         new
                         {
                             Id = 5,
-                            Adresa = "Str. Odesscaia 2, Comrat",
+                            Address = "Str. Odesscaia 2, Comrat",
+                            City = "Comrat",
                             Lat = 46.302100000000003,
                             Lng = 28.656700000000001,
-                            Nume = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Comrat \"Isaac Gurfinchel\"",
-                            Oras = "Comrat",
-                            Program = "Luni–Vineri, 08:00–14:00",
-                            Telefon = "+373 298 22 555"
+                            Name = "Cabinet de Transfuzie a Sângelui — Spitalul Raional Comrat \"Isaac Gurfinchel\"",
+                            Phone = "+373 298 22 555",
+                            Schedule = "Luni–Vineri, 08:00–14:00"
                         });
                 });
 
@@ -290,9 +290,20 @@ namespace Backend.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly?>("DataUltimeiDonari")
-                        .HasColumnType("date")
-                        .HasColumnName("data_ultimei_donari");
+                    b.Property<int?>("Age")
+                        .HasColumnType("integer")
+                        .HasColumnName("age");
+
+                    b.Property<string>("BloodType")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("blood_type");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("city");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -300,46 +311,35 @@ namespace Backend.Api.Migrations
                         .HasColumnType("character varying(320)")
                         .HasColumnName("email");
 
-                    b.Property<bool>("EsteAdmin")
+                    b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean")
-                        .HasColumnName("este_admin");
+                        .HasColumnName("is_admin");
 
-                    b.Property<bool>("EsteDonator")
+                    b.Property<bool>("IsDonor")
                         .HasColumnType("boolean")
-                        .HasColumnName("este_donator");
+                        .HasColumnName("is_donor");
 
-                    b.Property<string>("GrupaSanguina")
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
-                        .HasColumnName("grupa_sanguina");
+                    b.Property<DateOnly?>("LastDonationDate")
+                        .HasColumnType("date")
+                        .HasColumnName("last_donation_date");
 
-                    b.Property<string>("Nume")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
-                        .HasColumnName("nume");
+                        .HasColumnName("name");
 
-                    b.Property<string>("Oras")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("oras");
-
-                    b.Property<string>("ParolaHash")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
-                        .HasColumnName("parola_hash");
+                        .HasColumnName("password_hash");
 
-                    b.Property<string>("Telefon")
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
-                        .HasColumnName("telefon");
-
-                    b.Property<int?>("Varsta")
-                        .HasColumnType("integer")
-                        .HasColumnName("varsta");
+                        .HasColumnName("phone");
 
                     b.HasKey("Id")
                         .HasName("pk_users");
@@ -353,24 +353,24 @@ namespace Backend.Api.Migrations
 
             modelBuilder.Entity("Backend.Api.Domain.Entities.BloodRequest", b =>
                 {
-                    b.HasOne("Backend.Api.Domain.Entities.User", "Solicitant")
+                    b.HasOne("Backend.Api.Domain.Entities.User", "Requester")
                         .WithMany()
-                        .HasForeignKey("SolicitantId")
+                        .HasForeignKey("RequesterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_blood_requests_users_solicitant_id");
+                        .HasConstraintName("fk_blood_requests_users_requester_id");
 
-                    b.Navigation("Solicitant");
+                    b.Navigation("Requester");
                 });
 
-            modelBuilder.Entity("Backend.Api.Domain.Entities.Notificare", b =>
+            modelBuilder.Entity("Backend.Api.Domain.Entities.Notification", b =>
                 {
                     b.HasOne("Backend.Api.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_notificari_users_user_id");
+                        .HasConstraintName("fk_notifications_users_user_id");
 
                     b.Navigation("User");
                 });
@@ -384,16 +384,16 @@ namespace Backend.Api.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_request_responses_blood_requests_blood_request_id");
 
-                    b.HasOne("Backend.Api.Domain.Entities.User", "Donator")
+                    b.HasOne("Backend.Api.Domain.Entities.User", "Donor")
                         .WithMany()
-                        .HasForeignKey("DonatorId")
+                        .HasForeignKey("DonorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_request_responses_users_donator_id");
+                        .HasConstraintName("fk_request_responses_users_donor_id");
 
                     b.Navigation("BloodRequest");
 
-                    b.Navigation("Donator");
+                    b.Navigation("Donor");
                 });
 #pragma warning restore 612, 618
         }

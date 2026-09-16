@@ -3,12 +3,11 @@ namespace Backend.Api.Domain.Entities;
 public class TransfusionCenter
 {
     public int Id { get; set; }
-
-    public string Nume { get; set; } = default!;
-    public string Oras { get; set; } = default!;
-    public string Adresa { get; set; } = default!;
-    public string Telefon { get; set; } = default!;
-    public string Program { get; set; } = default!;
+    public string Name { get; set; } = default!;
+    public string City { get; set; } = default!;
+    public string Address { get; set; } = default!;
+    public string Phone { get; set; } = default!;
+    public string Schedule { get; set; } = default!;
     public double Lat { get; set; }
     public double Lng { get; set; }
 }

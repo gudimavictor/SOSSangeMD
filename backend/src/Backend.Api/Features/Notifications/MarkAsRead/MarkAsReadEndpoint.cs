@@ -8,28 +8,28 @@ namespace Backend.Api.Features.Notifications.MarkAsRead;
 public record NotificationResponse(
     int Id,
     int UserId,
-    TipNotificare Tip,
-    string Titlu,
-    string Mesaj,
-    bool Citita,
-    DateTime Data,
+    NotificationType Type,
+    string Title,
+    string Message,
+    bool IsRead,
+    DateTime CreatedAt,
     string? Link);
 
 public class MarkAsReadHandler(AppDbContext db)
 {
     public async Task<NotificationResponse?> Handle(int id, CancellationToken cancellationToken)
     {
-        var entity = await db.Notificari.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+        var entity = await db.Notifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
         if (entity is null)
         {
             return null;
         }
 
-        entity.Citita = true;
+        entity.IsRead = true;
         await db.SaveChangesAsync(cancellationToken);
 
-        return new NotificationResponse(entity.Id, entity.UserId, entity.Tip, entity.Titlu, entity.Mesaj,
-            entity.Citita, entity.Data, entity.Link);
+        return new NotificationResponse(entity.Id, entity.UserId, entity.Type, entity.Title, entity.Message,
+            entity.IsRead, entity.CreatedAt, entity.Link);
     }
 }
 

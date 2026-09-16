@@ -7,37 +7,37 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Users.UpdateUser;
 
 public record UpdateUserRequest(
-    string Nume,
+    string Name,
     string Email,
-    string Telefon,
-    string Oras,
-    int? Varsta,
-    bool EsteDonator,
-    bool EsteAdmin,
-    GrupaSanguina? GrupaSanguina,
-    DateOnly? DataUltimeiDonari);
+    string Phone,
+    string City,
+    int? Age,
+    bool IsDonor,
+    bool IsAdmin,
+    BloodType? BloodType,
+    DateOnly? LastDonationDate);
 
 public record UserResponse(
     int Id,
-    string Nume,
+    string Name,
     string Email,
-    string Telefon,
-    string Oras,
-    int? Varsta,
-    bool EsteDonator,
-    bool EsteAdmin,
-    GrupaSanguina? GrupaSanguina,
-    DateOnly? DataUltimeiDonari);
+    string Phone,
+    string City,
+    int? Age,
+    bool IsDonor,
+    bool IsAdmin,
+    BloodType? BloodType,
+    DateOnly? LastDonationDate);
 
 public class UpdateUserValidator : AbstractValidator<UpdateUserRequest>
 {
     public UpdateUserValidator()
     {
-        RuleFor(x => x.Nume).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(320);
-        RuleFor(x => x.Telefon).NotEmpty().MaximumLength(30);
-        RuleFor(x => x.Oras).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Varsta).InclusiveBetween(1, 120).When(x => x.Varsta is not null);
+        RuleFor(x => x.Phone).NotEmpty().MaximumLength(30);
+        RuleFor(x => x.City).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Age).InclusiveBetween(1, 120).When(x => x.Age is not null);
     }
 }
 
@@ -72,20 +72,20 @@ public class UpdateUserHandler(AppDbContext db)
             return UpdateUserResult.EmailTaken();
         }
 
-        user.Nume = request.Nume;
+        user.Name = request.Name;
         user.Email = request.Email;
-        user.Telefon = request.Telefon;
-        user.Oras = request.Oras;
-        user.Varsta = request.Varsta;
-        user.EsteDonator = request.EsteDonator;
-        user.EsteAdmin = request.EsteAdmin;
-        user.GrupaSanguina = request.GrupaSanguina;
-        user.DataUltimeiDonari = request.DataUltimeiDonari;
+        user.Phone = request.Phone;
+        user.City = request.City;
+        user.Age = request.Age;
+        user.IsDonor = request.IsDonor;
+        user.IsAdmin = request.IsAdmin;
+        user.BloodType = request.BloodType;
+        user.LastDonationDate = request.LastDonationDate;
 
         await db.SaveChangesAsync(cancellationToken);
 
-        var response = new UserResponse(user.Id, user.Nume, user.Email, user.Telefon, user.Oras, user.Varsta,
-            user.EsteDonator, user.EsteAdmin, user.GrupaSanguina, user.DataUltimeiDonari);
+        var response = new UserResponse(user.Id, user.Name, user.Email, user.Phone, user.City, user.Age,
+            user.IsDonor, user.IsAdmin, user.BloodType, user.LastDonationDate);
         return UpdateUserResult.Success(response);
     }
 }

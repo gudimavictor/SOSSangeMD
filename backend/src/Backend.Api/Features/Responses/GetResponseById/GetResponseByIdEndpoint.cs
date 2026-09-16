@@ -8,10 +8,10 @@ namespace Backend.Api.Features.Responses.GetResponseById;
 public record DonorResponse(
     int Id,
     int BloodRequestId,
-    int DonatorId,
-    string DonatorNume,
-    StatusRaspuns Status,
-    DateTime Data);
+    int DonorId,
+    string DonorName,
+    ResponseStatus Status,
+    DateTime RespondedAt);
 
 public class GetResponseByIdHandler(AppDbContext db)
 {
@@ -19,7 +19,7 @@ public class GetResponseByIdHandler(AppDbContext db)
     {
         return await db.RequestResponses
             .Where(r => r.Id == id)
-            .Select(r => new DonorResponse(r.Id, r.BloodRequestId, r.DonatorId, r.Donator.Nume, r.Status, r.Data))
+            .Select(r => new DonorResponse(r.Id, r.BloodRequestId, r.DonorId, r.Donor.Name, r.Status, r.RespondedAt))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

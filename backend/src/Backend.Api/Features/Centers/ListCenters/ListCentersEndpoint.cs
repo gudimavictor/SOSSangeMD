@@ -6,11 +6,11 @@ namespace Backend.Api.Features.Centers.ListCenters;
 
 public record CenterResponse(
     int Id,
-    string Nume,
-    string Oras,
-    string Adresa,
-    string Telefon,
-    string Program,
+    string Name,
+    string City,
+    string Address,
+    string Phone,
+    string Schedule,
     double Lat,
     double Lng);
 
@@ -19,8 +19,8 @@ public class ListCentersHandler(AppDbContext db)
     public async Task<IReadOnlyList<CenterResponse>> Handle(CancellationToken cancellationToken)
     {
         return await db.TransfusionCenters
-            .OrderBy(c => c.Nume)
-            .Select(c => new CenterResponse(c.Id, c.Nume, c.Oras, c.Adresa, c.Telefon, c.Program, c.Lat, c.Lng))
+            .OrderBy(c => c.Name)
+            .Select(c => new CenterResponse(c.Id, c.Name, c.City, c.Address, c.Phone, c.Schedule, c.Lat, c.Lng))
             .ToListAsync(cancellationToken);
     }
 }

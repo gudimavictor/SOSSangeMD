@@ -7,14 +7,14 @@ namespace Backend.Api.Features.Requests.GetRequestById;
 
 public record BloodRequestResponse(
     int Id,
-    int SolicitantId,
-    string SolicitantNume,
-    GrupaSanguina GrupaNecesara,
-    string Oras,
-    NivelUrgenta Urgenta,
-    string Descriere,
-    StatusCerere Status,
-    DateTime DataCreare);
+    int RequesterId,
+    string RequesterName,
+    BloodType RequiredBloodType,
+    string City,
+    UrgencyLevel Urgency,
+    string Description,
+    RequestStatus Status,
+    DateTime CreatedAt);
 
 public class GetRequestByIdHandler(AppDbContext db)
 {
@@ -22,8 +22,8 @@ public class GetRequestByIdHandler(AppDbContext db)
     {
         return await db.BloodRequests
             .Where(r => r.Id == id)
-            .Select(r => new BloodRequestResponse(r.Id, r.SolicitantId, r.Solicitant.Nume, r.GrupaNecesara, r.Oras,
-                r.Urgenta, r.Descriere, r.Status, r.DataCreare))
+            .Select(r => new BloodRequestResponse(r.Id, r.RequesterId, r.Requester.Name, r.RequiredBloodType, r.City,
+                r.Urgency, r.Description, r.Status, r.CreatedAt))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

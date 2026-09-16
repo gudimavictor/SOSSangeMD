@@ -6,21 +6,21 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Centers.UpdateCenter;
 
 public record UpdateCenterRequest(
-    string Nume,
-    string Oras,
-    string Adresa,
-    string Telefon,
-    string Program,
+    string Name,
+    string City,
+    string Address,
+    string Phone,
+    string Schedule,
     double Lat,
     double Lng);
 
 public record CenterResponse(
     int Id,
-    string Nume,
-    string Oras,
-    string Adresa,
-    string Telefon,
-    string Program,
+    string Name,
+    string City,
+    string Address,
+    string Phone,
+    string Schedule,
     double Lat,
     double Lng);
 
@@ -28,11 +28,11 @@ public class UpdateCenterValidator : AbstractValidator<UpdateCenterRequest>
 {
     public UpdateCenterValidator()
     {
-        RuleFor(x => x.Nume).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Oras).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Adresa).NotEmpty().MaximumLength(300);
-        RuleFor(x => x.Telefon).NotEmpty().MaximumLength(30);
-        RuleFor(x => x.Program).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.City).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Address).NotEmpty().MaximumLength(300);
+        RuleFor(x => x.Phone).NotEmpty().MaximumLength(30);
+        RuleFor(x => x.Schedule).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Lat).InclusiveBetween(-90, 90);
         RuleFor(x => x.Lng).InclusiveBetween(-180, 180);
     }
@@ -48,18 +48,18 @@ public class UpdateCenterHandler(AppDbContext db)
             return null;
         }
 
-        center.Nume = request.Nume;
-        center.Oras = request.Oras;
-        center.Adresa = request.Adresa;
-        center.Telefon = request.Telefon;
-        center.Program = request.Program;
+        center.Name = request.Name;
+        center.City = request.City;
+        center.Address = request.Address;
+        center.Phone = request.Phone;
+        center.Schedule = request.Schedule;
         center.Lat = request.Lat;
         center.Lng = request.Lng;
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return new CenterResponse(center.Id, center.Nume, center.Oras, center.Adresa, center.Telefon,
-            center.Program, center.Lat, center.Lng);
+        return new CenterResponse(center.Id, center.Name, center.City, center.Address, center.Phone,
+            center.Schedule, center.Lat, center.Lng);
     }
 }
 

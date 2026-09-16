@@ -7,29 +7,29 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Requests.UpdateRequest;
 
 public record UpdateRequestRequest(
-    GrupaSanguina GrupaNecesara,
-    string Oras,
-    NivelUrgenta Urgenta,
-    string Descriere,
-    StatusCerere Status);
+    BloodType RequiredBloodType,
+    string City,
+    UrgencyLevel Urgency,
+    string Description,
+    RequestStatus Status);
 
 public record BloodRequestResponse(
     int Id,
-    int SolicitantId,
-    string SolicitantNume,
-    GrupaSanguina GrupaNecesara,
-    string Oras,
-    NivelUrgenta Urgenta,
-    string Descriere,
-    StatusCerere Status,
-    DateTime DataCreare);
+    int RequesterId,
+    string RequesterName,
+    BloodType RequiredBloodType,
+    string City,
+    UrgencyLevel Urgency,
+    string Description,
+    RequestStatus Status,
+    DateTime CreatedAt);
 
 public class UpdateRequestValidator : AbstractValidator<UpdateRequestRequest>
 {
     public UpdateRequestValidator()
     {
-        RuleFor(x => x.Oras).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Descriere).NotEmpty().MaximumLength(1000);
+        RuleFor(x => x.City).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Description).NotEmpty().MaximumLength(1000);
     }
 }
 
@@ -39,23 +39,24 @@ public class UpdateRequestHandler(AppDbContext db)
         CancellationToken cancellationToken)
     {
         var entity = await db.BloodRequests
-            .Include(r => r.Solicitant)
+            .Include(r => r.Requester)
             .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (entity is null)
         {
             return null;
         }
 
-        entity.GrupaNecesara = request.GrupaNecesara;
-        entity.Oras = request.Oras;
-        entity.Urgenta = request.Urgenta;
-        entity.Descriere = request.Descriere;
+        entity.RequiredBloodType = request.RequiredBloodType;
+        entity.City = request.City;
+        entity.Urgency = request.Urgency;
+        entity.Description = request.Description;
         entity.Status = request.Status;
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return new BloodRequestResponse(entity.Id, entity.SolicitantId, entity.Solicitant.Nume,
-            entity.GrupaNecesara, entity.Oras, entity.Urgenta, entity.Descriere, entity.Status, entity.DataCreare);
+        return new BloodRequestResponse(entity.Id, entity.RequesterId, entity.Requester.Name,
+            entity.RequiredBloodType, entity.City, entity.Urgency, entity.Description, entity.Status,
+            entity.CreatedAt);
     }
 }
 

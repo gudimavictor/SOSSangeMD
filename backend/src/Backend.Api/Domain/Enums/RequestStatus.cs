@@ -3,8 +3,9 @@ using System.Text.Json.Serialization;
 namespace Backend.Api.Domain.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum TipNotificare
+public enum RequestStatus
 {
-    Confirmare,
-    CerereCompatibila
+    Active,
+    Resolved,
+    Expired
 }

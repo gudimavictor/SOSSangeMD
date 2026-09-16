@@ -8,13 +8,13 @@ public class MarkAllAsReadHandler(AppDbContext db)
 {
     public async Task<int> Handle(int userId, CancellationToken cancellationToken)
     {
-        var unread = await db.Notificari
-            .Where(n => n.UserId == userId && !n.Citita)
+        var unread = await db.Notifications
+            .Where(n => n.UserId == userId && !n.IsRead)
             .ToListAsync(cancellationToken);
 
-        foreach (var notificare in unread)
+        foreach (var notification in unread)
         {
-            notificare.Citita = true;
+            notification.IsRead = true;
         }
 
         await db.SaveChangesAsync(cancellationToken);

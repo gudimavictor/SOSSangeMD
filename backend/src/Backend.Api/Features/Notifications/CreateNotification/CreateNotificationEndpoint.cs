@@ -9,19 +9,19 @@ namespace Backend.Api.Features.Notifications.CreateNotification;
 
 public record CreateNotificationRequest(
     int UserId,
-    TipNotificare Tip,
-    string Titlu,
-    string Mesaj,
+    NotificationType Type,
+    string Title,
+    string Message,
     string? Link);
 
 public record NotificationResponse(
     int Id,
     int UserId,
-    TipNotificare Tip,
-    string Titlu,
-    string Mesaj,
-    bool Citita,
-    DateTime Data,
+    NotificationType Type,
+    string Title,
+    string Message,
+    bool IsRead,
+    DateTime CreatedAt,
     string? Link);
 
 public class CreateNotificationValidator : AbstractValidator<CreateNotificationRequest>
@@ -31,8 +31,8 @@ public class CreateNotificationValidator : AbstractValidator<CreateNotificationR
         RuleFor(x => x.UserId)
             .MustAsync(async (id, cancellationToken) => await db.Users.AnyAsync(u => u.Id == id, cancellationToken))
             .WithMessage("Utilizatorul nu există.");
-        RuleFor(x => x.Titlu).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Mesaj).NotEmpty().MaximumLength(1000);
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Message).NotEmpty().MaximumLength(1000);
         RuleFor(x => x.Link).MaximumLength(200);
     }
 }
@@ -42,22 +42,22 @@ public class CreateNotificationHandler(AppDbContext db)
     public async Task<NotificationResponse> Handle(CreateNotificationRequest request,
         CancellationToken cancellationToken)
     {
-        var entity = new Notificare
+        var entity = new Notification
         {
             UserId = request.UserId,
-            Tip = request.Tip,
-            Titlu = request.Titlu,
-            Mesaj = request.Mesaj,
-            Citita = false,
-            Data = DateTime.UtcNow,
+            Type = request.Type,
+            Title = request.Title,
+            Message = request.Message,
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow,
             Link = request.Link
         };
 
-        db.Notificari.Add(entity);
+        db.Notifications.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new NotificationResponse(entity.Id, entity.UserId, entity.Tip, entity.Titlu, entity.Mesaj,
-            entity.Citita, entity.Data, entity.Link);
+        return new NotificationResponse(entity.Id, entity.UserId, entity.Type, entity.Title, entity.Message,
+            entity.IsRead, entity.CreatedAt, entity.Link);
     }
 }
 

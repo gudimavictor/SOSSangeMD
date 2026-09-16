@@ -3,9 +3,8 @@ using System.Text.Json.Serialization;
 namespace Backend.Api.Domain.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum StatusCerere
+public enum NotificationType
 {
-    Activa,
-    Rezolvata,
-    Expirata
+    Confirmation,
+    CompatibleRequest
 }

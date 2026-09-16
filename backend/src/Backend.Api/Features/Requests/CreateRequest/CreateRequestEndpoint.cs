@@ -8,32 +8,32 @@ using Microsoft.EntityFrameworkCore;
 namespace Backend.Api.Features.Requests.CreateRequest;
 
 public record CreateRequestRequest(
-    int SolicitantId,
-    GrupaSanguina GrupaNecesara,
-    string Oras,
-    NivelUrgenta Urgenta,
-    string Descriere);
+    int RequesterId,
+    BloodType RequiredBloodType,
+    string City,
+    UrgencyLevel Urgency,
+    string Description);
 
 public record BloodRequestResponse(
     int Id,
-    int SolicitantId,
-    string SolicitantNume,
-    GrupaSanguina GrupaNecesara,
-    string Oras,
-    NivelUrgenta Urgenta,
-    string Descriere,
-    StatusCerere Status,
-    DateTime DataCreare);
+    int RequesterId,
+    string RequesterName,
+    BloodType RequiredBloodType,
+    string City,
+    UrgencyLevel Urgency,
+    string Description,
+    RequestStatus Status,
+    DateTime CreatedAt);
 
 public class CreateRequestValidator : AbstractValidator<CreateRequestRequest>
 {
     public CreateRequestValidator(AppDbContext db)
     {
-        RuleFor(x => x.SolicitantId)
+        RuleFor(x => x.RequesterId)
             .MustAsync(async (id, cancellationToken) => await db.Users.AnyAsync(u => u.Id == id, cancellationToken))
             .WithMessage("Solicitantul nu există.");
-        RuleFor(x => x.Oras).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Descriere).NotEmpty().MaximumLength(1000);
+        RuleFor(x => x.City).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Description).NotEmpty().MaximumLength(1000);
     }
 }
 
@@ -43,22 +43,22 @@ public class CreateRequestHandler(AppDbContext db)
     {
         var entity = new BloodRequest
         {
-            SolicitantId = request.SolicitantId,
-            GrupaNecesara = request.GrupaNecesara,
-            Oras = request.Oras,
-            Urgenta = request.Urgenta,
-            Descriere = request.Descriere,
-            Status = StatusCerere.Activa,
-            DataCreare = DateTime.UtcNow
+            RequesterId = request.RequesterId,
+            RequiredBloodType = request.RequiredBloodType,
+            City = request.City,
+            Urgency = request.Urgency,
+            Description = request.Description,
+            Status = RequestStatus.Active,
+            CreatedAt = DateTime.UtcNow
         };
 
         db.BloodRequests.Add(entity);
         await db.SaveChangesAsync(cancellationToken);
 
-        var solicitant = await db.Users.FirstAsync(u => u.Id == entity.SolicitantId, cancellationToken);
+        var requester = await db.Users.FirstAsync(u => u.Id == entity.RequesterId, cancellationToken);
 
-        return new BloodRequestResponse(entity.Id, entity.SolicitantId, solicitant.Nume, entity.GrupaNecesara,
-            entity.Oras, entity.Urgenta, entity.Descriere, entity.Status, entity.DataCreare);
+        return new BloodRequestResponse(entity.Id, entity.RequesterId, requester.Name, entity.RequiredBloodType,
+            entity.City, entity.Urgency, entity.Description, entity.Status, entity.CreatedAt);
     }
 }
 

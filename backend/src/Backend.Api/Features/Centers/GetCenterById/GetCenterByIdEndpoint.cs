@@ -6,11 +6,11 @@ namespace Backend.Api.Features.Centers.GetCenterById;
 
 public record CenterResponse(
     int Id,
-    string Nume,
-    string Oras,
-    string Adresa,
-    string Telefon,
-    string Program,
+    string Name,
+    string City,
+    string Address,
+    string Phone,
+    string Schedule,
     double Lat,
     double Lng);
 
@@ -20,7 +20,7 @@ public class GetCenterByIdHandler(AppDbContext db)
     {
         return await db.TransfusionCenters
             .Where(c => c.Id == id)
-            .Select(c => new CenterResponse(c.Id, c.Nume, c.Oras, c.Adresa, c.Telefon, c.Program, c.Lat, c.Lng))
+            .Select(c => new CenterResponse(c.Id, c.Name, c.City, c.Address, c.Phone, c.Schedule, c.Lat, c.Lng))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

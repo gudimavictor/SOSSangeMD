@@ -6,21 +6,21 @@ using FluentValidation;
 namespace Backend.Api.Features.Centers.CreateCenter;
 
 public record CreateCenterRequest(
-    string Nume,
-    string Oras,
-    string Adresa,
-    string Telefon,
-    string Program,
+    string Name,
+    string City,
+    string Address,
+    string Phone,
+    string Schedule,
     double Lat,
     double Lng);
 
 public record CenterResponse(
     int Id,
-    string Nume,
-    string Oras,
-    string Adresa,
-    string Telefon,
-    string Program,
+    string Name,
+    string City,
+    string Address,
+    string Phone,
+    string Schedule,
     double Lat,
     double Lng);
 
@@ -28,11 +28,11 @@ public class CreateCenterValidator : AbstractValidator<CreateCenterRequest>
 {
     public CreateCenterValidator()
     {
-        RuleFor(x => x.Nume).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.Oras).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.Adresa).NotEmpty().MaximumLength(300);
-        RuleFor(x => x.Telefon).NotEmpty().MaximumLength(30);
-        RuleFor(x => x.Program).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.City).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Address).NotEmpty().MaximumLength(300);
+        RuleFor(x => x.Phone).NotEmpty().MaximumLength(30);
+        RuleFor(x => x.Schedule).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Lat).InclusiveBetween(-90, 90);
         RuleFor(x => x.Lng).InclusiveBetween(-180, 180);
     }
@@ -44,11 +44,11 @@ public class CreateCenterHandler(AppDbContext db)
     {
         var center = new TransfusionCenter
         {
-            Nume = request.Nume,
-            Oras = request.Oras,
-            Adresa = request.Adresa,
-            Telefon = request.Telefon,
-            Program = request.Program,
+            Name = request.Name,
+            City = request.City,
+            Address = request.Address,
+            Phone = request.Phone,
+            Schedule = request.Schedule,
             Lat = request.Lat,
             Lng = request.Lng
         };
@@ -56,8 +56,8 @@ public class CreateCenterHandler(AppDbContext db)
         db.TransfusionCenters.Add(center);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new CenterResponse(center.Id, center.Nume, center.Oras, center.Adresa, center.Telefon,
-            center.Program, center.Lat, center.Lng);
+        return new CenterResponse(center.Id, center.Name, center.City, center.Address, center.Phone,
+            center.Schedule, center.Lat, center.Lng);
     }
 }
 

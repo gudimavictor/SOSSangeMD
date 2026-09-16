@@ -7,23 +7,23 @@ namespace Backend.Api.Features.Requests.ListRequests;
 
 public record BloodRequestResponse(
     int Id,
-    int SolicitantId,
-    string SolicitantNume,
-    GrupaSanguina GrupaNecesara,
-    string Oras,
-    NivelUrgenta Urgenta,
-    string Descriere,
-    StatusCerere Status,
-    DateTime DataCreare);
+    int RequesterId,
+    string RequesterName,
+    BloodType RequiredBloodType,
+    string City,
+    UrgencyLevel Urgency,
+    string Description,
+    RequestStatus Status,
+    DateTime CreatedAt);
 
 public class ListRequestsHandler(AppDbContext db)
 {
     public async Task<IReadOnlyList<BloodRequestResponse>> Handle(CancellationToken cancellationToken)
     {
         return await db.BloodRequests
-            .OrderByDescending(r => r.DataCreare)
-            .Select(r => new BloodRequestResponse(r.Id, r.SolicitantId, r.Solicitant.Nume, r.GrupaNecesara, r.Oras,
-                r.Urgenta, r.Descriere, r.Status, r.DataCreare))
+            .OrderByDescending(r => r.CreatedAt)
+            .Select(r => new BloodRequestResponse(r.Id, r.RequesterId, r.Requester.Name, r.RequiredBloodType, r.City,
+                r.Urgency, r.Description, r.Status, r.CreatedAt))
             .ToListAsync(cancellationToken);
     }
 }

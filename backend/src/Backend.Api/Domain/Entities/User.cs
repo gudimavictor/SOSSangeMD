@@ -5,14 +5,14 @@ namespace Backend.Api.Domain.Entities;
 public class User
 {
     public int Id { get; set; }
-    public string Nume { get; set; } = default!;
+    public string Name { get; set; } = default!;
     public string Email { get; set; } = default!;
-    public string Telefon { get; set; } = default!;
-    public string Oras { get; set; } = default!;
-    public int? Varsta { get; set; }
-    public bool EsteDonator { get; set; }
-    public bool EsteAdmin { get; set; }
-    public GrupaSanguina? GrupaSanguina { get; set; }
-    public DateOnly? DataUltimeiDonari { get; set; }
-    public string ParolaHash { get; set; } = default!;
+    public string Phone { get; set; } = default!;
+    public string City { get; set; } = default!;
+    public int? Age { get; set; }
+    public bool IsDonor { get; set; }
+    public bool IsAdmin { get; set; }
+    public BloodType? BloodType { get; set; }
+    public DateOnly? LastDonationDate { get; set; }
+    public string PasswordHash { get; set; } = default!;
 }
