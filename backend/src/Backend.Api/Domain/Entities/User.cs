@@ -14,4 +14,5 @@ public class User
     public bool EsteAdmin { get; set; }
     public GrupaSanguina? GrupaSanguina { get; set; }
     public DateOnly? DataUltimeiDonari { get; set; }
+    public string ParolaHash { get; set; } = default!;
 }

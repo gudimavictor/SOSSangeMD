@@ -15,6 +15,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Telefon).HasMaxLength(30).IsRequired();
         builder.Property(u => u.Oras).HasMaxLength(100).IsRequired();
         builder.Property(u => u.GrupaSanguina).HasConversion<string>().HasMaxLength(10);
+        builder.Property(u => u.ParolaHash).HasMaxLength(500).IsRequired();
 
         builder.HasIndex(u => u.Email).IsUnique();
     }
