@@ -78,9 +78,12 @@ public class CreateCenterEndpoint : IEndpoint
                     var response = await handler.Handle(request, ct);
                     return Results.Created($"/api/centers/get/{response.Id}", response);
                 })
+            .RequireAuthorization("AdminOnly")
             .WithName("CreateCenter")
             .WithTags("Centers")
             .Produces<CenterResponse>(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .ProducesValidationProblem();
     }
 }

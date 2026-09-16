@@ -31,9 +31,12 @@ public class DeleteCenterEndpoint : IEndpoint
                     var deleted = await handler.Handle(id, ct);
                     return deleted ? Results.NoContent() : Results.NotFound();
                 })
+            .RequireAuthorization("AdminOnly")
             .WithName("DeleteCenter")
             .WithTags("Centers")
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
     }
 }

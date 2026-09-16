@@ -80,10 +80,13 @@ public class UpdateCenterEndpoint : IEndpoint
                     var response = await handler.Handle(id, request, ct);
                     return response is not null ? Results.Ok(response) : Results.NotFound();
                 })
+            .RequireAuthorization("AdminOnly")
             .WithName("UpdateCenter")
             .WithTags("Centers")
             .Produces<CenterResponse>()
             .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .ProducesValidationProblem();
     }
 }
