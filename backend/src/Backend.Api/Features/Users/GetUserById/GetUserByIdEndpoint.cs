@@ -38,9 +38,11 @@ public class GetUserByIdEndpoint : IEndpoint
                 var user = await handler.Handle(id, ct);
                 return user is not null ? Results.Ok(user) : Results.NotFound();
             })
+            .RequireAuthorization()
             .WithName("GetUserById")
             .WithTags("Users")
             .Produces<UserResponse>()
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized);
     }
 }

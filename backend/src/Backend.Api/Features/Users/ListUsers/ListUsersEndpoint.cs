@@ -38,8 +38,11 @@ public class ListUsersEndpoint : IEndpoint
                 var users = await handler.Handle(ct);
                 return Results.Ok(users);
             })
+            .RequireAuthorization("AdminOnly")
             .WithName("ListUsers")
             .WithTags("Users")
-            .Produces<IReadOnlyList<UserResponse>>();
+            .Produces<IReadOnlyList<UserResponse>>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
     }
 }

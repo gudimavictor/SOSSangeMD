@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Domain.Enums;
+using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +59,8 @@ public record UpdateUserResult(UpdateUserStatus Status, UserResponse? Response =
 
 public class UpdateUserHandler(AppDbContext db)
 {
-    public async Task<UpdateUserResult> Handle(int id, UpdateUserRequest request, CancellationToken cancellationToken)
+    public async Task<UpdateUserResult> Handle(int id, UpdateUserRequest request, bool callerIsAdmin,
+        CancellationToken cancellationToken)
     {
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         if (user is null)
@@ -78,9 +81,13 @@ public class UpdateUserHandler(AppDbContext db)
         user.City = request.City;
         user.Age = request.Age;
         user.IsDonor = request.IsDonor;
-        user.IsAdmin = request.IsAdmin;
         user.BloodType = request.BloodType;
         user.LastDonationDate = request.LastDonationDate;
+
+        if (callerIsAdmin)
+        {
+            user.IsAdmin = request.IsAdmin;
+        }
 
         await db.SaveChangesAsync(cancellationToken);
 
@@ -95,16 +102,21 @@ public class UpdateUserEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app.MapPut("/api/users/update/{id:int}",
-                async (int id, UpdateUserRequest request, UpdateUserValidator validator, UpdateUserHandler handler,
-                    CancellationToken ct) =>
+                async (int id, UpdateUserRequest request, ClaimsPrincipal caller, UpdateUserValidator validator,
+                    UpdateUserHandler handler, CancellationToken ct) =>
                 {
+                    if (id != caller.GetUserId() && !caller.IsAdmin())
+                    {
+                        return Results.Forbid();
+                    }
+
                     var validationResult = await validator.ValidateAsync(request, ct);
                     if (!validationResult.IsValid)
                     {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
 
-                    var result = await handler.Handle(id, request, ct);
+                    var result = await handler.Handle(id, request, caller.IsAdmin(), ct);
                     return result.Status switch
                     {
                         UpdateUserStatus.Success => Results.Ok(result.Response),
@@ -113,11 +125,14 @@ public class UpdateUserEndpoint : IEndpoint
                         _ => Results.Problem()
                     };
                 })
+            .RequireAuthorization()
             .WithName("UpdateUser")
             .WithTags("Users")
             .Produces<UserResponse>()
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status409Conflict)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
             .ProducesValidationProblem();
     }
 }

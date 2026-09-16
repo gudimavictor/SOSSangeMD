@@ -7,11 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Backend.Api.Infrastructure.Auth;
 
+public record GeneratedToken(string Value, DateTime ExpiresAt);
+
 public class JwtTokenGenerator(IOptions<JwtSettings> options)
 {
     private readonly JwtSettings settings = options.Value;
 
-    public string GenerateToken(User user)
+    public GeneratedToken GenerateToken(User user)
     {
         var claims = new List<Claim>
         {
@@ -24,14 +26,16 @@ public class JwtTokenGenerator(IOptions<JwtSettings> options)
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var expiresAt = DateTime.UtcNow.AddMinutes(settings.ExpiryMinutes);
 
         var token = new JwtSecurityToken(
             issuer: settings.Issuer,
             audience: settings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(settings.ExpiryMinutes),
+            expires: expiresAt,
             signingCredentials: credentials);
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var value = new JwtSecurityTokenHandler().WriteToken(token);
+        return new GeneratedToken(value, expiresAt);
     }
 }
