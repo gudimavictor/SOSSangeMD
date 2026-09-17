@@ -3,6 +3,9 @@ bin/
 obj/
 *.user
 
+## Logs
+src/Backend.Api/logs/
+
 ## IDE
 .vs/
 .vscode/

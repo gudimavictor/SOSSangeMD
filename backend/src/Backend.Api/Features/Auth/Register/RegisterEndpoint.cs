@@ -52,7 +52,7 @@ public class RegisterValidator : AbstractValidator<RegisterRequest>
     }
 }
 
-public class RegisterHandler(AppDbContext db, IPasswordHasher<User> passwordHasher)
+public class RegisterHandler(AppDbContext db, IPasswordHasher<User> passwordHasher, ILogger<RegisterHandler> logger)
 {
     public async Task<UserResponse> Handle(RegisterRequest request, CancellationToken cancellationToken)
     {
@@ -73,6 +73,8 @@ public class RegisterHandler(AppDbContext db, IPasswordHasher<User> passwordHash
 
         db.Users.Add(user);
         await db.SaveChangesAsync(cancellationToken);
+
+        logger.LogInformation("New account created: User {UserId} ({Email})", user.Id, user.Email);
 
         return new UserResponse(user.Id, user.Name, user.Email, user.Phone, user.City, user.Age,
             user.IsDonor, user.IsAdmin, user.BloodType, user.LastDonationDate);

@@ -57,19 +57,22 @@ public class LoginHandler(
     IPasswordHasher<User> passwordHasher,
     JwtTokenGenerator tokenGenerator,
     RefreshTokenGenerator refreshTokenGenerator,
-    IOptions<JwtSettings> jwtSettings)
+    IOptions<JwtSettings> jwtSettings,
+    ILogger<LoginHandler> logger)
 {
     public async Task<LoginResult> Handle(LoginRequest request, CancellationToken cancellationToken)
     {
         var user = await db.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
         if (user is null)
         {
+            logger.LogWarning("Login failed: no account exists with email {Email}", request.Email);
             return LoginResult.InvalidCredentials();
         }
 
         var verification = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
         if (verification == PasswordVerificationResult.Failed)
         {
+            logger.LogWarning("Login failed: incorrect password for user {UserId}", user.Id);
             return LoginResult.InvalidCredentials();
         }
 
@@ -87,6 +90,8 @@ public class LoginHandler(
 
         var userResponse = new UserResponse(user.Id, user.Name, user.Email, user.Phone, user.City, user.Age,
             user.IsDonor, user.IsAdmin, user.BloodType, user.LastDonationDate);
+
+        logger.LogInformation("User {UserId} logged in successfully", user.Id);
 
         return LoginResult.Success(new LoginResponse(token.Value, token.ExpiresAt, refreshToken.Token,
             refreshToken.ExpiresAt, userResponse));
