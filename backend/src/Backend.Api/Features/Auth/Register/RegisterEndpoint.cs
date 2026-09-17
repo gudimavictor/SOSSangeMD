@@ -39,7 +39,12 @@ public class RegisterValidator : AbstractValidator<RegisterRequest>
         RuleFor(x => x.Email).NotEmpty().EmailAddress().MaximumLength(320)
             .MustAsync(async (email, cancellationToken) =>
                 !await db.Users.AnyAsync(u => u.Email == email, cancellationToken))
-            .WithMessage("Există deja un utilizator cu acest email.");
+            .WithMessage("Există deja un utilizator cu acest email.")
+            .MustAsync(async (email, cancellationToken) =>
+                await db.EmailVerificationCodes.AnyAsync(
+                    c => c.Email == email && c.ConfirmedAt != null &&
+                         c.ConfirmedAt > DateTime.UtcNow.AddMinutes(-30), cancellationToken))
+            .WithMessage("Emailul nu a fost confirmat. Te rugăm să confirmi codul primit pe email înainte de a continua.");
         RuleFor(x => x.Password).NotEmpty().MinimumLength(8);
         RuleFor(x => x.Phone).NotEmpty().MaximumLength(30);
         RuleFor(x => x.City).NotEmpty().MaximumLength(100);
