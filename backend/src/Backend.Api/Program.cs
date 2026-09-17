@@ -2,6 +2,7 @@ using System.Text;
 using Backend.Api.Domain.Entities;
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Infrastructure.Auth;
+using Backend.Api.Infrastructure.Email;
 using Backend.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -40,6 +41,8 @@ var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<JwtTokenGenerator>();
 builder.Services.AddSingleton<RefreshTokenGenerator>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddScoped<EmailSender>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
