@@ -1,6 +1,6 @@
-export type TipNotificare = 'confirmare' | 'cerere_compatibila'
+export type TipNotificare = 'confirmare' | 'cerere_compatibila' | 'raspuns_suport'
 
-export type NotificationLink = '/cererile-mele' | '/cereri-compatibile'
+export type NotificationLink = '/cererile-mele' | '/cereri-compatibile' | '/suport'
 
 export type Notificare = {
     id: string
@@ -14,6 +14,11 @@ export type Notificare = {
 }
 
 const NOTIFICATIONS_KEY = 'sos-sange-notifications'
+export const NOTIFICATIONS_UPDATED_EVENT = 'sos-sange-notifications-updated'
+
+function notificaSchimbare(): void {
+    window.dispatchEvent(new Event(NOTIFICATIONS_UPDATED_EVENT))
+}
 
 export function getNotifications(): Notificare[] {
     const raw = localStorage.getItem(NOTIFICATIONS_KEY)
@@ -39,6 +44,7 @@ export function addNotification(n: Notificare): void {
     const all = getNotifications()
     all.push(n)
     localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(all))
+    notificaSchimbare()
 }
 
 export function markAsRead(id: string): void {
@@ -47,10 +53,12 @@ export function markAsRead(id: string): void {
     if (index !== -1) {
         all[index] = { ...all[index], citita: true }
         localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(all))
+        notificaSchimbare()
     }
 }
 
 export function markAllAsRead(userId: string): void {
     const all = getNotifications().map((n) => (n.userId === userId ? { ...n, citita: true } : n))
     localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(all))
+    notificaSchimbare()
 }

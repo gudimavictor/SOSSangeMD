@@ -110,6 +110,24 @@
     background: var(--color-primary-light);
 }
 
+.notifCardClickable {
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.notifCardClickable:hover {
+    opacity: 0.85;
+}
+
+.notifUnreadDot {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    margin-top: 0.4rem;
+}
+
 .notifCardIcon {
     flex-shrink: 0;
     width: 38px;
@@ -128,27 +146,29 @@
     min-width: 0;
 }
 
+.notifCardTitleRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
 .notifCardTitle {
-    margin: 0 0 0.25rem;
+    margin: 0;
     font-weight: 700;
     font-size: 0.92rem;
     color: var(--color-text);
 }
 
 .notifCardMessage {
-    margin: 0 0 0.6rem;
+    margin: 0.5rem 0 0.4rem;
     font-size: 0.85rem;
     color: var(--color-text-muted);
     line-height: 1.5;
 }
 
-.notifCardFooter {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
 .notifCardTime {
+    flex-shrink: 0;
     font-size: 0.75rem;
     color: var(--color-text-muted);
 }
@@ -164,23 +184,3 @@
     text-decoration: underline;
 }
 
-.notifMarkButton {
-    flex-shrink: 0;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid var(--canvas-hairline);
-    background: var(--color-surface);
-    color: var(--color-text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: all 0.15s ease;
-}
-
-.notifMarkButton:hover {
-    border-color: var(--color-success);
-    color: var(--color-success);
-}

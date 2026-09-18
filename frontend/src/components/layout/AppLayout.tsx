@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from '@tanstack/react-router'
 import { useAuth } from '../../features/auth/AuthContext'
-import { getUnreadCount } from '../../features/notifications/notificationsStore'
+import { getUnreadCount, NOTIFICATIONS_UPDATED_EVENT } from '../../features/notifications/notificationsStore'
 import { IconBell } from '../ui/Icons'
 import { Footer } from './Footer'
 import './AppLayout.css'
@@ -34,6 +35,15 @@ export function AppLayout({ children }: AppLayoutProps) {
     const { user, logout } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
+    const [, setNotifVersiune] = useState(0)
+
+    useEffect(() => {
+        function handleUpdate() {
+            setNotifVersiune((v) => v + 1)
+        }
+        window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate)
+        return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate)
+    }, [])
 
     function handleLogout() {
         logout()

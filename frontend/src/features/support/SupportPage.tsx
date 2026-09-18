@@ -4,6 +4,8 @@ import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { IconPhone, IconMail, IconLocation, IconClock, IconWarning, IconCheck, IconBulb } from '../../components/ui/Icons'
 import { PageHeader } from '../../components/ui/PageHeader'
+import { addSupportMessage } from './supportMessagesStore'
+import { useAuth } from '../auth/AuthContext'
 import './SupportPage.css'
 
 const staggerContainer = {
@@ -57,9 +59,10 @@ const contactCards = [
 ]
 
 export function SupportPage() {
+    const { user } = useAuth()
     const [faqDeschis, setFaqDeschis] = useState<number | null>(null)
-    const [nume, setNume] = useState('')
-    const [email, setEmail] = useState('')
+    const [nume, setNume] = useState(user?.nume ?? '')
+    const [email, setEmail] = useState(user?.email ?? '')
     const [mesaj, setMesaj] = useState('')
     const [trimis, setTrimis] = useState(false)
 
@@ -71,9 +74,23 @@ export function SupportPage() {
         event.preventDefault()
         if (!nume || !email || !mesaj) return
 
+        addSupportMessage({
+            id: crypto.randomUUID(),
+            userId: user?.id ?? null,
+            nume,
+            email,
+            mesaj,
+            data: new Date().toISOString(),
+            citit: false,
+            raspuns: null,
+            raspunsData: null,
+        })
+
         setTrimis(true)
-        setNume('')
-        setEmail('')
+        if (!user) {
+            setNume('')
+            setEmail('')
+        }
         setMesaj('')
 
         setTimeout(() => setTrimis(false), 4000)

@@ -8,17 +8,21 @@ import type { BloodRequest, StatusCerere, NivelUrgenta } from '../requests/types
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { getCenters, addCenter, updateCenter, deleteCenter } from '../centers/centersStore'
 import type { CentruTransfuzie } from '../centers/centers'
+import { getSupportMessages, raspundeMesaj, deleteSupportMessage } from '../support/supportMessagesStore'
+import type { SupportMessage } from '../support/supportMessagesStore'
+import { addNotification } from '../notifications/notificationsStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
-import { IconChart, IconDrop, IconUsers, IconLocation } from '../../components/ui/Icons'
+import { IconChart, IconDrop, IconUsers, IconLocation, IconMail } from '../../components/ui/Icons'
 import './AdminDashboardPage.css'
 
-type Tab = 'statistici' | 'cereri' | 'utilizatori' | 'centre'
+type Tab = 'statistici' | 'cereri' | 'utilizatori' | 'centre' | 'mesaje'
 
 const tabInfo: { value: Tab; label: string; icon: typeof IconChart }[] = [
     { value: 'statistici', label: 'Statistici', icon: IconChart },
     { value: 'cereri', label: 'Cereri', icon: IconDrop },
     { value: 'utilizatori', label: 'Utilizatori', icon: IconUsers },
     { value: 'centre', label: 'Centre', icon: IconLocation },
+    { value: 'mesaje', label: 'Mesaje', icon: IconMail },
 ]
 
 const statusOptions: StatusCerere[] = ['activa', 'rezolvata', 'expirata']
@@ -66,6 +70,7 @@ export function AdminDashboardPage() {
     const [cautareCereri, setCautareCereri] = useState('')
     const [cautareUseri, setCautareUseri] = useState('')
     const [cautareCentre, setCautareCentre] = useState('')
+    const [cautareMesaje, setCautareMesaje] = useState('')
 
     const refresh = () => setVersiune((v) => v + 1)
 
@@ -117,11 +122,13 @@ export function AdminDashboardPage() {
     const users = getUsers()
     const requests = getRequests()
     const centers = getCenters()
+    const mesaje = getSupportMessages()
     const currentUserId = user.id
 
     const totalDonatori = users.filter((u) => u.esteDonator).length
     const cereriActive = requests.filter((r) => r.status === 'activa').length
     const cereriRezolvate = requests.filter((r) => r.status === 'rezolvata').length
+    const mesajeNecitite = mesaje.filter((m) => !m.citit).length
 
     const requestsFiltrate = requests.filter((r) => {
         const q = cautareCereri.toLowerCase()
@@ -141,6 +148,13 @@ export function AdminDashboardPage() {
         const q = cautareCentre.toLowerCase()
         return c.nume.toLowerCase().includes(q) || c.oras.toLowerCase().includes(q)
     })
+
+    const mesajeFiltrate = mesaje
+        .filter((m) => {
+            const q = cautareMesaje.toLowerCase()
+            return m.nume.toLowerCase().includes(q) || m.email.toLowerCase().includes(q) || m.mesaj.toLowerCase().includes(q)
+        })
+        .sort((a, b) => b.data.localeCompare(a.data))
 
     function handleStatusChange(id: string, status: StatusCerere) {
         updateRequestStatus(id, status)
@@ -165,6 +179,30 @@ export function AdminDashboardPage() {
     function handleDeleteUser(u: UserRecord) {
         if (u.id === currentUserId) return
         deleteUser(u.id)
+        refresh()
+    }
+
+    function handleReplyMessage(mesaj: SupportMessage, raspuns: string) {
+        raspundeMesaj(mesaj.id, raspuns)
+
+        if (mesaj.userId) {
+            addNotification({
+                id: crypto.randomUUID(),
+                userId: mesaj.userId,
+                tip: 'raspuns_suport',
+                titlu: 'Ai primit un răspuns de la echipa de suport',
+                mesaj: raspuns,
+                citita: false,
+                data: new Date().toISOString(),
+                link: '/suport',
+            })
+        }
+
+        refresh()
+    }
+
+    function handleDeleteMessage(id: string) {
+        deleteSupportMessage(id)
         refresh()
     }
 
@@ -229,6 +267,10 @@ export function AdminDashboardPage() {
                                     <span className="adminStatNumber">{centers.length}</span>
                                     <span className="adminStatLabel">Centre de transfuzie</span>
                                 </div>
+                                <div className="adminStatCard">
+                                    <span className="adminStatNumber">{mesajeNecitite}</span>
+                                    <span className="adminStatLabel">Mesaje necitite</span>
+                                </div>
                             </div>
                         )}
 
@@ -260,6 +302,16 @@ export function AdminDashboardPage() {
                                 cautare={cautareCentre}
                                 onCautareChange={setCautareCentre}
                                 onChanged={refresh}
+                            />
+                        )}
+
+                        {tab === 'mesaje' && (
+                            <MessagesAdminTab
+                                mesaje={mesajeFiltrate}
+                                cautare={cautareMesaje}
+                                onCautareChange={setCautareMesaje}
+                                onReply={handleReplyMessage}
+                                onDelete={handleDeleteMessage}
                             />
                         )}
                     </div>
@@ -779,6 +831,119 @@ function CentersAdminTab({ centre, cautare, onCautareChange, onChanged }: Center
                     </tbody>
                 </table>
             </div>
+        </div>
+    )
+}
+
+type MessagesAdminTabProps = {
+    mesaje: SupportMessage[]
+    cautare: string
+    onCautareChange: (v: string) => void
+    onReply: (mesaj: SupportMessage, raspuns: string) => void
+    onDelete: (id: string) => void
+}
+
+function formateazaDataMesaj(data: string) {
+    return new Date(data).toLocaleDateString('ro-RO', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+}
+
+function MessagesAdminTab({ mesaje, cautare, onCautareChange, onReply, onDelete }: MessagesAdminTabProps) {
+    const [replyId, setReplyId] = useState<string | null>(null)
+    const [raspunsText, setRaspunsText] = useState('')
+
+    function startReply(m: SupportMessage) {
+        setReplyId(m.id)
+        setRaspunsText(m.raspuns ?? '')
+    }
+
+    function cancel() {
+        setReplyId(null)
+        setRaspunsText('')
+    }
+
+    function trimiteRaspuns(m: SupportMessage) {
+        if (!raspunsText.trim()) return
+        onReply(m, raspunsText.trim())
+        setReplyId(null)
+        setRaspunsText('')
+    }
+
+    return (
+        <div className="adminTableCard">
+            <div className="adminTableToolbar">
+                <input
+                    className="adminSearchInput"
+                    placeholder="Caută după nume, email sau mesaj..."
+                    value={cautare}
+                    onChange={(e) => onCautareChange(e.target.value)}
+                />
+            </div>
+
+            {mesaje.length === 0 ? (
+                <p className="adminEmptyState">Nu există mesaje care să corespundă căutării.</p>
+            ) : (
+                <div className="adminMessagesList">
+                    {mesaje.map((m) => (
+                        <div key={m.id} className={`adminMessageCard ${!m.citit ? 'adminMessageCardUnread' : ''}`}>
+                            <div className="adminMessageTop">
+                                <div className="adminUserCell">
+                                    <span className="adminAvatar">{initiale(m.nume)}</span>
+                                    <div>
+                                        <p className="adminMessageName">{m.nume}</p>
+                                        <p className="adminMessageEmail">{m.email}</p>
+                                    </div>
+                                </div>
+                                <div className="adminMessageMeta">
+                                    {!m.citit && <span className="adminBadge">Nou</span>}
+                                    <span className="adminMessageDate">{formateazaDataMesaj(m.data)}</span>
+                                </div>
+                            </div>
+                            <p className="adminMessageText">{m.mesaj}</p>
+
+                            {m.raspuns && replyId !== m.id && (
+                                <div className="adminMessageReply">
+                                    <p className="adminMessageReplyLabel">Răspunsul tău</p>
+                                    <p className="adminMessageReplyText">{m.raspuns}</p>
+                                </div>
+                            )}
+
+                            {replyId === m.id ? (
+                                <div className="adminMessageReplyForm">
+                                    <textarea
+                                        rows={3}
+                                        value={raspunsText}
+                                        onChange={(e) => setRaspunsText(e.target.value)}
+                                        placeholder="Scrie un răspuns..."
+                                    />
+                                    <div className="adminActionsCell">
+                                        <button className="adminSubmitButton" onClick={() => trimiteRaspuns(m)}>
+                                            Trimite răspuns
+                                        </button>
+                                        <button className="adminSecondaryButton" onClick={cancel}>
+                                            Renunță
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="adminActionsCell">
+                                    <button className="adminEditButton" onClick={() => startReply(m)}>
+                                        {m.raspuns ? 'Editează răspunsul' : 'Răspunde'}
+                                    </button>
+                                    <button className="adminDeleteButton" onClick={() => onDelete(m.id)}>
+                                        Șterge
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }
