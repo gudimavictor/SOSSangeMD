@@ -8,8 +8,6 @@ namespace Backend.Api.Features.Users.GetUserById;
 public record UserResponse(
     int Id,
     string Name,
-    string Email,
-    string Phone,
     string City,
     int? Age,
     bool IsDonor,
@@ -23,7 +21,7 @@ public class GetUserByIdHandler(AppDbContext db)
     {
         return await db.Users
             .Where(u => u.Id == id)
-            .Select(u => new UserResponse(u.Id, u.Name, u.Email, u.Phone, u.City, u.Age, u.IsDonor,
+            .Select(u => new UserResponse(u.Id, u.Name, u.City, u.Age, u.IsDonor,
                 u.IsAdmin, u.BloodType, u.LastDonationDate))
             .FirstOrDefaultAsync(cancellationToken);
     }

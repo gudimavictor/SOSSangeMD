@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Domain.Entities;
 using Backend.Api.Domain.Enums;
+using Backend.Api.Domain.Services;
 using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
@@ -52,9 +53,33 @@ public class CreateRequestHandler(AppDbContext db)
         };
 
         db.BloodRequests.Add(entity);
-        await db.SaveChangesAsync(cancellationToken);
 
         var requester = await db.Users.FirstAsync(u => u.Id == entity.RequesterId, cancellationToken);
+
+        var compatibleDonors = await db.Users
+            .Where(u => u.IsDonor && u.BloodType != null && u.City == entity.City && u.Id != entity.RequesterId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var donor in compatibleDonors)
+        {
+            if (!BloodCompatibility.IsCompatible(donor.BloodType!.Value, entity.RequiredBloodType))
+            {
+                continue;
+            }
+
+            db.Notifications.Add(new Notification
+            {
+                UserId = donor.Id,
+                Type = NotificationType.CompatibleRequest,
+                Title = "O cerere nouă compatibilă cu tine",
+                Message = $"Grupa {entity.RequiredBloodType} este necesară în {entity.City}.",
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow,
+                Link = "/cereri-compatibile"
+            });
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
 
         return new BloodRequestResponse(entity.Id, entity.RequesterId, requester.Name, entity.RequiredBloodType,
             entity.City, entity.Urgency, entity.Description, entity.Status, entity.CreatedAt);
