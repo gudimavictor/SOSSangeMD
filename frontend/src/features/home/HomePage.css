@@ -310,6 +310,18 @@
     font-weight: 600;
 }
 
+.feedContact {
+    margin: 0.5rem 0 0;
+    text-align: center;
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    justify-content: center;
+}
+
 .feedOwnBadge {
     align-self: flex-start;
     background: var(--color-bg);

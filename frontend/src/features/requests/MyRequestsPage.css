@@ -248,6 +248,57 @@
     margin-bottom: 0.9rem;
 }
 
+.iconText {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.myReqDonorsBox {
+    background: var(--color-success-light);
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.9rem;
+}
+
+.myReqDonorsTitle {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-success);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.myReqDonorsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.myReqDonorItem {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.myReqDonorName {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.myReqDonorGroup {
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.myReqDonorPhone {
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+}
+
 .myReqActions {
     display: flex;
     gap: 0.5rem;

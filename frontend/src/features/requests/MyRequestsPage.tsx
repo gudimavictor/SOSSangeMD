@@ -3,13 +3,15 @@ import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import { getRequestsByUser, updateRequestStatus, updateRequest, deleteRequest } from './requestsStore'
+import { getResponsesByRequest } from './requestResponsesStore'
+import { getUsers } from '../auth/usersStore'
 import { grupeleSanguine } from './compatibilitate'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from './types'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
 import { PageHeader } from '../../components/ui/PageHeader'
-import { IconDrop, IconLocation } from '../../components/ui/Icons'
+import { IconDrop, IconLocation, IconPhone } from '../../components/ui/Icons'
 import './MyRequestsPage.css'
 
 type Tab = 'active' | 'rezolvate' | 'toate'
@@ -295,6 +297,8 @@ export function MyRequestsPage() {
                                                 <span className="myReqDate">{zileDeLaCreare(r.dataCreare)}</span>
                                             </div>
 
+                                            <DonatoriConfirmati cererId={r.id} />
+
                                             <div className="myReqActions">
                                                 {r.status === 'activa' && (
                                                     <button
@@ -321,6 +325,37 @@ export function MyRequestsPage() {
                         </AnimatePresence>
                     </motion.div>
                 )}
+            </div>
+        </div>
+    )
+}
+
+function DonatoriConfirmati({ cererId }: { cererId: string }) {
+    const raspunsuri = getResponsesByRequest(cererId)
+    if (raspunsuri.length === 0) return null
+
+    const useri = getUsers()
+
+    return (
+        <div className="myReqDonorsBox">
+            <p className="myReqDonorsTitle">
+                {raspunsuri.length} {raspunsuri.length === 1 ? 'donator a confirmat' : 'donatori au confirmat'}
+            </p>
+            <div className="myReqDonorsList">
+                {raspunsuri.map((raspuns) => {
+                    const donator = useri.find((u) => u.id === raspuns.donatorId)
+                    return (
+                        <div key={raspuns.id} className="myReqDonorItem">
+                            <span className="myReqDonorName">{raspuns.donatorNume}</span>
+                            {donator?.grupaSanguina && <span className="myReqDonorGroup">{donator.grupaSanguina}</span>}
+                            {donator?.telefon && (
+                                <span className="myReqDonorPhone iconText">
+                                    <IconPhone /> {donator.telefon}
+                                </span>
+                            )}
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )

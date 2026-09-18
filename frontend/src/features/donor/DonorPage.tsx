@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import type { GrupaSanguina } from '../auth/AuthContext'
-import { updateUser as updateUserRecord } from '../auth/usersStore'
+import { updateUser as updateUserRecord, getUsers } from '../auth/usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { CustomDatePicker } from '../../components/ui/CustomDatePicker'
 import { CircularProgress } from '../../components/ui/CircularProgress'
@@ -14,7 +14,7 @@ import { mockRequests } from '../requests/mockRequests'
 import { getRequests } from '../requests/requestsStore'
 import { addResponse, aRaspunsDeja } from '../requests/requestResponsesStore'
 import { addNotification } from '../notifications/notificationsStore'
-import { IconCheck, IconDrop, IconLocation } from '../../components/ui/Icons'
+import { IconCheck, IconDrop, IconLocation, IconPhone } from '../../components/ui/Icons'
 import './DonorPage.css'
 
 const orase = ['Chișinău', 'Bălți', 'Soroca', 'Comrat', 'Cahul']
@@ -209,6 +209,8 @@ export function DonorPage() {
     const eligibil = esteEligibilPentruDonare(user.dataUltimeiDonari)
     const progres = progresEligibilitate(user.dataUltimeiDonari)
 
+    const useri = getUsers()
+
     const cereriCompatibile = [...getRequests(), ...mockRequests].filter(
         (r) =>
             r.status === 'activa' &&
@@ -320,6 +322,7 @@ export function DonorPage() {
                     >
                         {cereriCompatibile.slice(0, 3).map((r) => {
                             const araspuns = aRaspunsDeja(r.id, user.id)
+                            const solicitant = useri.find((u) => u.id === r.solicitantId)
                             return (
                                 <motion.div
                                     key={r.id}
@@ -336,9 +339,16 @@ export function DonorPage() {
                                     <span className="donorRequestCity iconText"><IconLocation /> {r.oras}</span>
                                     <p className="donorRequestRequester">Solicitat de {r.solicitantNume}</p>
                                     {araspuns ? (
-                                        <button className="donorRequestConfirmButton donorRequestConfirmButtonDone" disabled>
-                                            <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
-                                        </button>
+                                        <>
+                                            <button className="donorRequestConfirmButton donorRequestConfirmButtonDone" disabled>
+                                                <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
+                                            </button>
+                                            {solicitant?.telefon && (
+                                                <p className="donorRequestContact iconText">
+                                                    <IconPhone /> Contact: {solicitant.telefon}
+                                                </p>
+                                            )}
+                                        </>
                                     ) : !eligibil ? (
                                         <p className="donorRequestNotEligible">
                                             Poți dona din nou pe {dataUrmatoareiDonari(user.dataUltimeiDonari!)}

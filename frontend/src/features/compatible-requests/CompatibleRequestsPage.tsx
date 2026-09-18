@@ -7,11 +7,11 @@ import { getRequests } from '../requests/requestsStore'
 import { esteCompatibil, esteEligibilPentruDonare, dataUrmatoareiDonari } from '../requests/compatibilitate'
 import { addResponse, aRaspunsDeja, getResponsesByDonor } from '../requests/requestResponsesStore'
 import { addNotification } from '../notifications/notificationsStore'
-import { updateUser as updateUserRecord } from '../auth/usersStore'
+import { updateUser as updateUserRecord, getUsers } from '../auth/usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
 import { PageHeader } from '../../components/ui/PageHeader'
-import { IconDrop, IconLocation, IconCheck, IconUsers } from '../../components/ui/Icons'
+import { IconDrop, IconLocation, IconCheck, IconUsers, IconPhone } from '../../components/ui/Icons'
 import type { BloodRequest, NivelUrgenta } from '../requests/types'
 import './CompatibleRequestsPage.css'
 
@@ -97,6 +97,7 @@ export function CompatibleRequestsPage() {
     }
 
     const grupaMea = user.grupaSanguina
+    const useri = getUsers()
 
     const toateCererile: BloodRequest[] = [...getRequests(), ...mockRequests].filter(
         (r) => r.status === 'activa' && r.solicitantId !== user.id && esteCompatibil(grupaMea, r.grupaNecesara)
@@ -232,6 +233,7 @@ export function CompatibleRequestsPage() {
                         <AnimatePresence>
                             {cereriFiltrate.map((r) => {
                                 const araspuns = aRaspunsDeja(r.id, user.id)
+                                const solicitant = useri.find((u) => u.id === r.solicitantId)
                                 return (
                                     <motion.div
                                         key={r.id}
@@ -256,9 +258,16 @@ export function CompatibleRequestsPage() {
                                         <p className="compatCardRequester">Solicitat de {r.solicitantNume}</p>
 
                                         {araspuns ? (
-                                            <button className="compatConfirmButton compatConfirmButtonDone" disabled>
-                                                <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
-                                            </button>
+                                            <>
+                                                <button className="compatConfirmButton compatConfirmButtonDone" disabled>
+                                                    <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
+                                                </button>
+                                                {solicitant?.telefon && (
+                                                    <p className="compatContact iconText">
+                                                        <IconPhone /> Contact: {solicitant.telefon}
+                                                    </p>
+                                                )}
+                                            </>
                                         ) : !eligibil ? (
                                             <p className="compatNotEligible">
                                                 Poți dona din nou pe {dataUrmatoareiDonari(user.dataUltimeiDonari!)}

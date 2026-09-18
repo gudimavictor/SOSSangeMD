@@ -7,10 +7,10 @@ import { getRequests } from '../requests/requestsStore'
 import { addResponse, aRaspunsDeja } from '../requests/requestResponsesStore'
 import { addNotification } from '../notifications/notificationsStore'
 import { grupeleSanguine, esteEligibilPentruDonare, dataUrmatoareiDonari } from '../requests/compatibilitate'
-import { updateUser as updateUserRecord } from '../auth/usersStore'
+import { updateUser as updateUserRecord, getUsers } from '../auth/usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
-import { IconDrop, IconLocation, IconCheck } from '../../components/ui/Icons'
+import { IconDrop, IconLocation, IconCheck, IconPhone } from '../../components/ui/Icons'
 import { PageHeader } from '../../components/ui/PageHeader'
 import type { BloodRequest, NivelUrgenta } from '../requests/types'
 import './HomePage.css'
@@ -56,6 +56,7 @@ export function HomePage() {
     const [, setVersiune] = useState(0)
 
     const refresh = () => setVersiune((v) => v + 1)
+    const useri = getUsers()
 
     const toateCererile: BloodRequest[] = [...getRequests(), ...mockRequests].filter(
         (r) => r.status === 'activa'
@@ -204,6 +205,7 @@ export function HomePage() {
                             {cereriFiltrate.map((r) => {
                                 const esteCererea = user?.id === r.solicitantId
                                 const araspuns = user ? aRaspunsDeja(r.id, user.id) : false
+                                const solicitant = useri.find((u) => u.id === r.solicitantId)
 
                                 return (
                                     <motion.div
@@ -239,9 +241,16 @@ export function HomePage() {
                                                 Autentifică-te ca să ajuți
                                             </Link>
                                         ) : araspuns ? (
-                                            <button className="feedConfirmButton feedConfirmButtonDone" disabled>
-                                                <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
-                                            </button>
+                                            <>
+                                                <button className="feedConfirmButton feedConfirmButtonDone" disabled>
+                                                    <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
+                                                </button>
+                                                {solicitant?.telefon && (
+                                                    <p className="feedContact iconText">
+                                                        <IconPhone /> Contact: {solicitant.telefon}
+                                                    </p>
+                                                )}
+                                            </>
                                         ) : !eligibil ? (
                                             <p className="feedNotEligible">
                                                 Poți dona din nou pe {dataUrmatoareiDonari(user.dataUltimeiDonari!)}

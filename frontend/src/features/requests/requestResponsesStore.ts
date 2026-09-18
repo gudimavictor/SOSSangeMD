@@ -16,6 +16,10 @@ export function getResponsesByDonor(donatorId: string): RequestResponse[] {
     return getResponses().filter((r) => r.donatorId === donatorId)
 }
 
+export function getResponsesByRequest(cererId: string): RequestResponse[] {
+    return getResponses().filter((r) => r.cererId === cererId)
+}
+
 export function aRaspunsDeja(cererId: string, donatorId: string): boolean {
     return getResponses().some((r) => r.cererId === cererId && r.donatorId === donatorId)
 }

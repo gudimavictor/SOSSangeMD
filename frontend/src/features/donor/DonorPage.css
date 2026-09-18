@@ -387,6 +387,18 @@
     font-weight: 600;
 }
 
+.donorRequestContact {
+    margin: 0.5rem 0 0;
+    text-align: center;
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    justify-content: center;
+}
+
 .donorCtaLink {
     display: block;
     text-align: center;
