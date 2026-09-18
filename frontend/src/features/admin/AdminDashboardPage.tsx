@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useAuth } from '../auth/AuthContext'
-import { getUsers, setAdmin, deleteUser } from '../auth/usersStore'
+import { getUsers, updateUser, deleteUser } from '../auth/usersStore'
 import type { UserRecord } from '../auth/usersStore'
-import { getRequests, updateRequestStatus, deleteRequest } from '../requests/requestsStore'
-import type { BloodRequest, StatusCerere } from '../requests/types'
+import { getRequests, updateRequestStatus, updateRequest, deleteRequest } from '../requests/requestsStore'
+import type { BloodRequest, StatusCerere, NivelUrgenta } from '../requests/types'
+import type { GrupaSanguina } from '../auth/AuthContext'
 import { getCenters, addCenter, updateCenter, deleteCenter } from '../centers/centersStore'
 import type { CentruTransfuzie } from '../centers/centers'
 import { CustomSelect } from '../../components/ui/CustomSelect'
@@ -26,6 +27,16 @@ const statusLabel: Record<StatusCerere, string> = {
     activa: 'Activă',
     rezolvata: 'Rezolvată',
     expirata: 'Expirată',
+}
+
+const grupeSanguine: GrupaSanguina[] = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
+
+const urgentaOptions: NivelUrgenta[] = ['critica', 'urgenta', 'programata']
+
+const urgentaLabel: Record<NivelUrgenta, string> = {
+    critica: 'Critică',
+    urgenta: 'Urgentă',
+    programata: 'Programată',
 }
 
 const centruGol: CentruTransfuzie = {
@@ -62,8 +73,13 @@ export function AdminDashboardPage() {
         return (
             <div className="adminPage">
                 <div className="adminHero">
-                    <h1 className="adminHeroTitle">Admin Dashboard</h1>
-                    <p className="adminHeroSubtitle">Zonă restricționată — necesită autentificare.</p>
+                    <span className="adminHeroIcon">
+                        <IconDrop />
+                    </span>
+                    <div>
+                        <h1 className="adminHeroTitle">Admin Dashboard</h1>
+                        <p className="adminHeroSubtitle">Zonă restricționată — necesită autentificare.</p>
+                    </div>
                 </div>
                 <div className="adminBody">
                     <div className="adminLoginPrompt">
@@ -81,8 +97,13 @@ export function AdminDashboardPage() {
         return (
             <div className="adminPage">
                 <div className="adminHero">
-                    <h1 className="adminHeroTitle">Admin Dashboard</h1>
-                    <p className="adminHeroSubtitle">Zonă restricționată.</p>
+                    <span className="adminHeroIcon">
+                        <IconDrop />
+                    </span>
+                    <div>
+                        <h1 className="adminHeroTitle">Admin Dashboard</h1>
+                        <p className="adminHeroSubtitle">Zonă restricționată.</p>
+                    </div>
                 </div>
                 <div className="adminBody">
                     <div className="adminLoginPrompt">
@@ -126,13 +147,18 @@ export function AdminDashboardPage() {
         refresh()
     }
 
+    function handleEditRequest(id: string, updates: Partial<BloodRequest>) {
+        updateRequest(id, updates)
+        refresh()
+    }
+
     function handleDeleteRequest(id: string) {
         deleteRequest(id)
         refresh()
     }
 
-    function handleToggleAdmin(u: UserRecord) {
-        setAdmin(u.id, !u.esteAdmin)
+    function handleEditUser(id: string, updates: Partial<UserRecord>) {
+        updateUser(id, updates)
         refresh()
     }
 
@@ -144,9 +170,16 @@ export function AdminDashboardPage() {
 
     return (
         <div className="adminPage">
-            <div className="adminHero">
-                <h1 className="adminHeroTitle">Admin Dashboard</h1>
-                <p className="adminHeroSubtitle">Gestionează cereri, utilizatori și centre de transfuzie.</p>
+            <div className="adminTopbar">
+                <div className="adminTopbarBrand">
+                    <span className="adminTopbarIcon">
+                        <IconDrop />
+                    </span>
+                    <div>
+                        <span className="adminTopbarTitle">Panou Administrator</span>
+                        <span className="adminTopbarSubtitle">Gestionează platforma</span>
+                    </div>
+                </div>
             </div>
 
             <div className="adminBody" key={versiune}>
@@ -200,118 +233,25 @@ export function AdminDashboardPage() {
                         )}
 
                         {tab === 'cereri' && (
-                            <div className="adminTableCard">
-                                <div className="adminTableToolbar">
-                                    <input
-                                        className="adminSearchInput"
-                                        placeholder="Caută după nume, oraș sau grupă..."
-                                        value={cautareCereri}
-                                        onChange={(e) => setCautareCereri(e.target.value)}
-                                    />
-                                </div>
-
-                                {requestsFiltrate.length === 0 ? (
-                                    <p className="adminEmptyState">Nu există cereri care să corespundă căutării.</p>
-                                ) : (
-                                    <div className="adminTableWrap">
-                                        <table className="adminTable">
-                                            <thead>
-                                            <tr>
-                                                <th>Solicitant</th>
-                                                <th>Grupă</th>
-                                                <th>Oraș</th>
-                                                <th>Urgență</th>
-                                                <th>Data</th>
-                                                <th>Status</th>
-                                                <th>Acțiuni</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {requestsFiltrate.map((r) => (
-                                                <RequestRow
-                                                    key={r.id}
-                                                    r={r}
-                                                    onStatusChange={handleStatusChange}
-                                                    onDelete={handleDeleteRequest}
-                                                />
-                                            ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                            </div>
+                            <RequestsAdminTab
+                                cereri={requestsFiltrate}
+                                cautare={cautareCereri}
+                                onCautareChange={setCautareCereri}
+                                onStatusChange={handleStatusChange}
+                                onEdit={handleEditRequest}
+                                onDelete={handleDeleteRequest}
+                            />
                         )}
 
                         {tab === 'utilizatori' && (
-                            <div className="adminTableCard">
-                                <div className="adminTableToolbar">
-                                    <input
-                                        className="adminSearchInput"
-                                        placeholder="Caută după nume, email sau oraș..."
-                                        value={cautareUseri}
-                                        onChange={(e) => setCautareUseri(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="adminTableWrap">
-                                    <table className="adminTable">
-                                        <thead>
-                                        <tr>
-                                            <th>Utilizator</th>
-                                            <th>Email</th>
-                                            <th>Oraș</th>
-                                            <th>Status</th>
-                                            <th>Acțiuni</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {usersFiltrati.map((u) => (
-                                            <tr key={u.id}>
-                                                <td>
-                                                    <div className="adminUserCell">
-                                                        <span className="adminAvatar">{initiale(u.nume)}</span>
-                                                        {u.nume}
-                                                    </div>
-                                                </td>
-                                                <td className="adminMuted">{u.email}</td>
-                                                <td className="adminMuted">{u.oras}</td>
-                                                <td>
-                                                    <div className="adminBadgeGroup">
-                                                        {u.esteAdmin && <span className="adminBadge">Admin</span>}
-                                                        {u.esteDonator && <span className="adminBadgeSecondary">Donator</span>}
-                                                        {!u.esteAdmin && !u.esteDonator && (
-                                                            <span className="adminBadgeNeutral">Utilizator</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div className="adminActionsCell">
-                                                        <button
-                                                            className="adminEditButton"
-                                                            onClick={() => handleToggleAdmin(u)}
-                                                        >
-                                                            {u.esteAdmin ? 'Revocă admin' : 'Fă admin'}
-                                                        </button>
-                                                        <button
-                                                            className="adminDeleteButton"
-                                                            onClick={() => handleDeleteUser(u)}
-                                                            disabled={u.id === currentUserId}
-                                                            title={
-                                                                u.id === currentUserId
-                                                                    ? 'Nu te poți șterge pe tine'
-                                                                    : undefined
-                                                            }
-                                                        >
-                                                            Șterge
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                            <UsersAdminTab
+                                useri={usersFiltrati}
+                                cautare={cautareUseri}
+                                onCautareChange={setCautareUseri}
+                                currentUserId={currentUserId}
+                                onEdit={handleEditUser}
+                                onDelete={handleDeleteUser}
+                            />
                         )}
 
                         {tab === 'centre' && (
@@ -329,45 +269,354 @@ export function AdminDashboardPage() {
     )
 }
 
-type RequestRowProps = {
-    r: BloodRequest
+type RequestsAdminTabProps = {
+    cereri: BloodRequest[]
+    cautare: string
+    onCautareChange: (v: string) => void
     onStatusChange: (id: string, status: StatusCerere) => void
+    onEdit: (id: string, updates: Partial<BloodRequest>) => void
     onDelete: (id: string) => void
 }
 
-function RequestRow({ r, onStatusChange, onDelete }: RequestRowProps) {
+type CerereEditForm = {
+    grupaNecesara: GrupaSanguina
+    oras: string
+    urgenta: NivelUrgenta
+    descriere: string
+}
+
+function RequestsAdminTab({ cereri, cautare, onCautareChange, onStatusChange, onEdit, onDelete }: RequestsAdminTabProps) {
+    const [editId, setEditId] = useState<string | null>(null)
+    const [formData, setFormData] = useState<CerereEditForm>({
+        grupaNecesara: 'O-',
+        oras: '',
+        urgenta: 'programata',
+        descriere: '',
+    })
+
+    function startEdit(r: BloodRequest) {
+        setEditId(r.id)
+        setFormData({
+            grupaNecesara: r.grupaNecesara,
+            oras: r.oras,
+            urgenta: r.urgenta,
+            descriere: r.descriere,
+        })
+    }
+
+    function cancel() {
+        setEditId(null)
+    }
+
+    function salveaza() {
+        if (!editId || !formData.oras || !formData.descriere) return
+        onEdit(editId, formData)
+        setEditId(null)
+    }
+
     return (
-        <tr>
-            <td>
-                <div className="adminUserCell">
-                    <span className={`adminAvatar adminAvatar--${r.urgenta}`}>{r.grupaNecesara}</span>
-                    {r.solicitantNume}
+        <div className="adminTableCard">
+            <div className="adminTableToolbar">
+                <input
+                    className="adminSearchInput"
+                    placeholder="Caută după nume, oraș sau grupă..."
+                    value={cautare}
+                    onChange={(e) => onCautareChange(e.target.value)}
+                />
+            </div>
+
+            {editId && (
+                <div className="adminForm">
+                    <div className="adminFormRow">
+                        <CustomSelect
+                            options={grupeSanguine}
+                            value={formData.grupaNecesara}
+                            onChange={(v) => setFormData({ ...formData, grupaNecesara: v as GrupaSanguina })}
+                        />
+                        <input
+                            placeholder="Oraș"
+                            value={formData.oras}
+                            onChange={(e) => setFormData({ ...formData, oras: e.target.value })}
+                        />
+                    </div>
+                    <div className="adminFormRow">
+                        <CustomSelect
+                            options={urgentaOptions}
+                            value={formData.urgenta}
+                            onChange={(v) => setFormData({ ...formData, urgenta: v as NivelUrgenta })}
+                            labels={urgentaLabel}
+                        />
+                    </div>
+                    <div className="adminFormRow">
+                        <input
+                            placeholder="Descriere"
+                            value={formData.descriere}
+                            onChange={(e) => setFormData({ ...formData, descriere: e.target.value })}
+                        />
+                    </div>
+                    <div className="adminFormActions">
+                        <button className="adminSubmitButton" onClick={salveaza}>
+                            Salvează
+                        </button>
+                        <button className="adminSecondaryButton" onClick={cancel}>
+                            Renunță
+                        </button>
+                    </div>
                 </div>
-            </td>
-            <td className="adminMuted">{r.grupaNecesara}</td>
-            <td className="adminMuted">{r.oras}</td>
-            <td className="adminMuted" style={{ textTransform: 'capitalize' }}>
-                {r.urgenta}
-            </td>
-            <td className="adminMuted">{r.dataCreare}</td>
-            <td>
-                <div className="adminStatusSelectWrap">
-                    <CustomSelect
-                        options={statusOptions}
-                        value={r.status}
-                        onChange={(v) => onStatusChange(r.id, v as StatusCerere)}
-                        labels={statusLabel}
-                    />
+            )}
+
+            {cereri.length === 0 ? (
+                <p className="adminEmptyState">Nu există cereri care să corespundă căutării.</p>
+            ) : (
+                <div className="adminTableWrap">
+                    <table className="adminTable">
+                        <thead>
+                        <tr>
+                            <th>Solicitant</th>
+                            <th>Grupă</th>
+                            <th>Oraș</th>
+                            <th>Urgență</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Acțiuni</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {cereri.map((r) => (
+                            <tr key={r.id}>
+                                <td>
+                                    <div className="adminUserCell">
+                                        <span className={`adminAvatar adminAvatar--${r.urgenta}`}>{r.grupaNecesara}</span>
+                                        {r.solicitantNume}
+                                    </div>
+                                </td>
+                                <td className="adminMuted">{r.grupaNecesara}</td>
+                                <td className="adminMuted">{r.oras}</td>
+                                <td className="adminMuted" style={{ textTransform: 'capitalize' }}>
+                                    {r.urgenta}
+                                </td>
+                                <td className="adminMuted">{r.dataCreare}</td>
+                                <td>
+                                    <div className="adminStatusSelectWrap">
+                                        <CustomSelect
+                                            options={statusOptions}
+                                            value={r.status}
+                                            onChange={(v) => onStatusChange(r.id, v as StatusCerere)}
+                                            labels={statusLabel}
+                                        />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="adminActionsCell">
+                                        <button className="adminEditButton" onClick={() => startEdit(r)}>
+                                            Editează
+                                        </button>
+                                        <button className="adminDeleteButton" onClick={() => onDelete(r.id)}>
+                                            Șterge
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
                 </div>
-            </td>
-            <td>
-                <div className="adminActionsCell">
-                    <button className="adminDeleteButton" onClick={() => onDelete(r.id)}>
-                        Șterge
-                    </button>
+            )}
+        </div>
+    )
+}
+
+type UsersAdminTabProps = {
+    useri: UserRecord[]
+    cautare: string
+    onCautareChange: (v: string) => void
+    currentUserId: string
+    onEdit: (id: string, updates: Partial<UserRecord>) => void
+    onDelete: (u: UserRecord) => void
+}
+
+type UserEditForm = {
+    nume: string
+    email: string
+    telefon: string
+    oras: string
+    varsta: string
+    esteDonator: boolean
+    esteAdmin: boolean
+}
+
+function UsersAdminTab({ useri, cautare, onCautareChange, currentUserId, onEdit, onDelete }: UsersAdminTabProps) {
+    const [editId, setEditId] = useState<string | null>(null)
+    const [formData, setFormData] = useState<UserEditForm>({
+        nume: '',
+        email: '',
+        telefon: '',
+        oras: '',
+        varsta: '',
+        esteDonator: false,
+        esteAdmin: false,
+    })
+
+    function startEdit(u: UserRecord) {
+        setEditId(u.id)
+        setFormData({
+            nume: u.nume,
+            email: u.email,
+            telefon: u.telefon,
+            oras: u.oras,
+            varsta: u.varsta === null ? '' : String(u.varsta),
+            esteDonator: u.esteDonator,
+            esteAdmin: u.esteAdmin,
+        })
+    }
+
+    function cancel() {
+        setEditId(null)
+    }
+
+    function salveaza() {
+        if (!editId || !formData.nume || !formData.email || !formData.oras) return
+        onEdit(editId, {
+            nume: formData.nume,
+            email: formData.email,
+            telefon: formData.telefon,
+            oras: formData.oras,
+            varsta: formData.varsta ? Number(formData.varsta) : null,
+            esteDonator: formData.esteDonator,
+            esteAdmin: formData.esteAdmin,
+        })
+        setEditId(null)
+    }
+
+    return (
+        <div className="adminTableCard">
+            <div className="adminTableToolbar">
+                <input
+                    className="adminSearchInput"
+                    placeholder="Caută după nume, email sau oraș..."
+                    value={cautare}
+                    onChange={(e) => onCautareChange(e.target.value)}
+                />
+            </div>
+
+            {editId && (
+                <div className="adminForm">
+                    <div className="adminFormRow">
+                        <input
+                            placeholder="Nume complet"
+                            value={formData.nume}
+                            onChange={(e) => setFormData({ ...formData, nume: e.target.value })}
+                        />
+                        <input
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                    </div>
+                    <div className="adminFormRow">
+                        <input
+                            placeholder="Telefon"
+                            value={formData.telefon}
+                            onChange={(e) => setFormData({ ...formData, telefon: e.target.value })}
+                        />
+                        <input
+                            placeholder="Oraș"
+                            value={formData.oras}
+                            onChange={(e) => setFormData({ ...formData, oras: e.target.value })}
+                        />
+                    </div>
+                    <div className="adminFormRow">
+                        <input
+                            type="number"
+                            min={18}
+                            max={100}
+                            placeholder="Vârstă"
+                            value={formData.varsta}
+                            onChange={(e) => setFormData({ ...formData, varsta: e.target.value })}
+                        />
+                    </div>
+                    <div className="adminFormRow">
+                        <label className="confirmCheckboxLabel">
+                            <input
+                                type="checkbox"
+                                checked={formData.esteDonator}
+                                onChange={(e) => setFormData({ ...formData, esteDonator: e.target.checked })}
+                            />
+                            <span>Donator</span>
+                        </label>
+                        <label className="confirmCheckboxLabel">
+                            <input
+                                type="checkbox"
+                                checked={formData.esteAdmin}
+                                onChange={(e) => setFormData({ ...formData, esteAdmin: e.target.checked })}
+                                disabled={editId === currentUserId}
+                            />
+                            <span>Admin</span>
+                        </label>
+                    </div>
+                    <div className="adminFormActions">
+                        <button className="adminSubmitButton" onClick={salveaza}>
+                            Salvează
+                        </button>
+                        <button className="adminSecondaryButton" onClick={cancel}>
+                            Renunță
+                        </button>
+                    </div>
                 </div>
-            </td>
-        </tr>
+            )}
+
+            <div className="adminTableWrap">
+                <table className="adminTable">
+                    <thead>
+                    <tr>
+                        <th>Utilizator</th>
+                        <th>Email</th>
+                        <th>Oraș</th>
+                        <th>Status</th>
+                        <th>Acțiuni</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {useri.map((u) => (
+                        <tr key={u.id}>
+                            <td>
+                                <div className="adminUserCell">
+                                    <span className="adminAvatar">{initiale(u.nume)}</span>
+                                    {u.nume}
+                                </div>
+                            </td>
+                            <td className="adminMuted">{u.email}</td>
+                            <td className="adminMuted">{u.oras}</td>
+                            <td>
+                                <div className="adminBadgeGroup">
+                                    {u.esteAdmin && <span className="adminBadge">Admin</span>}
+                                    {u.esteDonator && <span className="adminBadgeSecondary">Donator</span>}
+                                    {!u.esteAdmin && !u.esteDonator && (
+                                        <span className="adminBadgeNeutral">Utilizator</span>
+                                    )}
+                                </div>
+                            </td>
+                            <td>
+                                <div className="adminActionsCell">
+                                    <button className="adminEditButton" onClick={() => startEdit(u)}>
+                                        Editează
+                                    </button>
+                                    <button
+                                        className="adminDeleteButton"
+                                        onClick={() => onDelete(u)}
+                                        disabled={u.id === currentUserId}
+                                        title={u.id === currentUserId ? 'Nu te poți șterge pe tine' : undefined}
+                                    >
+                                        Șterge
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     )
 }
 

@@ -8,6 +8,7 @@ import { CustomSelect } from '../../components/ui/CustomSelect'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from './types'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
+import { PageHeader } from '../../components/ui/PageHeader'
 import { IconDrop, IconLocation } from '../../components/ui/Icons'
 import './MyRequestsPage.css'
 
@@ -73,11 +74,13 @@ export function MyRequestsPage() {
     if (!user) {
         return (
             <div className="myReqPage">
-                <div className="myReqPageHeader">
-                    <span className="myReqEyebrow">Panou personal</span>
-                    <h1 className="myReqPageTitle">Cererile mele</h1>
-                    <p className="myReqPageSubtitle">Urmărește statusul cererilor tale de sânge, într-un singur loc.</p>
-                </div>
+                <PageHeader
+                    className="myReqPageHeader"
+                    icon={<IconDrop />}
+                    eyebrow="Panou personal"
+                    title="Cererile mele"
+                    subtitle="Urmărește statusul cererilor tale de sânge, într-un singur loc."
+                />
 
                 <div className="myReqBody">
                     <div className="myReqLoginPrompt">
@@ -137,11 +140,13 @@ export function MyRequestsPage() {
 
     return (
         <div className="myReqPage">
-            <div className="myReqPageHeader">
-                <span className="myReqEyebrow">Panou personal</span>
-                <h1 className="myReqPageTitle">Cererile mele</h1>
-                <p className="myReqPageSubtitle">Urmărește statusul cererilor tale de sânge, într-un singur loc.</p>
-            </div>
+            <PageHeader
+                className="myReqPageHeader"
+                icon={<IconDrop />}
+                eyebrow="Panou personal"
+                title="Cererile mele"
+                subtitle="Urmărește statusul cererilor tale de sânge, într-un singur loc."
+            />
 
             <div className="myReqBody">
                 <motion.div

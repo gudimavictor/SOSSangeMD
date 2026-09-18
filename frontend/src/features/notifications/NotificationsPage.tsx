@@ -3,7 +3,8 @@ import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import { getNotificationsByUser, markAsRead, markAllAsRead } from './notificationsStore'
-import { IconCheck, IconUsers, IconDrop } from '../../components/ui/Icons'
+import { IconCheck, IconUsers, IconDrop, IconBell } from '../../components/ui/Icons'
+import { PageHeader } from '../../components/ui/PageHeader'
 import './NotificationsPage.css'
 
 const staggerContainer = {
@@ -39,11 +40,13 @@ export function NotificationsPage() {
     if (!user) {
         return (
             <div className="notifPage">
-                <div className="notifPageHeader">
-                    <span className="notifEyebrow">Notificări</span>
-                    <h1 className="notifPageTitle">Notificările tale</h1>
-                    <p className="notifPageSubtitle">Autentifică-te ca să-ți vezi notificările.</p>
-                </div>
+                <PageHeader
+                    className="notifPageHeader"
+                    icon={<IconBell />}
+                    eyebrow="Notificări"
+                    title="Notificările tale"
+                    subtitle="Autentifică-te ca să-ți vezi notificările."
+                />
                 <div className="notifBody">
                     <div className="notifLoginPrompt">
                         <p>Trebuie să fii autentificat ca să vezi notificările.</p>
@@ -71,17 +74,13 @@ export function NotificationsPage() {
 
     return (
         <div className="notifPage">
-            <motion.div className="notifPageHeader" variants={staggerContainer} initial="hidden" animate="show">
-                <motion.span className="notifEyebrow" variants={fadeUpItem}>
-                    Notificări
-                </motion.span>
-                <motion.h1 className="notifPageTitle" variants={fadeUpItem}>
-                    Notificările tale
-                </motion.h1>
-                <motion.p className="notifPageSubtitle" variants={fadeUpItem}>
-                    {necitite > 0 ? `Ai ${necitite} notificări necitite.` : 'Ești la zi cu toate notificările.'}
-                </motion.p>
-            </motion.div>
+            <PageHeader
+                className="notifPageHeader"
+                icon={<IconBell />}
+                eyebrow="Notificări"
+                title="Notificările tale"
+                subtitle={necitite > 0 ? `Ai ${necitite} notificări necitite.` : 'Ești la zi cu toate notificările.'}
+            />
 
             <div className="notifBody">
                 {notificari.length > 0 && necitite > 0 && (

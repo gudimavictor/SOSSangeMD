@@ -7,6 +7,7 @@
 
   --color-primary: #B3261E;
   --color-primary-light: #FBE9E8;
+  --gradient-primary: linear-gradient(135deg, #E4483D 0%, #B3261E 60%, #7A1712 100%);
 
   --color-success: #2F9E5C;
   --color-success-light: #E8F5EC;
@@ -43,25 +44,3 @@ body {
   background-attachment: fixed;
 }
 
-:root[data-theme="dark"] {
-  --color-bg: #1A1211;
-  --color-surface: #241816;
-  --color-border: #3A2826;
-  --color-text: #F5EFEE;
-  --color-text-muted: #B8A29E;
-
-  --color-primary: #E36358;
-  --color-primary-light: rgba(227, 99, 88, 0.18);
-
-  --color-success: #4CBE7C;
-  --color-success-light: rgba(76, 190, 124, 0.15);
-  --color-warning: #E0A63E;
-  --color-warning-light: rgba(224, 166, 62, 0.15);
-  --color-danger: #E36358;
-  --color-danger-light: rgba(227, 99, 88, 0.18);
-
-  --canvas-hairline: rgba(245, 239, 238, 0.14);
-  --canvas-surface-tint: rgba(36, 24, 22, 0.55);
-  --glow-primary: rgba(227, 99, 88, 0.14);
-  --glow-primary-soft: rgba(227, 99, 88, 0.05);
-}

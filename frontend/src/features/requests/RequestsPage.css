@@ -8,43 +8,6 @@
     margin: 0 auto;
 }
 
-.reqEyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-primary);
-    margin-bottom: 0.75rem;
-}
-
-.reqEyebrow::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-primary);
-}
-
-.reqPageTitle {
-    font-family: var(--font-display);
-    font-size: 2.1rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0 0 0.6rem;
-    color: var(--color-text);
-}
-
-.reqPageSubtitle {
-    font-size: 1rem;
-    color: var(--color-text-muted);
-    max-width: 520px;
-    line-height: 1.6;
-    margin: 0;
-}
-
 .reqBody {
     padding: 0 2.5rem 2.5rem;
     display: flex;
@@ -280,14 +243,16 @@
 }
 
 .previewCard {
-    background: var(--canvas-surface-tint);
+    background: var(--color-surface);
     border: 1px solid var(--canvas-hairline);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 1.25rem;
     backdrop-filter: blur(6px);
     min-height: 180px;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 16px 36px rgba(179, 38, 30, 0.12);
+    transition: box-shadow 0.2s ease;
 }
 
 .previewEmpty {

@@ -2,11 +2,13 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useAuth } from './AuthContext'
-import { findUserByEmail, addUser, esteInregistrareaPrimuluiUtilizator } from './usersStore'
+import { findUserByEmail, addUser, hashParola } from './usersStore'
+import { genereazaCod, confirmaCod, emailEsteConfirmat } from './emailVerificationStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import './LoginPage.css'
 
 type Mode = 'login' | 'inregistrare'
+type PasRegistrare = 'email' | 'cod' | 'detalii'
 
 const orase = ['Chișinău', 'Bălți', 'Soroca', 'Comrat', 'Cahul']
 
@@ -35,6 +37,9 @@ export function LoginPage() {
     const redirectTo = search.redirect || '/'
 
     const [mode, setMode] = useState<Mode>('login')
+    const [pasRegistrare, setPasRegistrare] = useState<PasRegistrare>('email')
+    const [codDemo, setCodDemo] = useState<string | null>(null)
+    const [codIntrodus, setCodIntrodus] = useState('')
     const [nume, setNume] = useState('')
     const [email, setEmail] = useState('')
     const [parola, setParola] = useState('')
@@ -51,15 +56,50 @@ export function LoginPage() {
     function schimbaMode(newMode: Mode) {
         setMode(newMode)
         setEroare('')
+        setPasRegistrare('email')
+        setCodDemo(null)
+        setCodIntrodus('')
     }
 
-    function handleLogin(event: FormEvent) {
+    function handleTrimiteCod(event: FormEvent) {
+        event.preventDefault()
+        setEroare('')
+
+        if (!email) {
+            setEroare('Introdu adresa de email.')
+            return
+        }
+
+        if (findUserByEmail(email)) {
+            setEroare('Există deja un cont cu acest email.')
+            return
+        }
+
+        const cod = genereazaCod(email)
+        setCodDemo(cod)
+        setPasRegistrare('cod')
+    }
+
+    function handleConfirmaCod(event: FormEvent) {
+        event.preventDefault()
+        setEroare('')
+
+        if (!confirmaCod(email, codIntrodus)) {
+            setEroare('Cod invalid sau expirat.')
+            return
+        }
+
+        setPasRegistrare('detalii')
+    }
+
+    async function handleLogin(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
         const user = findUserByEmail(email)
+        const parolaHash = await hashParola(parola)
 
-        if (!user || user.parola !== parola) {
+        if (!user || user.parola !== parolaHash) {
             setEroare('Email sau parolă incorectă.')
             return
         }
@@ -79,7 +119,7 @@ export function LoginPage() {
         navigate({ to: redirectTo })
     }
 
-    function handleRegister(event: FormEvent) {
+    async function handleRegister(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
@@ -120,18 +160,23 @@ export function LoginPage() {
             return
         }
 
-        const esteAdmin = esteInregistrareaPrimuluiUtilizator()
+        if (!emailEsteConfirmat(email)) {
+            setEroare('Emailul nu a fost confirmat. Reia procesul de înregistrare.')
+            return
+        }
+
+        const parolaHash = await hashParola(parola)
 
         const newUser = {
             id: crypto.randomUUID(),
             nume,
             email,
-            parola,
+            parola: parolaHash,
             telefon,
             oras,
             varsta: varstaNumar,
             esteDonator: false,
-            esteAdmin,
+            esteAdmin: false,
             grupaSanguina: null,
             dataUltimeiDonari: null,
         }
@@ -231,19 +276,8 @@ export function LoginPage() {
                                     Autentifică-te
                                 </button>
                             </form>
-                        ) : (
-                            <form onSubmit={handleRegister}>
-                                <div className="loginField">
-                                    <label htmlFor="nume">Nume complet</label>
-                                    <input
-                                        id="nume"
-                                        type="text"
-                                        value={nume}
-                                        onChange={(e) => setNume(e.target.value)}
-                                        placeholder="Ana Popescu"
-                                        required
-                                    />
-                                </div>
+                        ) : pasRegistrare === 'email' ? (
+                            <form onSubmit={handleTrimiteCod}>
                                 <div className="loginField">
                                     <label htmlFor="email-r">Email</label>
                                     <input
@@ -252,6 +286,60 @@ export function LoginPage() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="ana@exemplu.md"
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="loginButton">
+                                    Trimite cod de confirmare
+                                </button>
+                            </form>
+                        ) : pasRegistrare === 'cod' ? (
+                            <form onSubmit={handleConfirmaCod}>
+                                <p className="loginNote">
+                                    Am trimis un cod de 6 cifre pe adresa <strong>{email}</strong>.
+                                </p>
+                                {codDemo && (
+                                    <p className="loginNote">
+                                        (Demo — fără server real conectat) Codul tău este: <strong>{codDemo}</strong>
+                                    </p>
+                                )}
+                                <div className="loginField">
+                                    <label htmlFor="cod">Cod de confirmare</label>
+                                    <input
+                                        id="cod"
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={6}
+                                        value={codIntrodus}
+                                        onChange={(e) => setCodIntrodus(e.target.value)}
+                                        placeholder="123456"
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="loginButton">
+                                    Confirmă codul
+                                </button>
+                                <button
+                                    type="button"
+                                    className="loginButton loginButtonSecundar"
+                                    onClick={() => setPasRegistrare('email')}
+                                >
+                                    Înapoi
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleRegister}>
+                                <p className="loginNote">
+                                    Email confirmat: <strong>{email}</strong>
+                                </p>
+                                <div className="loginField">
+                                    <label htmlFor="nume">Nume complet</label>
+                                    <input
+                                        id="nume"
+                                        type="text"
+                                        value={nume}
+                                        onChange={(e) => setNume(e.target.value)}
+                                        placeholder="Ana Popescu"
                                         required
                                     />
                                 </div>

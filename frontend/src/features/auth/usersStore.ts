@@ -36,8 +36,12 @@ export function addUser(user: UserRecord): void {
     localStorage.setItem(USERS_KEY, JSON.stringify(users))
 }
 
-export function esteInregistrareaPrimuluiUtilizator(): boolean {
-    return getUsers().length === 0
+export async function hashParola(parola: string): Promise<string> {
+    const data = new TextEncoder().encode(parola)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+    return Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('')
 }
 
 export function updateUser(id: string, updates: Partial<UserRecord>): void {

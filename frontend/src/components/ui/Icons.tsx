@@ -16,6 +16,8 @@ import {
     Star,
     Droplet,
     Bell,
+    User,
+    Lock,
 } from 'lucide-react'
 
 type IconProps = {
@@ -98,4 +100,12 @@ export function IconDrop({ className }: IconProps) {
 
 export function IconBell({ className }: IconProps) {
     return <Bell style={iconStyle} className={className} strokeWidth={2} />
+}
+
+export function IconUser({ className }: IconProps) {
+    return <User style={iconStyle} className={className} strokeWidth={2} />
+}
+
+export function IconLock({ className }: IconProps) {
+    return <Lock style={iconStyle} className={className} strokeWidth={2} />
 }

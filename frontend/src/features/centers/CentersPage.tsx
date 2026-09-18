@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import type { CentruTransfuzie } from './centers'
 import { getCenters } from './centersStore'
 import { IconLocation, IconCar, IconWalk, IconPhone, IconClock } from '../../components/ui/Icons'
+import { PageHeader } from '../../components/ui/PageHeader'
 import './CentersPage.css'
 
 function iconPentru(activ: boolean) {
@@ -185,10 +186,12 @@ export function CentersPage() {
     return (
         <div className="centersPage">
             <div className="centersHero">
-                <h1 className="centersHeroTitle">Centre de transfuzie</h1>
-                <p className="centersHeroSubtitle">
-                    Găsește cel mai apropiat centru unde poți dona sânge sau ridica informații.
-                </p>
+                <PageHeader
+                    icon={<IconLocation />}
+                    eyebrow="Centre de transfuzie"
+                    title="Găsește un centru"
+                    subtitle="Vezi cel mai apropiat centru unde poți dona sânge sau ridica informații."
+                />
                 <button className="centersLocateButton iconText" onClick={gasesteCelMaiApropiat} disabled={seCauta}>
                     {seCauta ? (
                         'Se caută...'

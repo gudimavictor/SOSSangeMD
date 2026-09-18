@@ -10,6 +10,7 @@ import { addRequest } from './requestsStore'
 import { getUsers } from '../auth/usersStore'
 import { addNotification } from '../notifications/notificationsStore'
 import { IconPencil, IconLocation, IconBulb, IconCheck } from '../../components/ui/Icons'
+import { PageHeader } from '../../components/ui/PageHeader'
 import type { NivelUrgenta } from './types'
 import './RequestsPage.css'
 
@@ -102,13 +103,13 @@ export function CreateRequestPage() {
     if (!user) {
         return (
             <div className="requestsPage">
-                <div className="reqPageHeader">
-                    <span className="reqEyebrow">Cerere nouă</span>
-                    <h1 className="reqPageTitle">Creează o cerere de sânge</h1>
-                    <p className="reqPageSubtitle">
-                        Completează detaliile — sistemul va căuta automat donatori compatibili
-                    </p>
-                </div>
+                <PageHeader
+                    className="reqPageHeader"
+                    icon={<IconPencil />}
+                    eyebrow="Cerere nouă"
+                    title="Creează o cerere de sânge"
+                    subtitle="Completează detaliile — sistemul va căuta automat donatori compatibili"
+                />
 
                 <div className="reqBody">
                     <div className="reqLoginPrompt">
@@ -126,22 +127,13 @@ export function CreateRequestPage() {
 
     return (
         <div className="requestsPage">
-            <motion.div
+            <PageHeader
                 className="reqPageHeader"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="show"
-            >
-                <motion.span className="reqEyebrow" variants={fadeUpItem}>
-                    Cerere nouă
-                </motion.span>
-                <motion.h1 className="reqPageTitle" variants={fadeUpItem}>
-                    Creează o cerere de sânge
-                </motion.h1>
-                <motion.p className="reqPageSubtitle" variants={fadeUpItem}>
-                    Completează detaliile — sistemul va căuta automat donatori compatibili
-                </motion.p>
-            </motion.div>
+                icon={<IconPencil />}
+                eyebrow="Cerere nouă"
+                title="Creează o cerere de sânge"
+                subtitle="Completează detaliile — sistemul va căuta automat donatori compatibili"
+            />
 
             <div className="reqBodyGrid">
                 <div className="formColumn">

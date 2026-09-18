@@ -10,6 +10,8 @@ import { centersRoute } from './routes/centre'
 import { supportRoute } from './routes/suport'
 import { adminRoute } from './routes/admin'
 import { notificationsRoute } from './routes/notificari'
+import { profileRoute } from './routes/profil'
+import { aboutRoute } from './routes/despre-noi'
 
 const routeTree = rootRoute.addChildren([
     homeRoute,
@@ -22,6 +24,8 @@ const routeTree = rootRoute.addChildren([
     supportRoute,
     adminRoute,
     notificationsRoute,
+    profileRoute,
+    aboutRoute,
 ])
 
 export const router = createRouter({ routeTree })

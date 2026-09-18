@@ -3,28 +3,16 @@
 }
 
 .centersHero {
-    background: linear-gradient(135deg, var(--color-primary) 0%, #7A1712 100%);
-    color: white;
-    padding: 2.5rem 2.5rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: 2.5rem;
     margin-bottom: 2rem;
-    text-align: center;
-}
-
-.centersHeroTitle {
-    margin: 0 0 0.4rem;
-    font-size: 1.9rem;
-    font-weight: 800;
-}
-
-.centersHeroSubtitle {
-    margin: 0 0 1.25rem;
-    opacity: 0.9;
-    font-size: 0.95rem;
 }
 
 .centersLocateButton {
-    background: white;
-    color: var(--color-primary);
+    margin-top: 1.25rem;
+    background: var(--color-primary);
+    color: white;
     border: none;
     border-radius: 999px;
     padding: 0.6rem 1.4rem;
@@ -35,11 +23,11 @@
 }
 
 .centersLocateButton:hover {
-    opacity: 0.92;
+    opacity: 0.9;
 }
 
 .centersLocateButton:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: default;
 }
 
@@ -50,13 +38,39 @@
 .centersLocateError {
     margin: 0.6rem 0 0;
     font-size: 0.8rem;
-    color: #ffd9d6;
+    color: var(--color-danger);
 }
 
 .centersRouteInfo {
     margin: 0.6rem 0 0;
     font-size: 0.85rem;
     font-weight: 600;
+    color: var(--color-text);
+}
+
+.centersModeToggle {
+    display: inline-flex;
+    gap: 0.4rem;
+    background: var(--color-bg);
+    border-radius: 999px;
+    padding: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+.centersModeButton {
+    border: none;
+    background: transparent;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.centersModeButtonActive {
+    background: var(--color-primary);
     color: white;
 }
 

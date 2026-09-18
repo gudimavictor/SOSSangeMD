@@ -169,6 +169,12 @@
     opacity: 0.9;
 }
 
+.loginButtonSecundar {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
 .loginNote {
     margin-top: 1rem;
     font-size: 0.8rem;

@@ -7,8 +7,13 @@ import type { GrupaSanguina } from '../auth/AuthContext'
 import { updateUser as updateUserRecord } from '../auth/usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { CustomDatePicker } from '../../components/ui/CustomDatePicker'
-import { esteCompatibil, esteEligibilPentruDonare, grupeleSanguine } from '../requests/compatibilitate'
+import { CircularProgress } from '../../components/ui/CircularProgress'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { esteCompatibil, esteEligibilPentruDonare, dataUrmatoareiDonari, grupeleSanguine } from '../requests/compatibilitate'
 import { mockRequests } from '../requests/mockRequests'
+import { getRequests } from '../requests/requestsStore'
+import { addResponse, aRaspunsDeja } from '../requests/requestResponsesStore'
+import { addNotification } from '../notifications/notificationsStore'
 import { IconCheck, IconDrop, IconLocation } from '../../components/ui/Icons'
 import './DonorPage.css'
 
@@ -28,12 +33,6 @@ function formateazaData(data: string) {
     return new Date(data).toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function dataUrmatoareiDonari(dataUltimeiDonari: string) {
-    const d = new Date(dataUltimeiDonari)
-    d.setMonth(d.getMonth() + 2)
-    return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })
-}
-
 function progresEligibilitate(dataUltimeiDonari: string | null) {
     if (!dataUltimeiDonari) return 100
     const ultima = new Date(dataUltimeiDonari)
@@ -50,18 +49,20 @@ export function DonorPage() {
     const [grupa, setGrupa] = useState(user?.esteDonator ? user?.grupaSanguina ?? '' : '')
     const [oras, setOras] = useState(user?.esteDonator ? user?.oras ?? '' : '')
     const [dataDonare, setDataDonare] = useState(user?.dataUltimeiDonari ?? '')
+    const [, setVersiune] = useState(0)
+    const refresh = () => setVersiune((v) => v + 1)
 
     // ---------- Vizitator nelogat ----------
     if (!user) {
         return (
             <div className="donorPage">
-                <div className="donorPageHeader">
-                    <span className="donorEyebrow">Devino donator</span>
-                    <h1 className="donorPageTitle">Devino donator de sânge</h1>
-                    <p className="donorPageSubtitle">
-                        Un singur cont — poți atât să ceri sânge, cât și să donezi, oricând ai nevoie.
-                    </p>
-                </div>
+                <PageHeader
+                    className="donorPageHeader"
+                    icon={<IconDrop />}
+                    eyebrow="Devino donator"
+                    title="Devino donator de sânge"
+                    subtitle="Un singur cont — poți atât să ceri sânge, cât și să donezi, oricând ai nevoie."
+                />
 
                 <div className="donorBody">
                     <div className="donorLoginPrompt">
@@ -123,15 +124,13 @@ export function DonorPage() {
     if (!user.esteDonator || editMode) {
         return (
             <div className="donorPage">
-                <div className="donorPageHeader">
-                    <span className="donorEyebrow">{user.esteDonator ? 'Editare profil' : 'Devino donator'}</span>
-                    <h1 className="donorPageTitle">
-                        {user.esteDonator ? 'Editează profilul de donator' : 'Devino donator'}
-                    </h1>
-                    <p className="donorPageSubtitle">
-                        Completează datele tale, ca să apari pentru cei care au nevoie de sânge compatibil.
-                    </p>
-                </div>
+                <PageHeader
+                    className="donorPageHeader"
+                    icon={<IconDrop />}
+                    eyebrow={user.esteDonator ? 'Editare profil' : 'Devino donator'}
+                    title={user.esteDonator ? 'Editează profilul de donator' : 'Devino donator'}
+                    subtitle="Completează datele tale, ca să apari pentru cei care au nevoie de sânge compatibil."
+                />
 
                 <div className="donorBody">
                     <div className="donorFormColumn">
@@ -210,21 +209,53 @@ export function DonorPage() {
     const eligibil = esteEligibilPentruDonare(user.dataUltimeiDonari)
     const progres = progresEligibilitate(user.dataUltimeiDonari)
 
-    const cereriCompatibile = mockRequests.filter(
+    const cereriCompatibile = [...getRequests(), ...mockRequests].filter(
         (r) =>
             r.status === 'activa' &&
+            r.solicitantId !== user.id &&
             user.grupaSanguina &&
             esteCompatibil(user.grupaSanguina, r.grupaNecesara) &&
             r.oras === user.oras
     )
 
+    function confirmaDisponibilitate(cererId: string, solicitantId: string, oras: string) {
+        const azi = new Date().toISOString().slice(0, 10)
+
+        addResponse({
+            id: crypto.randomUUID(),
+            cererId,
+            donatorId: user.id,
+            donatorNume: user.nume,
+            status: 'disponibil',
+            data: azi,
+        })
+
+        addNotification({
+            id: crypto.randomUUID(),
+            userId: solicitantId,
+            tip: 'confirmare',
+            titlu: 'Un donator a confirmat disponibilitatea',
+            mesaj: `${user.nume} (${user.grupaSanguina}) a confirmat că poate dona pentru cererea ta din ${oras}.`,
+            citita: false,
+            data: new Date().toISOString(),
+            link: '/cererile-mele',
+        })
+
+        updateUser({ dataUltimeiDonari: azi })
+        updateUserRecord(user.id, { dataUltimeiDonari: azi })
+
+        refresh()
+    }
+
     return (
         <div className="donorPage">
-            <div className="donorPageHeader">
-                <span className="donorEyebrow iconText"><IconDrop /> Ești donator activ</span>
-                <h1 className="donorPageTitle">Profilul tău de donator</h1>
-                <p className="donorPageSubtitle">Mulțumim! Profilul tău e vizibil pentru cei care au nevoie de sânge.</p>
-            </div>
+            <PageHeader
+                className="donorPageHeader"
+                icon={<IconDrop />}
+                eyebrow="Ești donator activ"
+                title="Profilul tău de donator"
+                subtitle="Mulțumim! Profilul tău e vizibil pentru cei care au nevoie de sânge."
+            />
 
             <div className="donorBody">
                 <motion.div
@@ -251,23 +282,17 @@ export function DonorPage() {
                     </motion.div>
 
                     <motion.div className="donorEligibilitySection" variants={fadeUpItem}>
-                        <div className="donorEligibilityHeader">
-                            <span className={`iconText ${eligibil ? 'donorEligibilityTextOk' : 'donorEligibilityTextWait'}`}>
-                                {eligibil && <IconCheck />}
-                                {eligibil
-                                    ? 'Poți dona sânge acum'
-                                    : `Poți dona din nou pe ${dataUrmatoareiDonari(user.dataUltimeiDonari!)}`}
-                            </span>
-                            <span className="donorEligibilityPercent">{progres}%</span>
-                        </div>
-                        <div className="donorProgressTrack">
-                            <motion.div
-                                className={`donorProgressFill ${eligibil ? 'donorProgressFillOk' : 'donorProgressFillWait'}`}
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progres}%` }}
-                                transition={{ duration: 0.9, ease: 'easeOut' }}
-                            />
-                        </div>
+                        <CircularProgress
+                            percent={progres}
+                            color={eligibil ? 'var(--color-success)' : 'var(--color-warning)'}
+                            label="eligibil"
+                        />
+                        <span className={`iconText donorEligibilityText ${eligibil ? 'donorEligibilityTextOk' : 'donorEligibilityTextWait'}`}>
+                            {eligibil && <IconCheck />}
+                            {eligibil
+                                ? 'Poți dona sânge acum'
+                                : `Poți dona din nou pe ${dataUrmatoareiDonari(user.dataUltimeiDonari!)}`}
+                        </span>
                     </motion.div>
 
                     <motion.div className="donorProfileActions" variants={fadeUpItem}>
@@ -293,22 +318,42 @@ export function DonorPage() {
                         initial="hidden"
                         animate="show"
                     >
-                        {cereriCompatibile.slice(0, 3).map((r) => (
-                            <motion.div
-                                key={r.id}
-                                className={`donorRequestCard donorRequestCard--${r.urgenta}`}
-                                variants={fadeUpItem}
-                            >
-                                <div className="donorRequestTop">
-                                    <span className="donorRequestGroup">{r.grupaNecesara}</span>
-                                    <span className={`donorRequestUrgency donorRequestUrgency--${r.urgenta}`}>
-                                        {r.urgenta}
-                                    </span>
-                                </div>
-                                <p className="donorRequestDesc">{r.descriere}</p>
-                                <span className="donorRequestCity iconText"><IconLocation /> {r.oras}</span>
-                            </motion.div>
-                        ))}
+                        {cereriCompatibile.slice(0, 3).map((r) => {
+                            const araspuns = aRaspunsDeja(r.id, user.id)
+                            return (
+                                <motion.div
+                                    key={r.id}
+                                    className={`donorRequestCard donorRequestCard--${r.urgenta}`}
+                                    variants={fadeUpItem}
+                                >
+                                    <div className="donorRequestTop">
+                                        <span className="donorRequestGroup">{r.grupaNecesara}</span>
+                                        <span className={`donorRequestUrgency donorRequestUrgency--${r.urgenta}`}>
+                                            {r.urgenta}
+                                        </span>
+                                    </div>
+                                    <p className="donorRequestDesc">{r.descriere}</p>
+                                    <span className="donorRequestCity iconText"><IconLocation /> {r.oras}</span>
+                                    <p className="donorRequestRequester">Solicitat de {r.solicitantNume}</p>
+                                    {araspuns ? (
+                                        <button className="donorRequestConfirmButton donorRequestConfirmButtonDone" disabled>
+                                            <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
+                                        </button>
+                                    ) : !eligibil ? (
+                                        <p className="donorRequestNotEligible">
+                                            Poți dona din nou pe {dataUrmatoareiDonari(user.dataUltimeiDonari!)}
+                                        </p>
+                                    ) : (
+                                        <button
+                                            className="donorRequestConfirmButton"
+                                            onClick={() => confirmaDisponibilitate(r.id, r.solicitantId, r.oras)}
+                                        >
+                                            Confirmă disponibilitatea
+                                        </button>
+                                    )}
+                                </motion.div>
+                            )
+                        })}
                     </motion.div>
                 )}
 

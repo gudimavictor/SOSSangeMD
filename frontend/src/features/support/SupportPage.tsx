@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
-import { IconPhone, IconMail, IconLocation, IconClock, IconWarning, IconCheck } from '../../components/ui/Icons'
+import { IconPhone, IconMail, IconLocation, IconClock, IconWarning, IconCheck, IconBulb } from '../../components/ui/Icons'
+import { PageHeader } from '../../components/ui/PageHeader'
 import './SupportPage.css'
 
 const staggerContainer = {
@@ -80,22 +81,13 @@ export function SupportPage() {
 
     return (
         <div className="supportPage">
-            <motion.div
+            <PageHeader
                 className="supportPageHeader"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="show"
-            >
-                <motion.span className="supportEyebrow" variants={fadeUpItem}>
-                    Ajutor și contact
-                </motion.span>
-                <motion.h1 className="supportPageTitle" variants={fadeUpItem}>
-                    Suport
-                </motion.h1>
-                <motion.p className="supportPageSubtitle" variants={fadeUpItem}>
-                    Găsești răspunsuri rapide mai jos, sau ne poți scrie direct.
-                </motion.p>
-            </motion.div>
+                icon={<IconBulb />}
+                eyebrow="Ajutor și contact"
+                title="Suport"
+                subtitle="Găsești răspunsuri rapide mai jos, sau ne poți scrie direct."
+            />
 
             <div className="supportBody">
                 <motion.div

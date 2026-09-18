@@ -1,0 +1,238 @@
+.profilePage {
+    padding: 0;
+}
+
+.profilePageHeader {
+    padding: 3rem 2.5rem 2rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.profileBody {
+    padding: 0 2.5rem 2.5rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.profileLoginPrompt {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+.profileLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.profileCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.profileCta:hover {
+    opacity: 0.9;
+}
+
+.profileSuccessMsg {
+    background: var(--color-success-light);
+    color: var(--color-success);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.profileErrorMsg {
+    background: var(--color-danger-light);
+    color: var(--color-danger);
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.profileCard {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(6px);
+}
+
+.profileRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.profileItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.profileLabel {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.profileValue {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    overflow-wrap: break-word;
+}
+
+.profileDonorBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--color-primary);
+}
+
+.profileActions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.profileSecondaryButton {
+    flex: 1;
+    min-width: 160px;
+    border: 1px solid var(--canvas-hairline);
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.profileSecondaryButton:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.profileForm {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.5rem;
+    backdrop-filter: blur(6px);
+}
+
+.profilePasswordForm {
+    margin-top: 1.5rem;
+}
+
+.profileSectionTitle {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+}
+
+.profileFormRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.formField label {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.formField input {
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    width: 100%;
+}
+
+.iconText {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.profileFormActions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.profileSubmitButton {
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.profileSubmitButton:hover {
+    opacity: 0.9;
+}
+
+.profileCancelButton {
+    background: none;
+    color: var(--color-text-muted);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 6px;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.profileCancelButton:hover {
+    color: var(--color-text);
+}
+
+@media (max-width: 640px) {
+    .profileRow,
+    .profileFormRow {
+        grid-template-columns: 1fr;
+    }
+}

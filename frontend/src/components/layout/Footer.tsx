@@ -8,6 +8,7 @@ const linkuriRapide = [
     { to: '/cereri-compatibile', label: 'Cereri compatibile' },
     { to: '/centre', label: 'Centre de transfuzie' },
     { to: '/suport', label: 'Suport' },
+    { to: '/despre-noi', label: 'Despre noi' },
 ]
 
 function IconDrop() {

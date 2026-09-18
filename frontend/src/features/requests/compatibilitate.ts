@@ -27,4 +27,10 @@ export function esteEligibilPentruDonare(dataUltimeiDonari: string | null): bool
     return diferentaLuni >= 2
 }
 
+export function dataUrmatoareiDonari(dataUltimeiDonari: string): string {
+    const d = new Date(dataUltimeiDonari)
+    d.setMonth(d.getMonth() + 2)
+    return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
 export const grupeleSanguine: GrupaSanguina[] = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']

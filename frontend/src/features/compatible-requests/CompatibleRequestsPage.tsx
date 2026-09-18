@@ -4,12 +4,14 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import { mockRequests } from '../requests/mockRequests'
 import { getRequests } from '../requests/requestsStore'
-import { esteCompatibil } from '../requests/compatibilitate'
+import { esteCompatibil, esteEligibilPentruDonare, dataUrmatoareiDonari } from '../requests/compatibilitate'
 import { addResponse, aRaspunsDeja, getResponsesByDonor } from '../requests/requestResponsesStore'
 import { addNotification } from '../notifications/notificationsStore'
+import { updateUser as updateUserRecord } from '../auth/usersStore'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
-import { IconDrop, IconLocation, IconCheck } from '../../components/ui/Icons'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { IconDrop, IconLocation, IconCheck, IconUsers } from '../../components/ui/Icons'
 import type { BloodRequest, NivelUrgenta } from '../requests/types'
 import './CompatibleRequestsPage.css'
 
@@ -42,7 +44,7 @@ function formateazaData(data: string) {
 }
 
 export function CompatibleRequestsPage() {
-    const { user } = useAuth()
+    const { user, updateUser } = useAuth()
     const [orasFiltru, setOrasFiltru] = useState('Toate orașele')
     const [urgentaFiltru, setUrgentaFiltru] = useState<FiltruUrgenta>('toate')
     const [sortBy, setSortBy] = useState<SortBy>('urgenta')
@@ -53,13 +55,13 @@ export function CompatibleRequestsPage() {
     if (!user) {
         return (
             <div className="compatPage">
-                <div className="compatPageHeader">
-                    <span className="compatEyebrow">Pentru donatori</span>
-                    <h1 className="compatPageTitle">Cereri compatibile</h1>
-                    <p className="compatPageSubtitle">
-                        Vezi toate cererile active compatibile cu grupa ta sanguină, din toată Republica Moldova.
-                    </p>
-                </div>
+                <PageHeader
+                    className="compatPageHeader"
+                    icon={<IconUsers />}
+                    eyebrow="Pentru donatori"
+                    title="Cereri compatibile"
+                    subtitle="Vezi toate cererile active compatibile cu grupa ta sanguină, din toată Republica Moldova."
+                />
                 <div className="compatBody">
                     <div className="compatLoginPrompt">
                         <p>Trebuie să fii autentificat ca să vezi cererile compatibile.</p>
@@ -75,13 +77,13 @@ export function CompatibleRequestsPage() {
     if (!user.esteDonator || !user.grupaSanguina) {
         return (
             <div className="compatPage">
-                <div className="compatPageHeader">
-                    <span className="compatEyebrow">Pentru donatori</span>
-                    <h1 className="compatPageTitle">Cereri compatibile</h1>
-                    <p className="compatPageSubtitle">
-                        Vezi toate cererile active compatibile cu grupa ta sanguină, din toată Republica Moldova.
-                    </p>
-                </div>
+                <PageHeader
+                    className="compatPageHeader"
+                    icon={<IconUsers />}
+                    eyebrow="Pentru donatori"
+                    title="Cereri compatibile"
+                    subtitle="Vezi toate cererile active compatibile cu grupa ta sanguină, din toată Republica Moldova."
+                />
                 <div className="compatBody">
                     <div className="compatLoginPrompt">
                         <p>Trebuie să-ți completezi profilul de donator (grupa sanguină), ca să-ți arătăm cererile compatibile.</p>
@@ -115,15 +117,18 @@ export function CompatibleRequestsPage() {
 
     const cereriCritice = toateCererile.filter((r) => r.urgenta === 'critica').length
     const raspunsurileMele = getResponsesByDonor(user.id)
+    const eligibil = esteEligibilPentruDonare(user.dataUltimeiDonari)
 
     function confirmaDisponibilitate(r: BloodRequest) {
+        const azi = new Date().toISOString().slice(0, 10)
+
         addResponse({
             id: crypto.randomUUID(),
             cererId: r.id,
             donatorId: user!.id,
             donatorNume: user!.nume,
             status: 'disponibil',
-            data: new Date().toISOString().slice(0, 10),
+            data: azi,
         })
 
         addNotification({
@@ -137,27 +142,25 @@ export function CompatibleRequestsPage() {
             link: '/cererile-mele',
         })
 
+        updateUser({ dataUltimeiDonari: azi })
+        updateUserRecord(user!.id, { dataUltimeiDonari: azi })
+
         refresh()
     }
 
     return (
         <div className="compatPage">
-            <motion.div
+            <PageHeader
                 className="compatPageHeader"
-                variants={staggerContainer}
-                initial="hidden"
-                animate="show"
-            >
-                <motion.span className="compatEyebrow" variants={fadeUpItem}>
-                    Pentru donatori
-                </motion.span>
-                <motion.h1 className="compatPageTitle" variants={fadeUpItem}>
-                    Cereri compatibile
-                </motion.h1>
-                <motion.p className="compatPageSubtitle" variants={fadeUpItem}>
-                    Cu grupa ta, <strong>{grupaMea}</strong>, poți răspunde la aceste cereri active din toată țara.
-                </motion.p>
-            </motion.div>
+                icon={<IconUsers />}
+                eyebrow="Pentru donatori"
+                title="Cereri compatibile"
+                subtitle={
+                    <>
+                        Cu grupa ta, <strong>{grupaMea}</strong>, poți răspunde la aceste cereri active din toată țara.
+                    </>
+                }
+            />
 
             <div className="compatBody">
                 <motion.div
@@ -252,13 +255,19 @@ export function CompatibleRequestsPage() {
 
                                         <p className="compatCardRequester">Solicitat de {r.solicitantNume}</p>
 
-                                        <button
-                                            className={`compatConfirmButton ${araspuns ? 'compatConfirmButtonDone' : ''}`}
-                                            onClick={() => confirmaDisponibilitate(r)}
-                                            disabled={araspuns}
-                                        >
-                                            {araspuns ? (<span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>) : 'Confirmă disponibilitatea'}
-                                        </button>
+                                        {araspuns ? (
+                                            <button className="compatConfirmButton compatConfirmButtonDone" disabled>
+                                                <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
+                                            </button>
+                                        ) : !eligibil ? (
+                                            <p className="compatNotEligible">
+                                                Poți dona din nou pe {dataUrmatoareiDonari(user.dataUltimeiDonari!)}
+                                            </p>
+                                        ) : (
+                                            <button className="compatConfirmButton" onClick={() => confirmaDisponibilitate(r)}>
+                                                Confirmă disponibilitatea
+                                            </button>
+                                        )}
                                     </motion.div>
                                 )
                             })}
