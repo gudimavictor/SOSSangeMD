@@ -2,8 +2,8 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useAuth } from './AuthContext'
-import { findUserByEmail, addUser, hashParola } from './usersStore'
-import { genereazaCod, confirmaCod, emailEsteConfirmat } from './emailVerificationStore'
+import { ApiError } from '../../api/types'
+import { useApi } from '../../api/use-api'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import './LoginPage.css'
 
@@ -32,13 +32,14 @@ function IconEyeOff() {
 
 export function LoginPage() {
     const { login } = useAuth()
+    const api = useApi()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as { redirect?: string }
     const redirectTo = search.redirect || '/'
 
     const [mode, setMode] = useState<Mode>('login')
     const [pasRegistrare, setPasRegistrare] = useState<PasRegistrare>('email')
-    const [codDemo, setCodDemo] = useState<string | null>(null)
+    const [seIncarca, setSeIncarca] = useState(false)
     const [codIntrodus, setCodIntrodus] = useState('')
     const [nume, setNume] = useState('')
     const [email, setEmail] = useState('')
@@ -57,11 +58,10 @@ export function LoginPage() {
         setMode(newMode)
         setEroare('')
         setPasRegistrare('email')
-        setCodDemo(null)
         setCodIntrodus('')
     }
 
-    function handleTrimiteCod(event: FormEvent) {
+    async function handleTrimiteCod(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
@@ -70,60 +70,53 @@ export function LoginPage() {
             return
         }
 
-        if (findUserByEmail(email)) {
-            setEroare('Există deja un cont cu acest email.')
-            return
+        setSeIncarca(true)
+        try {
+            await api.auth.sendVerificationCode(email)
+            setPasRegistrare('cod')
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Nu am putut trimite codul.')
+        } finally {
+            setSeIncarca(false)
         }
-
-        const cod = genereazaCod(email)
-        setCodDemo(cod)
-        setPasRegistrare('cod')
     }
 
-    function handleConfirmaCod(event: FormEvent) {
+    async function handleConfirmaCod(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
-        if (!confirmaCod(email, codIntrodus)) {
-            setEroare('Cod invalid sau expirat.')
-            return
+        setSeIncarca(true)
+        try {
+            await api.auth.confirmCode(email, codIntrodus)
+            setPasRegistrare('detalii')
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Cod invalid sau expirat.')
+        } finally {
+            setSeIncarca(false)
         }
-
-        setPasRegistrare('detalii')
     }
 
     async function handleLogin(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
-        const user = findUserByEmail(email)
-        const parolaHash = await hashParola(parola)
-
-        if (!user || user.parola !== parolaHash) {
-            setEroare('Email sau parolă incorectă.')
-            return
+        setSeIncarca(true)
+        try {
+            await login(email, parola)
+            navigate({ to: redirectTo })
+        } catch (e) {
+            const status = e instanceof ApiError ? e.status : 0
+            setEroare(status === 401 ? 'Email sau parolă incorectă.' : e instanceof Error ? e.message : 'Eroare la autentificare.')
+        } finally {
+            setSeIncarca(false)
         }
-
-        login({
-            id: user.id,
-            nume: user.nume,
-            email: user.email,
-            telefon: user.telefon,
-            oras: user.oras,
-            varsta: user.varsta,
-            esteDonator: user.esteDonator,
-            esteAdmin: user.esteAdmin,
-            grupaSanguina: user.grupaSanguina,
-            dataUltimeiDonari: user.dataUltimeiDonari,
-        })
-        navigate({ to: redirectTo })
     }
 
     async function handleRegister(event: FormEvent) {
         event.preventDefault()
         setEroare('')
 
-        if (!nume || !email || !parola || !oras || !varsta) {
+        if (!nume || !email || !parola || !oras || !varsta || !telefon) {
             setEroare('Completează toate câmpurile obligatorii.')
             return
         }
@@ -145,8 +138,8 @@ export function LoginPage() {
             return
         }
 
-        if (parola.length < 6) {
-            setEroare('Parola trebuie să aibă minim 6 caractere.')
+        if (parola.length < 8) {
+            setEroare('Parola trebuie să aibă minim 8 caractere.')
             return
         }
 
@@ -155,46 +148,16 @@ export function LoginPage() {
             return
         }
 
-        if (findUserByEmail(email)) {
-            setEroare('Există deja un cont cu acest email.')
-            return
+        setSeIncarca(true)
+        try {
+            await api.auth.register({ nume, email, parola, telefon, oras, varsta: varstaNumar })
+            await login(email, parola)
+            navigate({ to: redirectTo })
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Înregistrarea a eșuat.')
+        } finally {
+            setSeIncarca(false)
         }
-
-        if (!emailEsteConfirmat(email)) {
-            setEroare('Emailul nu a fost confirmat. Reia procesul de înregistrare.')
-            return
-        }
-
-        const parolaHash = await hashParola(parola)
-
-        const newUser = {
-            id: crypto.randomUUID(),
-            nume,
-            email,
-            parola: parolaHash,
-            telefon,
-            oras,
-            varsta: varstaNumar,
-            esteDonator: false,
-            esteAdmin: false,
-            grupaSanguina: null,
-            dataUltimeiDonari: null,
-        }
-
-        addUser(newUser)
-        login({
-            id: newUser.id,
-            nume: newUser.nume,
-            email: newUser.email,
-            telefon: newUser.telefon,
-            oras: newUser.oras,
-            varsta: newUser.varsta,
-            esteDonator: newUser.esteDonator,
-            esteAdmin: newUser.esteAdmin,
-            grupaSanguina: newUser.grupaSanguina,
-            dataUltimeiDonari: newUser.dataUltimeiDonari,
-        })
-        navigate({ to: redirectTo })
     }
 
     return (
@@ -272,7 +235,7 @@ export function LoginPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <button type="submit" className="loginButton">
+                                <button type="submit" className="loginButton" disabled={seIncarca}>
                                     Autentifică-te
                                 </button>
                             </form>
@@ -289,7 +252,7 @@ export function LoginPage() {
                                         required
                                     />
                                 </div>
-                                <button type="submit" className="loginButton">
+                                <button type="submit" className="loginButton" disabled={seIncarca}>
                                     Trimite cod de confirmare
                                 </button>
                             </form>
@@ -298,11 +261,6 @@ export function LoginPage() {
                                 <p className="loginNote">
                                     Am trimis un cod de 6 cifre pe adresa <strong>{email}</strong>.
                                 </p>
-                                {codDemo && (
-                                    <p className="loginNote">
-                                        (Demo — fără server real conectat) Codul tău este: <strong>{codDemo}</strong>
-                                    </p>
-                                )}
                                 <div className="loginField">
                                     <label htmlFor="cod">Cod de confirmare</label>
                                     <input
@@ -316,7 +274,7 @@ export function LoginPage() {
                                         required
                                     />
                                 </div>
-                                <button type="submit" className="loginButton">
+                                <button type="submit" className="loginButton" disabled={seIncarca}>
                                     Confirmă codul
                                 </button>
                                 <button
@@ -396,7 +354,7 @@ export function LoginPage() {
                                             type={aratParolaR ? 'text' : 'password'}
                                             value={parola}
                                             onChange={(e) => setParola(e.target.value)}
-                                            placeholder="Minim 6 caractere"
+                                            placeholder="Minim 8 caractere"
                                             required
                                         />
                                         <button
@@ -428,15 +386,11 @@ export function LoginPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <button type="submit" className="loginButton">
+                                <button type="submit" className="loginButton" disabled={seIncarca}>
                                     Creează cont
                                 </button>
                             </form>
                         )}
-
-                        <p className="loginNote">
-                            Datele sunt salvate momentan local, în browser — vor fi conectate la un server real ulterior.
-                        </p>
                     </div>
                 </div>
             </div>

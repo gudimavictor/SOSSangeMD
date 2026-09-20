@@ -12,6 +12,9 @@ src/Backend.Api/logs/
 .idea/
 *.suo
 
+## Claude Code session config
+.claude/
+
 ## OS
 .DS_Store
 Thumbs.db

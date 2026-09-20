@@ -5,10 +5,8 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { CustomSelect } from '../../components/ui/CustomSelect'
-import { grupeleSanguine, esteCompatibil } from './compatibilitate'
-import { addRequest } from './requestsStore'
-import { getUsers } from '../auth/usersStore'
-import { addNotification } from '../notifications/notificationsStore'
+import { grupeleSanguine } from './compatibilitate'
+import { useApi } from '../../api/use-api'
 import { IconPencil, IconLocation, IconBulb, IconCheck } from '../../components/ui/Icons'
 import { PageHeader } from '../../components/ui/PageHeader'
 import type { NivelUrgenta } from './types'
@@ -47,6 +45,7 @@ const fadeUpItem = {
 
 export function CreateRequestPage() {
     const { user } = useAuth()
+    const api = useApi()
     const navigate = useNavigate()
 
     const [grupa, setGrupa] = useState('')
@@ -54,44 +53,28 @@ export function CreateRequestPage() {
     const [urgenta, setUrgenta] = useState<NivelUrgenta>('urgenta')
     const [descriere, setDescriere] = useState('')
     const [trimis, setTrimis] = useState(false)
+    const [seTrimite, setSeTrimite] = useState(false)
+    const [eroare, setEroare] = useState('')
 
-    function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault()
 
-        if (!grupa || !oras || !user) return
+        if (!grupa || !oras || !user || seTrimite) return
 
-        addRequest({
-            id: crypto.randomUUID(),
-            solicitantId: user.id,
-            solicitantNume: user.nume,
-            grupaNecesara: grupa as GrupaSanguina,
-            oras,
-            urgenta,
-            descriere,
-            status: 'activa',
-            dataCreare: new Date().toISOString().slice(0, 10),
-        })
-
-        const donatoriCompatibili = getUsers().filter(
-            (u) =>
-                u.esteDonator &&
-                u.grupaSanguina &&
-                u.id !== user.id &&
-                esteCompatibil(u.grupaSanguina, grupa as GrupaSanguina)
-        )
-
-        donatoriCompatibili.forEach((donator) => {
-            addNotification({
-                id: crypto.randomUUID(),
-                userId: donator.id,
-                tip: 'cerere_compatibila',
-                titlu: 'O cerere nouă compatibilă cu tine',
-                mesaj: `Grupa ${grupa} este necesară în ${oras}. Verifică dacă poți ajuta.`,
-                citita: false,
-                data: new Date().toISOString(),
-                link: '/cereri-compatibile',
+        setEroare('')
+        setSeTrimite(true)
+        try {
+            await api.requests.createRequest({
+                grupaNecesara: grupa as GrupaSanguina,
+                oras,
+                urgenta,
+                descriere,
             })
-        })
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Cererea nu a putut fi trimisă.')
+            setSeTrimite(false)
+            return
+        }
 
         setTrimis(true)
 
@@ -224,11 +207,13 @@ export function CreateRequestPage() {
                                 className="submitButton"
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.98 }}
-                                disabled={trimis}
+                                disabled={seTrimite}
                             >
-                                {trimis ? 'Se trimite...' : 'Trimite cererea'}
+                                {seTrimite ? 'Se trimite...' : 'Trimite cererea'}
                             </motion.button>
                         </motion.div>
+
+                        {eroare && <p className="apiErrorMsg">{eroare}</p>}
 
                         <AnimatePresence>
                             {trimis && (

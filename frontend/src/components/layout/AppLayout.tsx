@@ -2,7 +2,8 @@ import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from '@tanstack/react-router'
 import { useAuth } from '../../features/auth/AuthContext'
-import { getUnreadCount, NOTIFICATIONS_UPDATED_EVENT } from '../../features/notifications/notificationsStore'
+import { NOTIFICATIONS_UPDATED_EVENT } from '../../api/notifications'
+import { useApi } from '../../api/use-api'
 import { IconBell } from '../ui/Icons'
 import { Footer } from './Footer'
 import './AppLayout.css'
@@ -33,20 +34,43 @@ const navItems = [
 
 export function AppLayout({ children }: AppLayoutProps) {
     const { user, logout } = useAuth()
+    const api = useApi()
     const navigate = useNavigate()
     const location = useLocation()
-    const [, setNotifVersiune] = useState(0)
+    const [necitite, setNecitite] = useState(0)
+    const [notifVersiune, setNotifVersiune] = useState(0)
+    const userId = user?.id ?? null
 
     useEffect(() => {
         function handleUpdate() {
             setNotifVersiune((v) => v + 1)
         }
         window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate)
-        return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate)
+        const interval = window.setInterval(handleUpdate, 30_000)
+        return () => {
+            window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate)
+            window.clearInterval(interval)
+        }
     }, [])
 
-    function handleLogout() {
-        logout()
+    useEffect(() => {
+        if (!userId) return
+        let anulat = false
+        api.notifications
+            .listMyNotifications()
+            .then((lista) => {
+                if (!anulat) setNecitite(lista.filter((n) => !n.citita).length)
+            })
+            .catch(() => {})
+        return () => {
+            anulat = true
+        }
+    }, [api, userId, notifVersiune, location.pathname])
+
+    const badge = user ? necitite : 0
+
+    async function handleLogout() {
+        await logout()
         navigate({ to: '/login' })
     }
 
@@ -81,11 +105,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     {user && (
                         <Link to="/notificari" className="notifBellLink" title="Notificări">
                             <IconBell />
-                            {getUnreadCount(user.id) > 0 && (
-                                <span className="notifBellBadge">
-                                    {getUnreadCount(user.id) > 9 ? '9+' : getUnreadCount(user.id)}
-                                </span>
-                            )}
+                            {badge > 0 && <span className="notifBellBadge">{badge > 9 ? '9+' : badge}</span>}
                         </Link>
                     )}
 

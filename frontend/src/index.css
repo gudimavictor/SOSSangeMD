@@ -44,3 +44,12 @@ body {
   background-attachment: fixed;
 }
 
+.apiErrorMsg {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0.75rem 0;
+}
