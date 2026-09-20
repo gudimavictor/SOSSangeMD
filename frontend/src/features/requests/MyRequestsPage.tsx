@@ -2,9 +2,8 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
-import { getRequestsByUser, updateRequestStatus, updateRequest, deleteRequest } from './requestsStore'
-import { getResponsesByRequest } from './requestResponsesStore'
-import { getUsers } from '../auth/usersStore'
+import { useApi } from '../../api/use-api'
+import { useAsync } from '../../api/useAsync'
 import { grupeleSanguine } from './compatibilitate'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from './types'
@@ -60,9 +59,10 @@ function zileDeLaCreare(dataCreare: string) {
 
 export function MyRequestsPage() {
     const { user } = useAuth()
+    const api = useApi()
     const [tab, setTab] = useState<Tab>('active')
     const [sortBy, setSortBy] = useState<SortBy>('data')
-    const [, setVersiune] = useState(0)
+    const [eroare, setEroare] = useState('')
     const [editId, setEditId] = useState<string | null>(null)
     const [editForm, setEditForm] = useState<{ grupa: string; oras: string; urgenta: NivelUrgenta; descriere: string }>({
         grupa: '',
@@ -71,7 +71,12 @@ export function MyRequestsPage() {
         descriere: '',
     })
 
-    const refresh = () => setVersiune((v) => v + 1)
+    const {
+        data: cereri,
+        error: eroareIncarcare,
+        loading,
+        reload,
+    } = useAsync(() => api.requests.listMyRequests(), [user?.id ?? null], !!user)
 
     if (!user) {
         return (
@@ -96,7 +101,7 @@ export function MyRequestsPage() {
         )
     }
 
-    const toateCererile = getRequestsByUser(user.id)
+    const toateCererile = cereri ?? []
     const active = toateCererile.filter((r) => r.status === 'activa')
     const rezolvate = toateCererile.filter((r) => r.status === 'rezolvata')
 
@@ -108,15 +113,23 @@ export function MyRequestsPage() {
             ? [...listaAfisata].sort((a, b) => urgentaOrdine[a.urgenta] - urgentaOrdine[b.urgenta])
             : listaAfisata
 
-    function marcheazaRezolvata(id: string) {
-        updateRequestStatus(id, 'rezolvata')
-        refresh()
+    async function executa(actiune: () => Promise<unknown>) {
+        setEroare('')
+        try {
+            await actiune()
+            reload()
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Acțiunea a eșuat.')
+        }
+    }
+
+    function marcheazaRezolvata(r: BloodRequest) {
+        return executa(() => api.requests.updateRequest({ ...r, status: 'rezolvata' }))
     }
 
     function stergeCererea(id: string) {
         if (!window.confirm('Ștergi definitiv această cerere? Acțiunea nu poate fi anulată.')) return
-        deleteRequest(id)
-        refresh()
+        return executa(() => api.requests.deleteRequest(id))
     }
 
     function incepeEditarea(r: BloodRequest) {
@@ -128,16 +141,18 @@ export function MyRequestsPage() {
         setEditId(null)
     }
 
-    function salveazaEditarea(id: string) {
+    async function salveazaEditarea(r: BloodRequest) {
         if (!editForm.grupa || !editForm.oras) return
-        updateRequest(id, {
-            grupaNecesara: editForm.grupa as GrupaSanguina,
-            oras: editForm.oras,
-            urgenta: editForm.urgenta,
-            descriere: editForm.descriere,
-        })
+        await executa(() =>
+            api.requests.updateRequest({
+                ...r,
+                grupaNecesara: editForm.grupa as GrupaSanguina,
+                oras: editForm.oras,
+                urgenta: editForm.urgenta,
+                descriere: editForm.descriere,
+            }),
+        )
         setEditId(null)
-        refresh()
     }
 
     return (
@@ -203,7 +218,11 @@ export function MyRequestsPage() {
                     </div>
                 </div>
 
-                {listaAfisata.length === 0 ? (
+                {(eroare || eroareIncarcare) && <p className="apiErrorMsg">{eroare || eroareIncarcare}</p>}
+
+                {loading ? (
+                    <p className="myReqEmptyState">Se încarcă cererile...</p>
+                ) : listaAfisata.length === 0 ? (
                     <div className="myReqEmptyState">
                         <span className="myReqEmptyIcon"><IconDrop /></span>
                         <p>
@@ -268,7 +287,7 @@ export function MyRequestsPage() {
                                                 placeholder="Descriere"
                                             />
                                             <div className="myReqEditActions">
-                                                <button className="myReqSaveButton" onClick={() => salveazaEditarea(r.id)}>
+                                                <button className="myReqSaveButton" onClick={() => salveazaEditarea(r)}>
                                                     Salvează
                                                 </button>
                                                 <button className="myReqCancelButton" onClick={anuleazaEditarea}>
@@ -303,7 +322,7 @@ export function MyRequestsPage() {
                                                 {r.status === 'activa' && (
                                                     <button
                                                         className="myReqResolveButton"
-                                                        onClick={() => marcheazaRezolvata(r.id)}
+                                                        onClick={() => marcheazaRezolvata(r)}
                                                     >
                                                         Marchează rezolvată
                                                     </button>
@@ -331,10 +350,9 @@ export function MyRequestsPage() {
 }
 
 function DonatoriConfirmati({ cererId }: { cererId: string }) {
-    const raspunsuri = getResponsesByRequest(cererId)
-    if (raspunsuri.length === 0) return null
-
-    const useri = getUsers()
+    const api = useApi()
+    const { data: raspunsuri } = useAsync(() => api.responses.listResponsesByRequest(cererId), [cererId])
+    if (!raspunsuri || raspunsuri.length === 0) return null
 
     return (
         <div className="myReqDonorsBox">
@@ -342,20 +360,17 @@ function DonatoriConfirmati({ cererId }: { cererId: string }) {
                 {raspunsuri.length} {raspunsuri.length === 1 ? 'donator a confirmat' : 'donatori au confirmat'}
             </p>
             <div className="myReqDonorsList">
-                {raspunsuri.map((raspuns) => {
-                    const donator = useri.find((u) => u.id === raspuns.donatorId)
-                    return (
-                        <div key={raspuns.id} className="myReqDonorItem">
-                            <span className="myReqDonorName">{raspuns.donatorNume}</span>
-                            {donator?.grupaSanguina && <span className="myReqDonorGroup">{donator.grupaSanguina}</span>}
-                            {donator?.telefon && (
-                                <span className="myReqDonorPhone iconText">
-                                    <IconPhone /> {donator.telefon}
-                                </span>
-                            )}
-                        </div>
-                    )
-                })}
+                {raspunsuri.map((raspuns) => (
+                    <div key={raspuns.id} className="myReqDonorItem">
+                        <span className="myReqDonorName">{raspuns.donatorNume}</span>
+                        {raspuns.grupaSanguina && <span className="myReqDonorGroup">{raspuns.grupaSanguina}</span>}
+                        {raspuns.telefon && (
+                            <span className="myReqDonorPhone iconText">
+                                <IconPhone /> {raspuns.telefon}
+                            </span>
+                        )}
+                    </div>
+                ))}
             </div>
         </div>
     )
