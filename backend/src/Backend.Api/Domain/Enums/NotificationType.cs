@@ -6,5 +6,6 @@ namespace Backend.Api.Domain.Enums;
 public enum NotificationType
 {
     Confirmation,
-    CompatibleRequest
+    CompatibleRequest,
+    SupportReply
 }

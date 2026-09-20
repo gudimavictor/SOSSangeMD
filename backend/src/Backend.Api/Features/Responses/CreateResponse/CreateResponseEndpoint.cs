@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Backend.Api.Common.Endpoints;
 using Backend.Api.Domain.Entities;
 using Backend.Api.Domain.Enums;
+using Backend.Api.Domain.Services;
 using Backend.Api.Infrastructure.Auth;
 using Backend.Api.Infrastructure.Persistence;
 using FluentValidation;
@@ -34,13 +35,21 @@ public class CreateResponseValidator : AbstractValidator<CreateResponseRequest>
 public enum CreateResponseStatus
 {
     Success,
-    AlreadyResponded
+    AlreadyResponded,
+    OwnRequest,
+    RequestNotActive,
+    IncompatibleDonor,
+    NotEligibleYet
 }
 
 public record CreateResponseResult(CreateResponseStatus Status, DonorResponse? Response = null)
 {
     public static CreateResponseResult Success(DonorResponse response) => new(CreateResponseStatus.Success, response);
     public static CreateResponseResult AlreadyResponded() => new(CreateResponseStatus.AlreadyResponded);
+    public static CreateResponseResult OwnRequest() => new(CreateResponseStatus.OwnRequest);
+    public static CreateResponseResult RequestNotActive() => new(CreateResponseStatus.RequestNotActive);
+    public static CreateResponseResult IncompatibleDonor() => new(CreateResponseStatus.IncompatibleDonor);
+    public static CreateResponseResult NotEligibleYet() => new(CreateResponseStatus.NotEligibleYet);
 }
 
 public class CreateResponseHandler(AppDbContext db)
@@ -55,6 +64,36 @@ public class CreateResponseHandler(AppDbContext db)
             return CreateResponseResult.AlreadyResponded();
         }
 
+        var bloodRequest = await db.BloodRequests.FirstAsync(r => r.Id == request.BloodRequestId, cancellationToken);
+        var donor = await db.Users.FirstAsync(u => u.Id == donorId, cancellationToken);
+
+        if (bloodRequest.RequesterId == donorId)
+        {
+            return CreateResponseResult.OwnRequest();
+        }
+
+        if (bloodRequest.Status != RequestStatus.Active)
+        {
+            return CreateResponseResult.RequestNotActive();
+        }
+
+        if (request.Status == ResponseStatus.Available)
+        {
+            if (!donor.IsDonor || donor.BloodType is null ||
+                !BloodCompatibility.IsCompatible(donor.BloodType.Value, bloodRequest.RequiredBloodType))
+            {
+                return CreateResponseResult.IncompatibleDonor();
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            if (!DonorEligibility.IsEligible(donor.LastDonationDate, today))
+            {
+                return CreateResponseResult.NotEligibleYet();
+            }
+
+            donor.LastDonationDate = today;
+        }
+
         var entity = new RequestResponse
         {
             BloodRequestId = request.BloodRequestId,
@@ -64,9 +103,6 @@ public class CreateResponseHandler(AppDbContext db)
         };
 
         db.RequestResponses.Add(entity);
-
-        var bloodRequest = await db.BloodRequests.FirstAsync(r => r.Id == request.BloodRequestId, cancellationToken);
-        var donor = await db.Users.FirstAsync(u => u.Id == donorId, cancellationToken);
 
         db.Notifications.Add(new Notification
         {
@@ -108,6 +144,14 @@ public class CreateResponseEndpoint : IEndpoint
                             Results.Created($"/api/responses/get/{result.Response!.Id}", result.Response),
                         CreateResponseStatus.AlreadyResponded =>
                             Results.Conflict("Ai răspuns deja la această cerere."),
+                        CreateResponseStatus.OwnRequest =>
+                            Results.Conflict("Nu poți răspunde la propria cerere."),
+                        CreateResponseStatus.RequestNotActive =>
+                            Results.Conflict("Cererea nu mai este activă."),
+                        CreateResponseStatus.IncompatibleDonor =>
+                            Results.Conflict("Grupa ta sanguină nu este compatibilă cu această cerere."),
+                        CreateResponseStatus.NotEligibleYet =>
+                            Results.Conflict("Nu au trecut încă 2 luni de la ultima ta donare."),
                         _ => Results.Problem()
                     };
                 })

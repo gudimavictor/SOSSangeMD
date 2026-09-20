@@ -56,13 +56,15 @@ public class CreateRequestHandler(AppDbContext db)
 
         var requester = await db.Users.FirstAsync(u => u.Id == entity.RequesterId, cancellationToken);
 
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var compatibleDonors = await db.Users
             .Where(u => u.IsDonor && u.BloodType != null && u.City == entity.City && u.Id != entity.RequesterId)
             .ToListAsync(cancellationToken);
 
         foreach (var donor in compatibleDonors)
         {
-            if (!BloodCompatibility.IsCompatible(donor.BloodType!.Value, entity.RequiredBloodType))
+            if (!BloodCompatibility.IsCompatible(donor.BloodType!.Value, entity.RequiredBloodType) ||
+                !DonorEligibility.IsEligible(donor.LastDonationDate, today))
             {
                 continue;
             }

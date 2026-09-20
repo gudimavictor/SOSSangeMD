@@ -37,10 +37,9 @@ public class ListRequestsEndpoint : IEndpoint
                 var requests = await handler.Handle(ct);
                 return Results.Ok(requests);
             })
-            .RequireAuthorization()
+            .AllowAnonymous()
             .WithName("ListRequests")
             .WithTags("Requests")
-            .Produces<IReadOnlyList<BloodRequestResponse>>()
-            .Produces(StatusCodes.Status401Unauthorized);
+            .Produces<IReadOnlyList<BloodRequestResponse>>();
     }
 }
