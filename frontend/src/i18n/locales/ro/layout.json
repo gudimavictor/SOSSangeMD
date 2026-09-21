@@ -1,0 +1,24 @@
+{
+    "nav": {
+        "home": "Acasă",
+        "createRequest": "Creează cerere",
+        "myRequests": "Cererile mele",
+        "donor": "Sunt donator",
+        "compatibleRequests": "Cereri compatibile",
+        "centers": "Centre",
+        "support": "Suport",
+        "admin": "Admin",
+        "about": "Despre noi",
+        "notifications": "Notificări",
+        "login": "Autentificare",
+        "logout": "Ieși"
+    },
+    "footer": {
+        "description": "Conectăm donatori de sânge cu persoane care au nevoie urgentă, în toată Republica Moldova. Fiecare donare poate salva o viață.",
+        "quickLinks": "Linkuri rapide",
+        "contact": "Contact",
+        "centersFull": "Centre de transfuzie",
+        "location": "Chișinău, Moldova",
+        "copyright": "© {{year}} SOS Sânge. Proiect de practică."
+    }
+}

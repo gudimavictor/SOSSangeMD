@@ -1,14 +1,15 @@
 import { Link } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import './Footer.css'
 
 const linkuriRapide = [
-    { to: '/', label: 'Acasă' },
-    { to: '/creeaza-cerere', label: 'Creează cerere' },
-    { to: '/sunt-donator', label: 'Sunt donator' },
-    { to: '/cereri-compatibile', label: 'Cereri compatibile' },
-    { to: '/centre', label: 'Centre de transfuzie' },
-    { to: '/suport', label: 'Suport' },
-    { to: '/despre-noi', label: 'Despre noi' },
+    { to: '/', key: 'nav.home' },
+    { to: '/creeaza-cerere', key: 'nav.createRequest' },
+    { to: '/sunt-donator', key: 'nav.donor' },
+    { to: '/cereri-compatibile', key: 'nav.compatibleRequests' },
+    { to: '/centre', key: 'footer.centersFull' },
+    { to: '/suport', key: 'nav.support' },
+    { to: '/despre-noi', key: 'nav.about' },
 ]
 
 function IconDrop() {
@@ -64,6 +65,7 @@ function IconInstagram() {
 }
 
 export function Footer() {
+    const { t } = useTranslation('layout')
     const anul = new Date().getFullYear()
 
     return (
@@ -74,10 +76,7 @@ export function Footer() {
                         <IconDrop />
                         SOS Sânge
                     </span>
-                    <p className="footerDescription">
-                        Conectăm donatori de sânge cu persoane care au nevoie urgentă,
-                        în toată Republica Moldova. Fiecare donare poate salva o viață.
-                    </p>
+                    <p className="footerDescription">{t('footer.description')}</p>
                     <div className="footerSocial">
                         <a href="#" className="footerSocialLink" aria-label="Facebook" target="_blank" rel="noreferrer">
                             <IconFacebook />
@@ -92,12 +91,12 @@ export function Footer() {
                 </div>
 
                 <div className="footerCol">
-                    <h4 className="footerColTitle">Linkuri rapide</h4>
+                    <h4 className="footerColTitle">{t('footer.quickLinks')}</h4>
                     <ul className="footerLinkList">
                         {linkuriRapide.map((item) => (
                             <li key={item.to}>
                                 <Link to={item.to} className="footerLink">
-                                    {item.label}
+                                    {t(item.key)}
                                 </Link>
                             </li>
                         ))}
@@ -105,7 +104,7 @@ export function Footer() {
                 </div>
 
                 <div className="footerCol">
-                    <h4 className="footerColTitle">Contact</h4>
+                    <h4 className="footerColTitle">{t('footer.contact')}</h4>
                     <ul className="footerContactList">
                         <li>
                             <IconPhone />
@@ -117,14 +116,14 @@ export function Footer() {
                         </li>
                         <li>
                             <IconPin />
-                            <span>Chișinău, Moldova</span>
+                            <span>{t('footer.location')}</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
             <div className="footerBottom">
-                <span className="footerCopy">© {anul} SOS Sânge. Proiect de practică.</span>
+                <span className="footerCopy">{t('footer.copyright', { year: anul })}</span>
             </div>
         </footer>
     )

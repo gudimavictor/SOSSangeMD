@@ -1,0 +1,36 @@
+{
+    "header": {
+        "eyebrow": "Active requests right now",
+        "title": "Who needs blood right now",
+        "subtitle": "See every active request across the Republic of Moldova and help anyone, regardless of your blood type.",
+        "needBlood": "I need blood",
+        "seeCompatible": "See requests compatible with me"
+    },
+    "stats": {
+        "active": "Active requests",
+        "critical": "Critical",
+        "cities": "Cities covered"
+    },
+    "filters": {
+        "search": "Search by name, city or description...",
+        "allCities": "All cities",
+        "allGroups": "All groups",
+        "sortUrgency": "Sort: Urgency",
+        "sortDate": "Sort: Date"
+    },
+    "empty": "There are no active requests matching the selected filters.",
+    "loading": "Loading requests...",
+    "card": {
+        "noDescription": "No description.",
+        "requestedBy": "Requested by {{name}}",
+        "ownRequest": "Your request",
+        "loginToHelp": "Sign in to help",
+        "confirmed": "You confirmed your availability",
+        "contact": "Contact: {{phone}}",
+        "canDonateAgain": "You can donate again on {{date}}",
+        "help": "I want to help"
+    },
+    "errors": {
+        "confirmFailed": "Availability could not be confirmed."
+    }
+}

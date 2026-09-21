@@ -2,6 +2,12 @@
     "language": {
         "label": "Language"
     },
+    "all": "All",
+    "urgency": {
+        "critica": "Critical",
+        "urgenta": "Urgent",
+        "programata": "Scheduled"
+    },
     "cities": {
         "chisinau": "Chișinău",
         "balti": "Bălți",

@@ -1,0 +1,36 @@
+{
+    "header": {
+        "eyebrow": "Cereri active acum",
+        "title": "Cine are nevoie de sânge chiar acum",
+        "subtitle": "Vezi toate cererile active din toată Republica Moldova și ajută pe oricine, indiferent de grupa ta sanguină.",
+        "needBlood": "Am nevoie de sânge",
+        "seeCompatible": "Vezi cererile compatibile cu mine"
+    },
+    "stats": {
+        "active": "Cereri active",
+        "critical": "Critice",
+        "cities": "Orașe acoperite"
+    },
+    "filters": {
+        "search": "Caută după nume, oraș sau descriere...",
+        "allCities": "Toate orașele",
+        "allGroups": "Toate grupele",
+        "sortUrgency": "Sortează: Urgență",
+        "sortDate": "Sortează: Dată"
+    },
+    "empty": "Nu există cereri active care să corespundă filtrelor selectate.",
+    "loading": "Se încarcă cererile...",
+    "card": {
+        "noDescription": "Fără descriere.",
+        "requestedBy": "Solicitat de {{name}}",
+        "ownRequest": "Cererea ta",
+        "loginToHelp": "Autentifică-te ca să ajuți",
+        "confirmed": "Ai confirmat disponibilitatea",
+        "contact": "Contact: {{phone}}",
+        "canDonateAgain": "Poți dona din nou pe {{date}}",
+        "help": "Vreau să ajut"
+    },
+    "errors": {
+        "confirmFailed": "Disponibilitatea nu a putut fi confirmată."
+    }
+}

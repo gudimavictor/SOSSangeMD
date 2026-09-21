@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../features/auth/AuthContext'
 import { NOTIFICATIONS_UPDATED_EVENT } from '../../api/notifications'
 import { useApi } from '../../api/use-api'
@@ -23,19 +24,20 @@ function initiale(nume: string) {
 }
 
 const navItems = [
-    { to: '/', label: 'Acasă', authOnly: false, adminOnly: false },
-    { to: '/creeaza-cerere', label: 'Creează cerere', authOnly: false, adminOnly: false },
-    { to: '/cererile-mele', label: 'Cererile mele', authOnly: true, adminOnly: false },
-    { to: '/sunt-donator', label: 'Sunt donator', authOnly: false, adminOnly: false },
-    { to: '/cereri-compatibile', label: 'Cereri compatibile', authOnly: true, adminOnly: false },
-    { to: '/centre', label: 'Centre', authOnly: false, adminOnly: false },
-    { to: '/suport', label: 'Suport', authOnly: false, adminOnly: false },
-    { to: '/admin', label: 'Admin', authOnly: true, adminOnly: true },
+    { to: '/', key: 'home', authOnly: false, adminOnly: false },
+    { to: '/creeaza-cerere', key: 'createRequest', authOnly: false, adminOnly: false },
+    { to: '/cererile-mele', key: 'myRequests', authOnly: true, adminOnly: false },
+    { to: '/sunt-donator', key: 'donor', authOnly: false, adminOnly: false },
+    { to: '/cereri-compatibile', key: 'compatibleRequests', authOnly: true, adminOnly: false },
+    { to: '/centre', key: 'centers', authOnly: false, adminOnly: false },
+    { to: '/suport', key: 'support', authOnly: false, adminOnly: false },
+    { to: '/admin', key: 'admin', authOnly: true, adminOnly: true },
 ]
 
 export function AppLayout({ children }: AppLayoutProps) {
     const { user, logout } = useAuth()
     const api = useApi()
+    const { t } = useTranslation('layout')
     const navigate = useNavigate()
     const location = useLocation()
     const [necitite, setNecitite] = useState(0)
@@ -97,7 +99,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 activeProps={{ className: 'navLink navLinkActive' }}
                                 activeOptions={{ exact: item.to === '/' }}
                             >
-                                {item.label}
+                                {t(`nav.${item.key}`)}
                             </Link>
                         ))}
                 </nav>
@@ -105,7 +107,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <div className="userArea">
                     <LanguageSwitcher />
                     {user && (
-                        <Link to="/notificari" className="notifBellLink" title="Notificări">
+                        <Link to="/notificari" className="notifBellLink" title={t('nav.notifications')}>
                             <IconBell />
                             {badge > 0 && <span className="notifBellBadge">{badge > 9 ? '9+' : badge}</span>}
                         </Link>
@@ -118,12 +120,12 @@ export function AppLayout({ children }: AppLayoutProps) {
                                 <span className="topbarUserName">{user.nume}</span>
                             </Link>
                             <button className="logoutButton" onClick={handleLogout}>
-                                Ieși
+                                {t('nav.logout')}
                             </button>
                         </>
                     ) : (
                         <Link to="/login" className="navLink">
-                            Autentificare
+                            {t('nav.login')}
                         </Link>
                     )}
                 </div>

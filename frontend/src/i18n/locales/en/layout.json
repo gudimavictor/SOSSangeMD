@@ -1,0 +1,24 @@
+{
+    "nav": {
+        "home": "Home",
+        "createRequest": "Create request",
+        "myRequests": "My requests",
+        "donor": "I'm a donor",
+        "compatibleRequests": "Compatible requests",
+        "centers": "Centers",
+        "support": "Support",
+        "admin": "Admin",
+        "about": "About us",
+        "notifications": "Notifications",
+        "login": "Sign in",
+        "logout": "Sign out"
+    },
+    "footer": {
+        "description": "We connect blood donors with people in urgent need across the Republic of Moldova. Every donation can save a life.",
+        "quickLinks": "Quick links",
+        "contact": "Contact",
+        "centersFull": "Transfusion centers",
+        "location": "Chișinău, Moldova",
+        "copyright": "© {{year}} SOS Sânge. Internship project."
+    }
+}

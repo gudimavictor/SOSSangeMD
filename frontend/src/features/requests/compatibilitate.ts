@@ -24,10 +24,10 @@ export function esteEligibilPentruDonare(dataUltimeiDonari: string | null): bool
     return new Date() >= dataUrmatoare
 }
 
-export function dataUrmatoareiDonari(dataUltimeiDonari: string): string {
+export function dataUrmatoareiDonari(dataUltimeiDonari: string, locale = 'ro-RO'): string {
     const d = new Date(dataUltimeiDonari)
     d.setMonth(d.getMonth() + 2)
-    return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' })
+    return d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export const grupeleSanguine: GrupaSanguina[] = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+']
