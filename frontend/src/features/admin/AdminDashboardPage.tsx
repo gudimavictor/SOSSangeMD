@@ -1,10 +1,8 @@
 import { useEffect, useEffectEvent, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useAuth } from '../auth/AuthContext'
-import { getUsers, updateUser, deleteUser } from '../auth/usersStore'
-import type { UserRecord } from '../auth/usersStore'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from '../requests/types'
-import type { GrupaSanguina } from '../auth/AuthContext'
+import type { CurrentUser, GrupaSanguina } from '../auth/AuthContext'
 import { getCenters, addCenter, updateCenter, deleteCenter } from '../centers/centersStore'
 import type { CentruTransfuzie } from '../centers/centers'
 import type { SupportMessage } from '../support/types'
@@ -63,7 +61,7 @@ function initiale(nume: string) {
 }
 
 export function AdminDashboardPage() {
-    const { user } = useAuth()
+    const { user, updateUser: actualizeazaUtilizatorulCurent } = useAuth()
     const [tab, setTab] = useState<Tab>('statistici')
     const [versiune, setVersiune] = useState(0)
     const [cautareCereri, setCautareCereri] = useState('')
@@ -89,6 +87,14 @@ export function AdminDashboardPage() {
         loading: seIncarcaCererile,
         reload: reincarcaCererile,
     } = useAsync(() => api.requests.listRequests(), [user?.id ?? null], !!user?.esteAdmin)
+
+    const [eroareUseri, setEroareUseri] = useState('')
+    const {
+        data: usersApi,
+        error: eroareIncarcareUseri,
+        loading: seIncarcaUseri,
+        reload: reincarcaUseri,
+    } = useAsync(() => api.users.listUsers(), [user?.id ?? null], !!user?.esteAdmin)
 
     const reincarcaPeriodic = useEffectEvent(() => reincarcaMesajele())
     const esteAdmin = !!user?.esteAdmin
@@ -143,7 +149,7 @@ export function AdminDashboardPage() {
         )
     }
 
-    const users = getUsers()
+    const users = usersApi ?? []
     const requests = cereriApi ?? []
     const centers = getCenters()
     const mesaje = mesajeApi ?? []
@@ -206,15 +212,28 @@ export function AdminDashboardPage() {
         return executaPeCereri(() => api.requests.deleteRequest(id))
     }
 
-    function handleEditUser(id: string, updates: Partial<UserRecord>) {
-        updateUser(id, updates)
-        refresh()
+    async function executaPeUseri(actiune: () => Promise<unknown>) {
+        setEroareUseri('')
+        try {
+            await actiune()
+            reincarcaUseri()
+        } catch (e) {
+            setEroareUseri(e instanceof Error ? e.message : 'Acțiunea a eșuat.')
+        }
     }
 
-    function handleDeleteUser(u: UserRecord) {
+    function handleEditUser(id: string, updates: Partial<CurrentUser>) {
+        const utilizator = users.find((u) => u.id === id)
+        if (!utilizator) return
+        return executaPeUseri(async () => {
+            const salvat = await api.users.updateUser({ ...utilizator, ...updates })
+            if (salvat.id === currentUserId) actualizeazaUtilizatorulCurent(salvat)
+        })
+    }
+
+    function handleDeleteUser(u: CurrentUser) {
         if (u.id === currentUserId) return
-        deleteUser(u.id)
-        refresh()
+        return executaPeUseri(() => api.users.deleteUser(u.id))
     }
 
     async function executaPeMesaje(actiune: () => Promise<unknown>) {
@@ -326,14 +345,20 @@ export function AdminDashboardPage() {
                         )}
 
                         {tab === 'utilizatori' && (
-                            <UsersAdminTab
-                                useri={usersFiltrati}
-                                cautare={cautareUseri}
-                                onCautareChange={setCautareUseri}
-                                currentUserId={currentUserId}
-                                onEdit={handleEditUser}
-                                onDelete={handleDeleteUser}
-                            />
+                            <>
+                                {(eroareUseri || eroareIncarcareUseri) && (
+                                    <p className="apiErrorMsg">{eroareUseri || eroareIncarcareUseri}</p>
+                                )}
+                                <UsersAdminTab
+                                    useri={usersFiltrati}
+                                    incarcare={seIncarcaUseri}
+                                    cautare={cautareUseri}
+                                    onCautareChange={setCautareUseri}
+                                    currentUserId={currentUserId}
+                                    onEdit={handleEditUser}
+                                    onDelete={handleDeleteUser}
+                                />
+                            </>
                         )}
 
                         {tab === 'centre' && (
@@ -536,12 +561,13 @@ function RequestsAdminTab({
 }
 
 type UsersAdminTabProps = {
-    useri: UserRecord[]
+    useri: CurrentUser[]
+    incarcare: boolean
     cautare: string
     onCautareChange: (v: string) => void
     currentUserId: string
-    onEdit: (id: string, updates: Partial<UserRecord>) => void
-    onDelete: (u: UserRecord) => void
+    onEdit: (id: string, updates: Partial<CurrentUser>) => void
+    onDelete: (u: CurrentUser) => void
 }
 
 type UserEditForm = {
@@ -554,7 +580,15 @@ type UserEditForm = {
     esteAdmin: boolean
 }
 
-function UsersAdminTab({ useri, cautare, onCautareChange, currentUserId, onEdit, onDelete }: UsersAdminTabProps) {
+function UsersAdminTab({
+    useri,
+    incarcare,
+    cautare,
+    onCautareChange,
+    currentUserId,
+    onEdit,
+    onDelete,
+}: UsersAdminTabProps) {
     const [editId, setEditId] = useState<string | null>(null)
     const [formData, setFormData] = useState<UserEditForm>({
         nume: '',
@@ -566,7 +600,7 @@ function UsersAdminTab({ useri, cautare, onCautareChange, currentUserId, onEdit,
         esteAdmin: false,
     })
 
-    function startEdit(u: UserRecord) {
+    function startEdit(u: CurrentUser) {
         setEditId(u.id)
         setFormData({
             nume: u.nume,
@@ -584,7 +618,7 @@ function UsersAdminTab({ useri, cautare, onCautareChange, currentUserId, onEdit,
     }
 
     function salveaza() {
-        if (!editId || !formData.nume || !formData.email || !formData.oras) return
+        if (!editId || !formData.nume || !formData.email || !formData.telefon || !formData.oras) return
         onEdit(editId, {
             nume: formData.nume,
             email: formData.email,
@@ -674,57 +708,61 @@ function UsersAdminTab({ useri, cautare, onCautareChange, currentUserId, onEdit,
                 </div>
             )}
 
-            <div className="adminTableWrap">
-                <table className="adminTable">
-                    <thead>
-                    <tr>
-                        <th>Utilizator</th>
-                        <th>Email</th>
-                        <th>Oraș</th>
-                        <th>Status</th>
-                        <th>Acțiuni</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {useri.map((u) => (
-                        <tr key={u.id}>
-                            <td>
-                                <div className="adminUserCell">
-                                    <span className="adminAvatar">{initiale(u.nume)}</span>
-                                    {u.nume}
-                                </div>
-                            </td>
-                            <td className="adminMuted">{u.email}</td>
-                            <td className="adminMuted">{u.oras}</td>
-                            <td>
-                                <div className="adminBadgeGroup">
-                                    {u.esteAdmin && <span className="adminBadge">Admin</span>}
-                                    {u.esteDonator && <span className="adminBadgeSecondary">Donator</span>}
-                                    {!u.esteAdmin && !u.esteDonator && (
-                                        <span className="adminBadgeNeutral">Utilizator</span>
-                                    )}
-                                </div>
-                            </td>
-                            <td>
-                                <div className="adminActionsCell">
-                                    <button className="adminEditButton" onClick={() => startEdit(u)}>
-                                        Editează
-                                    </button>
-                                    <button
-                                        className="adminDeleteButton"
-                                        onClick={() => onDelete(u)}
-                                        disabled={u.id === currentUserId}
-                                        title={u.id === currentUserId ? 'Nu te poți șterge pe tine' : undefined}
-                                    >
-                                        Șterge
-                                    </button>
-                                </div>
-                            </td>
+            {incarcare ? (
+                <p className="adminEmptyState">Se încarcă utilizatorii...</p>
+            ) : (
+                <div className="adminTableWrap">
+                    <table className="adminTable">
+                        <thead>
+                        <tr>
+                            <th>Utilizator</th>
+                            <th>Email</th>
+                            <th>Oraș</th>
+                            <th>Status</th>
+                            <th>Acțiuni</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        {useri.map((u) => (
+                            <tr key={u.id}>
+                                <td>
+                                    <div className="adminUserCell">
+                                        <span className="adminAvatar">{initiale(u.nume)}</span>
+                                        {u.nume}
+                                    </div>
+                                </td>
+                                <td className="adminMuted">{u.email}</td>
+                                <td className="adminMuted">{u.oras}</td>
+                                <td>
+                                    <div className="adminBadgeGroup">
+                                        {u.esteAdmin && <span className="adminBadge">Admin</span>}
+                                        {u.esteDonator && <span className="adminBadgeSecondary">Donator</span>}
+                                        {!u.esteAdmin && !u.esteDonator && (
+                                            <span className="adminBadgeNeutral">Utilizator</span>
+                                        )}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className="adminActionsCell">
+                                        <button className="adminEditButton" onClick={() => startEdit(u)}>
+                                            Editează
+                                        </button>
+                                        <button
+                                            className="adminDeleteButton"
+                                            onClick={() => onDelete(u)}
+                                            disabled={u.id === currentUserId}
+                                            title={u.id === currentUserId ? 'Nu te poți șterge pe tine' : undefined}
+                                        >
+                                            Șterge
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     )
 }
