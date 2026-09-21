@@ -1,16 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useAuth } from '../auth/AuthContext'
 import { getUsers, updateUser, deleteUser } from '../auth/usersStore'
 import type { UserRecord } from '../auth/usersStore'
-import { getRequests, updateRequestStatus, updateRequest, deleteRequest } from '../requests/requestsStore'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from '../requests/types'
 import type { GrupaSanguina } from '../auth/AuthContext'
 import { getCenters, addCenter, updateCenter, deleteCenter } from '../centers/centersStore'
 import type { CentruTransfuzie } from '../centers/centers'
-import { getSupportMessages, raspundeMesaj, deleteSupportMessage } from '../support/supportMessagesStore'
-import type { SupportMessage } from '../support/supportMessagesStore'
-import { addNotification } from '../notifications/notificationsStore'
+import type { SupportMessage } from '../support/types'
+import { useApi } from '../../api/use-api'
+import { useAsync } from '../../api/useAsync'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { IconChart, IconDrop, IconUsers, IconLocation, IconMail } from '../../components/ui/Icons'
 import './AdminDashboardPage.css'
@@ -74,6 +73,31 @@ export function AdminDashboardPage() {
 
     const refresh = () => setVersiune((v) => v + 1)
 
+    const api = useApi()
+    const [eroareMesaje, setEroareMesaje] = useState('')
+    const {
+        data: mesajeApi,
+        error: eroareIncarcareMesaje,
+        loading: seIncarcaMesajele,
+        reload: reincarcaMesajele,
+    } = useAsync(() => api.support.listSupportMessages(), [user?.id ?? null], !!user?.esteAdmin)
+
+    const [eroareCereri, setEroareCereri] = useState('')
+    const {
+        data: cereriApi,
+        error: eroareIncarcareCereri,
+        loading: seIncarcaCererile,
+        reload: reincarcaCererile,
+    } = useAsync(() => api.requests.listRequests(), [user?.id ?? null], !!user?.esteAdmin)
+
+    const reincarcaPeriodic = useEffectEvent(() => reincarcaMesajele())
+    const esteAdmin = !!user?.esteAdmin
+    useEffect(() => {
+        if (!esteAdmin) return
+        const interval = window.setInterval(reincarcaPeriodic, 30_000)
+        return () => window.clearInterval(interval)
+    }, [esteAdmin])
+
     if (!user) {
         return (
             <div className="adminPage">
@@ -120,15 +144,15 @@ export function AdminDashboardPage() {
     }
 
     const users = getUsers()
-    const requests = getRequests()
+    const requests = cereriApi ?? []
     const centers = getCenters()
-    const mesaje = getSupportMessages()
+    const mesaje = mesajeApi ?? []
     const currentUserId = user.id
 
     const totalDonatori = users.filter((u) => u.esteDonator).length
     const cereriActive = requests.filter((r) => r.status === 'activa').length
     const cereriRezolvate = requests.filter((r) => r.status === 'rezolvata').length
-    const mesajeNecitite = mesaje.filter((m) => !m.citit).length
+    const mesajeNecitite = mesaje.filter((m) => !m.raspuns).length
 
     const requestsFiltrate = requests.filter((r) => {
         const q = cautareCereri.toLowerCase()
@@ -156,19 +180,30 @@ export function AdminDashboardPage() {
         })
         .sort((a, b) => b.data.localeCompare(a.data))
 
+    async function executaPeCereri(actiune: () => Promise<unknown>) {
+        setEroareCereri('')
+        try {
+            await actiune()
+            reincarcaCererile()
+        } catch (e) {
+            setEroareCereri(e instanceof Error ? e.message : 'Acțiunea a eșuat.')
+        }
+    }
+
     function handleStatusChange(id: string, status: StatusCerere) {
-        updateRequestStatus(id, status)
-        refresh()
+        const cerere = requests.find((r) => r.id === id)
+        if (!cerere) return
+        return executaPeCereri(() => api.requests.updateRequest({ ...cerere, status }))
     }
 
     function handleEditRequest(id: string, updates: Partial<BloodRequest>) {
-        updateRequest(id, updates)
-        refresh()
+        const cerere = requests.find((r) => r.id === id)
+        if (!cerere) return
+        return executaPeCereri(() => api.requests.updateRequest({ ...cerere, ...updates }))
     }
 
     function handleDeleteRequest(id: string) {
-        deleteRequest(id)
-        refresh()
+        return executaPeCereri(() => api.requests.deleteRequest(id))
     }
 
     function handleEditUser(id: string, updates: Partial<UserRecord>) {
@@ -182,28 +217,22 @@ export function AdminDashboardPage() {
         refresh()
     }
 
-    function handleReplyMessage(mesaj: SupportMessage, raspuns: string) {
-        raspundeMesaj(mesaj.id, raspuns)
-
-        if (mesaj.userId) {
-            addNotification({
-                id: crypto.randomUUID(),
-                userId: mesaj.userId,
-                tip: 'raspuns_suport',
-                titlu: 'Ai primit un răspuns de la echipa de suport',
-                mesaj: raspuns,
-                citita: false,
-                data: new Date().toISOString(),
-                link: '/suport',
-            })
+    async function executaPeMesaje(actiune: () => Promise<unknown>) {
+        setEroareMesaje('')
+        try {
+            await actiune()
+            reincarcaMesajele()
+        } catch (e) {
+            setEroareMesaje(e instanceof Error ? e.message : 'Acțiunea a eșuat.')
         }
+    }
 
-        refresh()
+    function handleReplyMessage(mesaj: SupportMessage, raspuns: string) {
+        return executaPeMesaje(() => api.support.replySupportMessage(mesaj.id, raspuns))
     }
 
     function handleDeleteMessage(id: string) {
-        deleteSupportMessage(id)
-        refresh()
+        return executaPeMesaje(() => api.support.deleteSupportMessage(id))
     }
 
     return (
@@ -234,6 +263,11 @@ export function AdminDashboardPage() {
                                         <item.icon />
                                     </span>
                                     {item.label}
+                                    {item.value === 'mesaje' && mesajeNecitite > 0 && (
+                                        <span className="adminSidebarBadge">
+                                            {mesajeNecitite > 9 ? '9+' : mesajeNecitite}
+                                        </span>
+                                    )}
                                 </button>
                             ))}
                         </nav>
@@ -275,14 +309,20 @@ export function AdminDashboardPage() {
                         )}
 
                         {tab === 'cereri' && (
-                            <RequestsAdminTab
-                                cereri={requestsFiltrate}
-                                cautare={cautareCereri}
-                                onCautareChange={setCautareCereri}
-                                onStatusChange={handleStatusChange}
-                                onEdit={handleEditRequest}
-                                onDelete={handleDeleteRequest}
-                            />
+                            <>
+                                {(eroareCereri || eroareIncarcareCereri) && (
+                                    <p className="apiErrorMsg">{eroareCereri || eroareIncarcareCereri}</p>
+                                )}
+                                <RequestsAdminTab
+                                    cereri={requestsFiltrate}
+                                    incarcare={seIncarcaCererile}
+                                    cautare={cautareCereri}
+                                    onCautareChange={setCautareCereri}
+                                    onStatusChange={handleStatusChange}
+                                    onEdit={handleEditRequest}
+                                    onDelete={handleDeleteRequest}
+                                />
+                            </>
                         )}
 
                         {tab === 'utilizatori' && (
@@ -306,13 +346,19 @@ export function AdminDashboardPage() {
                         )}
 
                         {tab === 'mesaje' && (
-                            <MessagesAdminTab
-                                mesaje={mesajeFiltrate}
-                                cautare={cautareMesaje}
-                                onCautareChange={setCautareMesaje}
-                                onReply={handleReplyMessage}
-                                onDelete={handleDeleteMessage}
-                            />
+                            <>
+                                {(eroareMesaje || eroareIncarcareMesaje) && (
+                                    <p className="apiErrorMsg">{eroareMesaje || eroareIncarcareMesaje}</p>
+                                )}
+                                <MessagesAdminTab
+                                    mesaje={mesajeFiltrate}
+                                    incarcare={seIncarcaMesajele}
+                                    cautare={cautareMesaje}
+                                    onCautareChange={setCautareMesaje}
+                                    onReply={handleReplyMessage}
+                                    onDelete={handleDeleteMessage}
+                                />
+                            </>
                         )}
                     </div>
                 </div>
@@ -323,6 +369,7 @@ export function AdminDashboardPage() {
 
 type RequestsAdminTabProps = {
     cereri: BloodRequest[]
+    incarcare: boolean
     cautare: string
     onCautareChange: (v: string) => void
     onStatusChange: (id: string, status: StatusCerere) => void
@@ -337,7 +384,15 @@ type CerereEditForm = {
     descriere: string
 }
 
-function RequestsAdminTab({ cereri, cautare, onCautareChange, onStatusChange, onEdit, onDelete }: RequestsAdminTabProps) {
+function RequestsAdminTab({
+    cereri,
+    incarcare,
+    cautare,
+    onCautareChange,
+    onStatusChange,
+    onEdit,
+    onDelete,
+}: RequestsAdminTabProps) {
     const [editId, setEditId] = useState<string | null>(null)
     const [formData, setFormData] = useState<CerereEditForm>({
         grupaNecesara: 'O-',
@@ -417,7 +472,9 @@ function RequestsAdminTab({ cereri, cautare, onCautareChange, onStatusChange, on
                 </div>
             )}
 
-            {cereri.length === 0 ? (
+            {incarcare ? (
+                <p className="adminEmptyState">Se încarcă cererile...</p>
+            ) : cereri.length === 0 ? (
                 <p className="adminEmptyState">Nu există cereri care să corespundă căutării.</p>
             ) : (
                 <div className="adminTableWrap">
@@ -447,7 +504,7 @@ function RequestsAdminTab({ cereri, cautare, onCautareChange, onStatusChange, on
                                 <td className="adminMuted" style={{ textTransform: 'capitalize' }}>
                                     {r.urgenta}
                                 </td>
-                                <td className="adminMuted">{r.dataCreare}</td>
+                                <td className="adminMuted">{r.dataCreare.slice(0, 10)}</td>
                                 <td>
                                     <div className="adminStatusSelectWrap">
                                         <CustomSelect
@@ -837,6 +894,7 @@ function CentersAdminTab({ centre, cautare, onCautareChange, onChanged }: Center
 
 type MessagesAdminTabProps = {
     mesaje: SupportMessage[]
+    incarcare: boolean
     cautare: string
     onCautareChange: (v: string) => void
     onReply: (mesaj: SupportMessage, raspuns: string) => void
@@ -853,7 +911,7 @@ function formateazaDataMesaj(data: string) {
     })
 }
 
-function MessagesAdminTab({ mesaje, cautare, onCautareChange, onReply, onDelete }: MessagesAdminTabProps) {
+function MessagesAdminTab({ mesaje, incarcare, cautare, onCautareChange, onReply, onDelete }: MessagesAdminTabProps) {
     const [replyId, setReplyId] = useState<string | null>(null)
     const [raspunsText, setRaspunsText] = useState('')
 
@@ -885,12 +943,14 @@ function MessagesAdminTab({ mesaje, cautare, onCautareChange, onReply, onDelete 
                 />
             </div>
 
-            {mesaje.length === 0 ? (
+            {incarcare ? (
+                <p className="adminEmptyState">Se încarcă mesajele...</p>
+            ) : mesaje.length === 0 ? (
                 <p className="adminEmptyState">Nu există mesaje care să corespundă căutării.</p>
             ) : (
                 <div className="adminMessagesList">
                     {mesaje.map((m) => (
-                        <div key={m.id} className={`adminMessageCard ${!m.citit ? 'adminMessageCardUnread' : ''}`}>
+                        <div key={m.id} className={`adminMessageCard ${!m.raspuns ? 'adminMessageCardUnread' : ''}`}>
                             <div className="adminMessageTop">
                                 <div className="adminUserCell">
                                     <span className="adminAvatar">{initiale(m.nume)}</span>
@@ -900,7 +960,7 @@ function MessagesAdminTab({ mesaje, cautare, onCautareChange, onReply, onDelete 
                                     </div>
                                 </div>
                                 <div className="adminMessageMeta">
-                                    {!m.citit && <span className="adminBadge">Nou</span>}
+                                    {!m.raspuns && <span className="adminBadge">Nou</span>}
                                     <span className="adminMessageDate">{formateazaDataMesaj(m.data)}</span>
                                 </div>
                             </div>

@@ -703,3 +703,23 @@
     resize: vertical;
     margin-bottom: 0.6rem;
 }
+
+.adminSidebarBadge {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--color-danger);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.adminSidebarItemActive .adminSidebarBadge {
+    background: white;
+    color: var(--color-primary);
+}
