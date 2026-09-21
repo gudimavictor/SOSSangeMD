@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router'
 import { useAuth } from '../auth/AuthContext'
 import type { BloodRequest, StatusCerere, NivelUrgenta } from '../requests/types'
 import type { CurrentUser, GrupaSanguina } from '../auth/AuthContext'
-import { getCenters, addCenter, updateCenter, deleteCenter } from '../centers/centersStore'
 import type { CentruTransfuzie } from '../centers/centers'
 import type { SupportMessage } from '../support/types'
 import { useApi } from '../../api/use-api'
@@ -63,13 +62,10 @@ function initiale(nume: string) {
 export function AdminDashboardPage() {
     const { user, updateUser: actualizeazaUtilizatorulCurent } = useAuth()
     const [tab, setTab] = useState<Tab>('statistici')
-    const [versiune, setVersiune] = useState(0)
     const [cautareCereri, setCautareCereri] = useState('')
     const [cautareUseri, setCautareUseri] = useState('')
     const [cautareCentre, setCautareCentre] = useState('')
     const [cautareMesaje, setCautareMesaje] = useState('')
-
-    const refresh = () => setVersiune((v) => v + 1)
 
     const api = useApi()
     const [eroareMesaje, setEroareMesaje] = useState('')
@@ -95,6 +91,14 @@ export function AdminDashboardPage() {
         loading: seIncarcaUseri,
         reload: reincarcaUseri,
     } = useAsync(() => api.users.listUsers(), [user?.id ?? null], !!user?.esteAdmin)
+
+    const [eroareCentre, setEroareCentre] = useState('')
+    const {
+        data: centreApi,
+        error: eroareIncarcareCentre,
+        loading: seIncarcaCentrele,
+        reload: reincarcaCentrele,
+    } = useAsync(() => api.centers.listCenters(), [user?.id ?? null], !!user?.esteAdmin)
 
     const reincarcaPeriodic = useEffectEvent(() => reincarcaMesajele())
     const esteAdmin = !!user?.esteAdmin
@@ -151,7 +155,7 @@ export function AdminDashboardPage() {
 
     const users = usersApi ?? []
     const requests = cereriApi ?? []
-    const centers = getCenters()
+    const centers = centreApi ?? []
     const mesaje = mesajeApi ?? []
     const currentUserId = user.id
 
@@ -236,6 +240,24 @@ export function AdminDashboardPage() {
         return executaPeUseri(() => api.users.deleteUser(u.id))
     }
 
+    async function executaPeCentre(actiune: () => Promise<unknown>) {
+        setEroareCentre('')
+        try {
+            await actiune()
+            reincarcaCentrele()
+        } catch (e) {
+            setEroareCentre(e instanceof Error ? e.message : 'Acțiunea a eșuat.')
+        }
+    }
+
+    function handleSaveCenter(centru: CentruTransfuzie, esteNou: boolean) {
+        return executaPeCentre(() => (esteNou ? api.centers.createCenter(centru) : api.centers.updateCenter(centru)))
+    }
+
+    function handleDeleteCenter(id: string) {
+        return executaPeCentre(() => api.centers.deleteCenter(id))
+    }
+
     async function executaPeMesaje(actiune: () => Promise<unknown>) {
         setEroareMesaje('')
         try {
@@ -268,7 +290,7 @@ export function AdminDashboardPage() {
                 </div>
             </div>
 
-            <div className="adminBody" key={versiune}>
+            <div className="adminBody">
                 <div className="adminLayout">
                     <aside className="adminSidebar">
                         <nav className="adminSidebarNav">
@@ -362,12 +384,19 @@ export function AdminDashboardPage() {
                         )}
 
                         {tab === 'centre' && (
-                            <CentersAdminTab
-                                centre={centreFiltrate}
-                                cautare={cautareCentre}
-                                onCautareChange={setCautareCentre}
-                                onChanged={refresh}
-                            />
+                            <>
+                                {(eroareCentre || eroareIncarcareCentre) && (
+                                    <p className="apiErrorMsg">{eroareCentre || eroareIncarcareCentre}</p>
+                                )}
+                                <CentersAdminTab
+                                    centre={centreFiltrate}
+                                    incarcare={seIncarcaCentrele}
+                                    cautare={cautareCentre}
+                                    onCautareChange={setCautareCentre}
+                                    onSave={handleSaveCenter}
+                                    onDelete={handleDeleteCenter}
+                                />
+                            </>
                         )}
 
                         {tab === 'mesaje' && (
@@ -769,12 +798,14 @@ function UsersAdminTab({
 
 type CentersAdminTabProps = {
     centre: CentruTransfuzie[]
+    incarcare: boolean
     cautare: string
     onCautareChange: (v: string) => void
-    onChanged: () => void
+    onSave: (centru: CentruTransfuzie, esteNou: boolean) => void
+    onDelete: (id: string) => void
 }
 
-function CentersAdminTab({ centre, cautare, onCautareChange, onChanged }: CentersAdminTabProps) {
+function CentersAdminTab({ centre, incarcare, cautare, onCautareChange, onSave, onDelete }: CentersAdminTabProps) {
     const [editId, setEditId] = useState<string | null>(null)
     const [formData, setFormData] = useState<CentruTransfuzie>(centruGol)
     const [adaugaVizibil, setAdaugaVizibil] = useState(false)
@@ -787,7 +818,7 @@ function CentersAdminTab({ centre, cautare, onCautareChange, onChanged }: Center
 
     function startAdd() {
         setEditId(null)
-        setFormData({ ...centruGol, id: crypto.randomUUID() })
+        setFormData(centruGol)
         setAdaugaVizibil(true)
     }
 
@@ -798,20 +829,14 @@ function CentersAdminTab({ centre, cautare, onCautareChange, onChanged }: Center
     }
 
     function salveaza() {
-        if (!formData.nume || !formData.oras || !formData.adresa) return
+        if (!formData.nume || !formData.oras || !formData.adresa || !formData.telefon || !formData.program) return
 
-        if (editId) {
-            updateCenter(editId, formData)
-        } else {
-            addCenter(formData)
-        }
+        onSave(formData, !editId)
         cancel()
-        onChanged()
     }
 
     function sterge(id: string) {
-        deleteCenter(id)
-        onChanged()
+        onDelete(id)
     }
 
     return (
@@ -890,42 +915,46 @@ function CentersAdminTab({ centre, cautare, onCautareChange, onChanged }: Center
                 </div>
             )}
 
-            <div className="adminTableWrap">
-                <table className="adminTable">
-                    <thead>
-                    <tr>
-                        <th>Centru</th>
-                        <th>Oraș</th>
-                        <th>Adresă</th>
-                        <th>Acțiuni</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {centre.map((c) => (
-                        <tr key={c.id}>
-                            <td>
-                                <div className="adminUserCell">
-                                    <span className="adminAvatar">{initiale(c.nume)}</span>
-                                    {c.nume}
-                                </div>
-                            </td>
-                            <td className="adminMuted">{c.oras}</td>
-                            <td className="adminMuted">{c.adresa}</td>
-                            <td>
-                                <div className="adminActionsCell">
-                                    <button className="adminEditButton" onClick={() => startEdit(c)}>
-                                        Editează
-                                    </button>
-                                    <button className="adminDeleteButton" onClick={() => sterge(c.id)}>
-                                        Șterge
-                                    </button>
-                                </div>
-                            </td>
+            {incarcare ? (
+                <p className="adminEmptyState">Se încarcă centrele...</p>
+            ) : (
+                <div className="adminTableWrap">
+                    <table className="adminTable">
+                        <thead>
+                        <tr>
+                            <th>Centru</th>
+                            <th>Oraș</th>
+                            <th>Adresă</th>
+                            <th>Acțiuni</th>
                         </tr>
-                    ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        {centre.map((c) => (
+                            <tr key={c.id}>
+                                <td>
+                                    <div className="adminUserCell">
+                                        <span className="adminAvatar">{initiale(c.nume)}</span>
+                                        {c.nume}
+                                    </div>
+                                </td>
+                                <td className="adminMuted">{c.oras}</td>
+                                <td className="adminMuted">{c.adresa}</td>
+                                <td>
+                                    <div className="adminActionsCell">
+                                        <button className="adminEditButton" onClick={() => startEdit(c)}>
+                                            Editează
+                                        </button>
+                                        <button className="adminDeleteButton" onClick={() => sterge(c.id)}>
+                                            Șterge
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     )
 }
