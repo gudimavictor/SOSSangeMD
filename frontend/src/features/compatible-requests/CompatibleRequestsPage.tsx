@@ -2,12 +2,9 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
-import { mockRequests } from '../requests/mockRequests'
-import { getRequests } from '../requests/requestsStore'
 import { esteCompatibil, esteEligibilPentruDonare, dataUrmatoareiDonari } from '../requests/compatibilitate'
-import { addResponse, aRaspunsDeja, getResponsesByDonor } from '../requests/requestResponsesStore'
-import { addNotification } from '../notifications/notificationsStore'
-import { updateUser as updateUserRecord, getUsers } from '../auth/usersStore'
+import { useApi } from '../../api/use-api'
+import { useAsync } from '../../api/useAsync'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -45,12 +42,23 @@ function formateazaData(data: string) {
 
 export function CompatibleRequestsPage() {
     const { user, updateUser } = useAuth()
+    const api = useApi()
     const [orasFiltru, setOrasFiltru] = useState('Toate orașele')
     const [urgentaFiltru, setUrgentaFiltru] = useState<FiltruUrgenta>('toate')
     const [sortBy, setSortBy] = useState<SortBy>('urgenta')
-    const [, setVersiune] = useState(0)
+    const [eroare, setEroare] = useState('')
 
-    const refresh = () => setVersiune((v) => v + 1)
+    const esteDonatorActiv = !!user?.esteDonator && !!user.grupaSanguina
+    const {
+        data: cereri,
+        error: eroareCereri,
+        loading,
+    } = useAsync(() => api.requests.listRequests(), [user?.id ?? null], esteDonatorActiv)
+    const { data: raspunsuri, reload: reincarcaRaspunsuri } = useAsync(
+        () => api.responses.listMyResponses(),
+        [user?.id ?? null],
+        esteDonatorActiv,
+    )
 
     if (!user) {
         return (
@@ -97,9 +105,7 @@ export function CompatibleRequestsPage() {
     }
 
     const grupaMea = user.grupaSanguina
-    const useri = getUsers()
-
-    const toateCererile: BloodRequest[] = [...getRequests(), ...mockRequests].filter(
+    const toateCererile: BloodRequest[] = (cereri ?? []).filter(
         (r) => r.status === 'activa' && r.solicitantId !== user.id && esteCompatibil(grupaMea, r.grupaNecesara)
     )
 
@@ -117,36 +123,18 @@ export function CompatibleRequestsPage() {
             : [...cereriFiltrate].sort((a, b) => b.dataCreare.localeCompare(a.dataCreare))
 
     const cereriCritice = toateCererile.filter((r) => r.urgenta === 'critica').length
-    const raspunsurileMele = getResponsesByDonor(user.id)
+    const raspunsurileMele = raspunsuri ?? []
     const eligibil = esteEligibilPentruDonare(user.dataUltimeiDonari)
 
-    function confirmaDisponibilitate(r: BloodRequest) {
-        const azi = new Date().toISOString().slice(0, 10)
-
-        addResponse({
-            id: crypto.randomUUID(),
-            cererId: r.id,
-            donatorId: user!.id,
-            donatorNume: user!.nume,
-            status: 'disponibil',
-            data: azi,
-        })
-
-        addNotification({
-            id: crypto.randomUUID(),
-            userId: r.solicitantId,
-            tip: 'confirmare',
-            titlu: 'Un donator a confirmat disponibilitatea',
-            mesaj: `${user!.nume} (${grupaMea}) a confirmat că poate dona pentru cererea ta din ${r.oras}.`,
-            citita: false,
-            data: new Date().toISOString(),
-            link: '/cererile-mele',
-        })
-
-        updateUser({ dataUltimeiDonari: azi })
-        updateUserRecord(user!.id, { dataUltimeiDonari: azi })
-
-        refresh()
+    async function confirmaDisponibilitate(r: BloodRequest) {
+        setEroare('')
+        try {
+            await api.responses.createResponse(r.id)
+            updateUser({ dataUltimeiDonari: new Date().toISOString().slice(0, 10) })
+            reincarcaRaspunsuri()
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Disponibilitatea nu a putut fi confirmată.')
+        }
     }
 
     return (
@@ -218,7 +206,11 @@ export function CompatibleRequestsPage() {
                     </div>
                 </div>
 
-                {cereriFiltrate.length === 0 ? (
+                {(eroare || eroareCereri) && <p className="apiErrorMsg">{eroare || eroareCereri}</p>}
+
+                {loading ? (
+                    <p className="compatEmptyState">Se încarcă cererile...</p>
+                ) : cereriFiltrate.length === 0 ? (
                     <div className="compatEmptyState">
                         <span className="compatEmptyIcon"><IconDrop /></span>
                         <p>Nu există cereri compatibile cu filtrele selectate momentan.</p>
@@ -232,8 +224,7 @@ export function CompatibleRequestsPage() {
                     >
                         <AnimatePresence>
                             {cereriFiltrate.map((r) => {
-                                const araspuns = aRaspunsDeja(r.id, user.id)
-                                const solicitant = useri.find((u) => u.id === r.solicitantId)
+                                const raspunsulMeu = raspunsurileMele.find((x) => x.cererId === r.id)
                                 return (
                                     <motion.div
                                         key={r.id}
@@ -257,14 +248,14 @@ export function CompatibleRequestsPage() {
 
                                         <p className="compatCardRequester">Solicitat de {r.solicitantNume}</p>
 
-                                        {araspuns ? (
+                                        {raspunsulMeu ? (
                                             <>
                                                 <button className="compatConfirmButton compatConfirmButtonDone" disabled>
                                                     <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
                                                 </button>
-                                                {solicitant?.telefon && (
+                                                {raspunsulMeu.solicitantTelefon && (
                                                     <p className="compatContact iconText">
-                                                        <IconPhone /> Contact: {solicitant.telefon}
+                                                        <IconPhone /> Contact: {raspunsulMeu.solicitantTelefon}
                                                     </p>
                                                 )}
                                             </>
