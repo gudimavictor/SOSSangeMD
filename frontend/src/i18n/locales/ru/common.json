@@ -1,0 +1,12 @@
+{
+    "language": {
+        "label": "Язык"
+    },
+    "cities": {
+        "chisinau": "Кишинёв",
+        "balti": "Бельцы",
+        "soroca": "Сороки",
+        "comrat": "Комрат",
+        "cahul": "Кагул"
+    }
+}

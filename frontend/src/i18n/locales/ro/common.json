@@ -1,0 +1,12 @@
+{
+    "language": {
+        "label": "Limba"
+    },
+    "cities": {
+        "chisinau": "Chișinău",
+        "balti": "Bălți",
+        "soroca": "Soroca",
+        "comrat": "Comrat",
+        "cahul": "Cahul"
+    }
+}

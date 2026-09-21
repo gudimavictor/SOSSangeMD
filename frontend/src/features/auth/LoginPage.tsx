@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
+import { Trans, useTranslation } from 'react-i18next'
 import { useAuth } from './AuthContext'
 import { ApiError } from '../../api/types'
 import { useApi } from '../../api/use-api'
 import { CustomSelect } from '../../components/ui/CustomSelect'
+import { LanguageSwitcher } from '../../components/ui/LanguageSwitcher'
+import { useCityLabels } from '../../i18n/useCityLabels'
 import './LoginPage.css'
 
 type Mode = 'login' | 'inregistrare'
@@ -33,6 +36,8 @@ function IconEyeOff() {
 export function LoginPage() {
     const { login } = useAuth()
     const api = useApi()
+    const { t } = useTranslation('auth')
+    const cityLabels = useCityLabels()
     const navigate = useNavigate()
     const search = useSearch({ strict: false }) as { redirect?: string }
     const redirectTo = search.redirect || '/'
@@ -66,7 +71,7 @@ export function LoginPage() {
         setEroare('')
 
         if (!email) {
-            setEroare('Introdu adresa de email.')
+            setEroare(t('errors.enterEmail'))
             return
         }
 
@@ -75,7 +80,7 @@ export function LoginPage() {
             await api.auth.sendVerificationCode(email)
             setPasRegistrare('cod')
         } catch (e) {
-            setEroare(e instanceof Error ? e.message : 'Nu am putut trimite codul.')
+            setEroare(e instanceof Error ? e.message : t('errors.sendCodeFailed'))
         } finally {
             setSeIncarca(false)
         }
@@ -90,7 +95,7 @@ export function LoginPage() {
             await api.auth.confirmCode(email, codIntrodus)
             setPasRegistrare('detalii')
         } catch (e) {
-            setEroare(e instanceof Error ? e.message : 'Cod invalid sau expirat.')
+            setEroare(e instanceof Error ? e.message : t('errors.invalidCode'))
         } finally {
             setSeIncarca(false)
         }
@@ -106,7 +111,13 @@ export function LoginPage() {
             navigate({ to: redirectTo })
         } catch (e) {
             const status = e instanceof ApiError ? e.status : 0
-            setEroare(status === 401 ? 'Email sau parolă incorectă.' : e instanceof Error ? e.message : 'Eroare la autentificare.')
+            setEroare(
+                status === 401
+                    ? t('errors.invalidCredentials')
+                    : e instanceof Error
+                      ? e.message
+                      : t('errors.loginFailed'),
+            )
         } finally {
             setSeIncarca(false)
         }
@@ -117,34 +128,34 @@ export function LoginPage() {
         setEroare('')
 
         if (!nume || !email || !parola || !oras || !varsta || !telefon) {
-            setEroare('Completează toate câmpurile obligatorii.')
+            setEroare(t('errors.requiredFields'))
             return
         }
 
         const varstaNumar = Number(varsta)
 
         if (!Number.isInteger(varstaNumar) || varstaNumar < 18) {
-            setEroare('Trebuie să ai minim 18 ani pentru a-ți crea un cont.')
+            setEroare(t('errors.minAge'))
             return
         }
 
         if (varstaNumar > 100) {
-            setEroare('Introdu o vârstă validă.')
+            setEroare(t('errors.invalidAge'))
             return
         }
 
         if (!confirmVarsta) {
-            setEroare('Trebuie să confirmi că ai cel puțin 18 ani și că datele introduse sunt reale.')
+            setEroare(t('errors.confirmAge'))
             return
         }
 
         if (parola.length < 8) {
-            setEroare('Parola trebuie să aibă minim 8 caractere.')
+            setEroare(t('errors.passwordMin'))
             return
         }
 
         if (parola !== confirmaParola) {
-            setEroare('Parolele nu coincid.')
+            setEroare(t('errors.passwordsMismatch'))
             return
         }
 
@@ -154,7 +165,7 @@ export function LoginPage() {
             await login(email, parola)
             navigate({ to: redirectTo })
         } catch (e) {
-            setEroare(e instanceof Error ? e.message : 'Înregistrarea a eșuat.')
+            setEroare(e instanceof Error ? e.message : t('errors.registerFailed'))
         } finally {
             setSeIncarca(false)
         }
@@ -169,17 +180,16 @@ export function LoginPage() {
                         fill="white"
                     />
                 </svg>
-                <p className="authVisualTitle">Fiecare picătură contează</p>
-                <p className="authVisualText">
-                    Alătură-te comunității de donatori din Moldova și ajută-i pe cei care au nevoie urgentă de sânge.
-                </p>
+                <p className="authVisualTitle">{t('visual.title')}</p>
+                <p className="authVisualText">{t('visual.text')}</p>
             </div>
 
             <div className="authFormSide">
+                <LanguageSwitcher className="authLanguageSwitcher" />
                 <div className="loginPage">
                     <h1 className="loginTitle">SOS Sânge</h1>
                     <p className="loginSubtitle">
-                        {mode === 'login' ? 'Intră în contul tău' : 'Creează-ți un cont nou'}
+                        {mode === 'login' ? t('subtitle.login') : t('subtitle.register')}
                     </p>
 
                     <div className="loginCard">
@@ -189,14 +199,14 @@ export function LoginPage() {
                                 className={`authTab ${mode === 'login' ? 'authTabActive' : ''}`}
                                 onClick={() => schimbaMode('login')}
                             >
-                                Autentificare
+                                {t('tabs.login')}
                             </button>
                             <button
                                 type="button"
                                 className={`authTab ${mode === 'inregistrare' ? 'authTabActive' : ''}`}
                                 onClick={() => schimbaMode('inregistrare')}
                             >
-                                Înregistrare
+                                {t('tabs.register')}
                             </button>
                         </div>
 
@@ -205,7 +215,7 @@ export function LoginPage() {
                         {mode === 'login' ? (
                             <form onSubmit={handleLogin}>
                                 <div className="loginField">
-                                    <label htmlFor="email">Email</label>
+                                    <label htmlFor="email">{t('fields.email')}</label>
                                     <input
                                         id="email"
                                         type="email"
@@ -216,7 +226,7 @@ export function LoginPage() {
                                     />
                                 </div>
                                 <div className="loginField">
-                                    <label htmlFor="parola">Parolă</label>
+                                    <label htmlFor="parola">{t('fields.password')}</label>
                                     <div className="passwordWrapper">
                                         <input
                                             id="parola"
@@ -236,13 +246,13 @@ export function LoginPage() {
                                     </div>
                                 </div>
                                 <button type="submit" className="loginButton" disabled={seIncarca}>
-                                    Autentifică-te
+                                    {t('buttons.login')}
                                 </button>
                             </form>
                         ) : pasRegistrare === 'email' ? (
                             <form onSubmit={handleTrimiteCod}>
                                 <div className="loginField">
-                                    <label htmlFor="email-r">Email</label>
+                                    <label htmlFor="email-r">{t('fields.email')}</label>
                                     <input
                                         id="email-r"
                                         type="email"
@@ -253,16 +263,21 @@ export function LoginPage() {
                                     />
                                 </div>
                                 <button type="submit" className="loginButton" disabled={seIncarca}>
-                                    Trimite cod de confirmare
+                                    {t('buttons.sendCode')}
                                 </button>
                             </form>
                         ) : pasRegistrare === 'cod' ? (
                             <form onSubmit={handleConfirmaCod}>
                                 <p className="loginNote">
-                                    Am trimis un cod de 6 cifre pe adresa <strong>{email}</strong>.
+                                    <Trans
+                                        i18nKey="codeSent"
+                                        ns="auth"
+                                        values={{ email }}
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <div className="loginField">
-                                    <label htmlFor="cod">Cod de confirmare</label>
+                                    <label htmlFor="cod">{t('fields.code')}</label>
                                     <input
                                         id="cod"
                                         type="text"
@@ -275,23 +290,28 @@ export function LoginPage() {
                                     />
                                 </div>
                                 <button type="submit" className="loginButton" disabled={seIncarca}>
-                                    Confirmă codul
+                                    {t('buttons.confirmCode')}
                                 </button>
                                 <button
                                     type="button"
                                     className="loginButton loginButtonSecundar"
                                     onClick={() => setPasRegistrare('email')}
                                 >
-                                    Înapoi
+                                    {t('buttons.back')}
                                 </button>
                             </form>
                         ) : (
                             <form onSubmit={handleRegister}>
                                 <p className="loginNote">
-                                    Email confirmat: <strong>{email}</strong>
+                                    <Trans
+                                        i18nKey="emailConfirmed"
+                                        ns="auth"
+                                        values={{ email }}
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <div className="loginField">
-                                    <label htmlFor="nume">Nume complet</label>
+                                    <label htmlFor="nume">{t('fields.fullName')}</label>
                                     <input
                                         id="nume"
                                         type="text"
@@ -302,7 +322,7 @@ export function LoginPage() {
                                     />
                                 </div>
                                 <div className="loginField">
-                                    <label htmlFor="telefon">Telefon</label>
+                                    <label htmlFor="telefon">{t('fields.phone')}</label>
                                     <input
                                         id="telefon"
                                         type="text"
@@ -312,16 +332,17 @@ export function LoginPage() {
                                     />
                                 </div>
                                 <div className="loginField">
-                                    <label>Oraș</label>
+                                    <label>{t('fields.city')}</label>
                                     <CustomSelect
                                         options={orase}
                                         value={oras}
                                         onChange={setOras}
-                                        placeholder="Selectează orașul"
+                                        placeholder={t('placeholders.city')}
+                                        labels={cityLabels}
                                     />
                                 </div>
                                 <div className="loginField">
-                                    <label htmlFor="varsta">Vârsta</label>
+                                    <label htmlFor="varsta">{t('fields.age')}</label>
                                     <input
                                         id="varsta"
                                         type="number"
@@ -329,7 +350,7 @@ export function LoginPage() {
                                         max={100}
                                         value={varsta}
                                         onChange={(e) => setVarsta(e.target.value)}
-                                        placeholder="Ex: 25"
+                                        placeholder={t('placeholders.age')}
                                         required
                                     />
                                 </div>
@@ -340,21 +361,18 @@ export function LoginPage() {
                                             checked={confirmVarsta}
                                             onChange={(e) => setConfirmVarsta(e.target.checked)}
                                         />
-                                        <span>
-                                            Declar pe propria răspundere că am cel puțin 18 ani și că informațiile
-                                            introduse sunt reale.
-                                        </span>
+                                        <span>{t('declaration')}</span>
                                     </label>
                                 </div>
                                 <div className="loginField">
-                                    <label htmlFor="parola-r">Parolă</label>
+                                    <label htmlFor="parola-r">{t('fields.password')}</label>
                                     <div className="passwordWrapper">
                                         <input
                                             id="parola-r"
                                             type={aratParolaR ? 'text' : 'password'}
                                             value={parola}
                                             onChange={(e) => setParola(e.target.value)}
-                                            placeholder="Minim 8 caractere"
+                                            placeholder={t('placeholders.passwordMin')}
                                             required
                                         />
                                         <button
@@ -367,7 +385,7 @@ export function LoginPage() {
                                     </div>
                                 </div>
                                 <div className="loginField">
-                                    <label htmlFor="confirmaParola">Confirmă parola</label>
+                                    <label htmlFor="confirmaParola">{t('fields.confirmPassword')}</label>
                                     <div className="passwordWrapper">
                                         <input
                                             id="confirmaParola"
@@ -387,7 +405,7 @@ export function LoginPage() {
                                     </div>
                                 </div>
                                 <button type="submit" className="loginButton" disabled={seIncarca}>
-                                    Creează cont
+                                    {t('buttons.createAccount')}
                                 </button>
                             </form>
                         )}

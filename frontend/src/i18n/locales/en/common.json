@@ -1,0 +1,12 @@
+{
+    "language": {
+        "label": "Language"
+    },
+    "cities": {
+        "chisinau": "Chișinău",
+        "balti": "Bălți",
+        "soroca": "Soroca",
+        "comrat": "Comrat",
+        "cahul": "Cahul"
+    }
+}

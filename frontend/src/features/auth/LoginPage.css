@@ -22,6 +22,33 @@
     height: 96px;
     margin-bottom: 1.5rem;
     opacity: 0.95;
+    transform-origin: center;
+    animation: authDropPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes authDropPulse {
+    0% {
+        transform: scale(1);
+    }
+    14% {
+        transform: scale(1.08);
+    }
+    28% {
+        transform: scale(1);
+    }
+    42% {
+        transform: scale(1.05);
+    }
+    70%,
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .authVisualIcon {
+        animation: none;
+    }
 }
 
 .authVisualTitle {
@@ -61,6 +88,7 @@
 }
 
 .authFormSide {
+    position: relative;
     flex: 1;
     display: flex;
     align-items: center;
@@ -243,4 +271,10 @@
 .passwordToggle svg {
     width: 18px;
     height: 18px;
+}
+
+.authLanguageSwitcher {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
 }

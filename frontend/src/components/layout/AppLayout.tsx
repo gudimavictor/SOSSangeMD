@@ -5,6 +5,7 @@ import { useAuth } from '../../features/auth/AuthContext'
 import { NOTIFICATIONS_UPDATED_EVENT } from '../../api/notifications'
 import { useApi } from '../../api/use-api'
 import { IconBell } from '../ui/Icons'
+import { LanguageSwitcher } from '../ui/LanguageSwitcher'
 import { Footer } from './Footer'
 import './AppLayout.css'
 
@@ -102,6 +103,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </nav>
 
                 <div className="userArea">
+                    <LanguageSwitcher />
                     {user && (
                         <Link to="/notificari" className="notifBellLink" title="Notificări">
                             <IconBell />
