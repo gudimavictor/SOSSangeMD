@@ -2,12 +2,9 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
-import { mockRequests } from '../requests/mockRequests'
-import { getRequests } from '../requests/requestsStore'
-import { addResponse, aRaspunsDeja } from '../requests/requestResponsesStore'
-import { addNotification } from '../notifications/notificationsStore'
 import { grupeleSanguine, esteEligibilPentruDonare, dataUrmatoareiDonari } from '../requests/compatibilitate'
-import { updateUser as updateUserRecord, getUsers } from '../auth/usersStore'
+import { useApi } from '../../api/use-api'
+import { useAsync } from '../../api/useAsync'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { AnimatedNumber } from '../../components/ui/AnimatedNumber'
 import { IconDrop, IconLocation, IconCheck, IconPhone } from '../../components/ui/Icons'
@@ -46,6 +43,7 @@ function formateazaData(data: string) {
 
 export function HomePage() {
     const { user, updateUser } = useAuth()
+    const api = useApi()
     const eligibil = user ? esteEligibilPentruDonare(user.dataUltimeiDonari) : true
 
     const [cautare, setCautare] = useState('')
@@ -53,14 +51,16 @@ export function HomePage() {
     const [grupaFiltru, setGrupaFiltru] = useState('Toate grupele')
     const [urgentaFiltru, setUrgentaFiltru] = useState<FiltruUrgenta>('toate')
     const [sortBy, setSortBy] = useState<SortBy>('urgenta')
-    const [, setVersiune] = useState(0)
+    const [eroare, setEroare] = useState('')
 
-    const refresh = () => setVersiune((v) => v + 1)
-    const useri = getUsers()
-
-    const toateCererile: BloodRequest[] = [...getRequests(), ...mockRequests].filter(
-        (r) => r.status === 'activa'
+    const { data: cereri, error: eroareCereri, loading } = useAsync(() => api.requests.listRequests(), [])
+    const { data: raspunsuri, reload: reincarcaRaspunsuri } = useAsync(
+        () => api.responses.listMyResponses(),
+        [user?.id ?? null],
+        !!user,
     )
+
+    const toateCererile: BloodRequest[] = (cereri ?? []).filter((r) => r.status === 'activa')
 
     const cereriCritice = toateCererile.filter((r) => r.urgenta === 'critica').length
     const oraseAcoperite = new Set(toateCererile.map((r) => r.oras)).size
@@ -90,35 +90,17 @@ export function HomePage() {
             ? [...cereriFiltrate].sort((a, b) => urgentaOrdine[a.urgenta] - urgentaOrdine[b.urgenta])
             : [...cereriFiltrate].sort((a, b) => b.dataCreare.localeCompare(a.dataCreare))
 
-    function confirmaDisponibilitate(r: BloodRequest) {
+    async function confirmaDisponibilitate(r: BloodRequest) {
         if (!user) return
 
-        const azi = new Date().toISOString().slice(0, 10)
-
-        addResponse({
-            id: crypto.randomUUID(),
-            cererId: r.id,
-            donatorId: user.id,
-            donatorNume: user.nume,
-            status: 'disponibil',
-            data: azi,
-        })
-
-        addNotification({
-            id: crypto.randomUUID(),
-            userId: r.solicitantId,
-            tip: 'confirmare',
-            titlu: 'Cineva a confirmat disponibilitatea',
-            mesaj: `${user.nume} a confirmat că poate ajuta la cererea ta din ${r.oras}.`,
-            citita: false,
-            data: new Date().toISOString(),
-            link: '/cererile-mele',
-        })
-
-        updateUser({ dataUltimeiDonari: azi })
-        updateUserRecord(user.id, { dataUltimeiDonari: azi })
-
-        refresh()
+        setEroare('')
+        try {
+            await api.responses.createResponse(r.id)
+            updateUser({ dataUltimeiDonari: new Date().toISOString().slice(0, 10) })
+            reincarcaRaspunsuri()
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Disponibilitatea nu a putut fi confirmată.')
+        }
     }
 
     return (
@@ -194,7 +176,11 @@ export function HomePage() {
                     </div>
                 </div>
 
-                {cereriFiltrate.length === 0 ? (
+                {(eroare || eroareCereri) && <p className="apiErrorMsg">{eroare || eroareCereri}</p>}
+
+                {loading ? (
+                    <p className="feedEmptyState">Se încarcă cererile...</p>
+                ) : cereriFiltrate.length === 0 ? (
                     <div className="feedEmptyState">
                         <span className="feedEmptyIcon"><IconDrop /></span>
                         <p>Nu există cereri active care să corespundă filtrelor selectate.</p>
@@ -204,8 +190,7 @@ export function HomePage() {
                         <AnimatePresence>
                             {cereriFiltrate.map((r) => {
                                 const esteCererea = user?.id === r.solicitantId
-                                const araspuns = user ? aRaspunsDeja(r.id, user.id) : false
-                                const solicitant = useri.find((u) => u.id === r.solicitantId)
+                                const raspunsulMeu = raspunsuri?.find((x) => x.cererId === r.id)
 
                                 return (
                                     <motion.div
@@ -240,14 +225,14 @@ export function HomePage() {
                                             >
                                                 Autentifică-te ca să ajuți
                                             </Link>
-                                        ) : araspuns ? (
+                                        ) : raspunsulMeu ? (
                                             <>
                                                 <button className="feedConfirmButton feedConfirmButtonDone" disabled>
                                                     <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
                                                 </button>
-                                                {solicitant?.telefon && (
+                                                {raspunsulMeu.solicitantTelefon && (
                                                     <p className="feedContact iconText">
-                                                        <IconPhone /> Contact: {solicitant.telefon}
+                                                        <IconPhone /> Contact: {raspunsulMeu.solicitantTelefon}
                                                     </p>
                                                 )}
                                             </>
