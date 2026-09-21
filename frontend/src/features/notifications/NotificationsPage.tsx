@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
-import { getNotificationsByUser, markAsRead, markAllAsRead } from './notificationsStore'
+import { useApi } from '../../api/use-api'
+import { useAsync } from '../../api/useAsync'
 import { IconUsers, IconDrop, IconBell, IconMail } from '../../components/ui/Icons'
 import { PageHeader } from '../../components/ui/PageHeader'
 import './NotificationsPage.css'
@@ -34,9 +35,15 @@ function timpRelativ(dataIso: string) {
 
 export function NotificationsPage() {
     const { user } = useAuth()
-    const [, setVersiune] = useState(0)
+    const api = useApi()
     const [deschise, setDeschise] = useState<Set<string>>(new Set())
-    const refresh = () => setVersiune((v) => v + 1)
+    const [eroareActiune, setEroareActiune] = useState('')
+    const {
+        data: notificari,
+        error: eroareIncarcare,
+        loading,
+        reload,
+    } = useAsync(() => api.notifications.listMyNotifications(), [user?.id ?? null], !!user)
 
     if (!user) {
         return (
@@ -60,10 +67,20 @@ export function NotificationsPage() {
         )
     }
 
-    const notificari = getNotificationsByUser(user.id)
-    const necitite = notificari.filter((n) => !n.citita).length
+    const lista = notificari ?? []
+    const necitite = lista.filter((n) => !n.citita).length
 
-    function toggleDeschis(n: (typeof notificari)[number]) {
+    async function executa(actiune: () => Promise<unknown>) {
+        setEroareActiune('')
+        try {
+            await actiune()
+            reload()
+        } catch (e) {
+            setEroareActiune(e instanceof Error ? e.message : 'Acțiunea a eșuat.')
+        }
+    }
+
+    function toggleDeschis(n: (typeof lista)[number]) {
         setDeschise((prev) => {
             const next = new Set(prev)
             if (next.has(n.id)) {
@@ -74,14 +91,12 @@ export function NotificationsPage() {
             return next
         })
         if (!n.citita) {
-            markAsRead(n.id)
-            refresh()
+            executa(() => api.notifications.markAsRead(n.id))
         }
     }
 
     function handleMarkAllRead() {
-        markAllAsRead(user!.id)
-        refresh()
+        executa(() => api.notifications.markAllAsRead())
     }
 
     return (
@@ -95,13 +110,19 @@ export function NotificationsPage() {
             />
 
             <div className="notifBody">
-                {notificari.length > 0 && necitite > 0 && (
+                {(eroareActiune || eroareIncarcare) && (
+                    <p className="apiErrorMsg">{eroareActiune || eroareIncarcare}</p>
+                )}
+
+                {lista.length > 0 && necitite > 0 && (
                     <button className="notifMarkAllButton" onClick={handleMarkAllRead}>
                         Marchează tot ca citit
                     </button>
                 )}
 
-                {notificari.length === 0 ? (
+                {loading ? (
+                    <p className="notifEmptyState">Se încarcă notificările...</p>
+                ) : lista.length === 0 ? (
                     <div className="notifEmptyState">
                         <span className="notifEmptyIcon">
                             <IconDrop />
@@ -111,7 +132,7 @@ export function NotificationsPage() {
                 ) : (
                     <motion.div className="notifList" variants={staggerContainer} initial="hidden" animate="show">
                         <AnimatePresence>
-                            {notificari.map((n) => {
+                            {lista.map((n) => {
                                 const esteDeschis = deschise.has(n.id)
                                 return (
                                     <motion.div
