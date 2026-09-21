@@ -3,7 +3,8 @@ import type { FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
-import { updateUser as updateUserRecord, hashParola } from '../auth/usersStore'
+import type { CurrentUser } from '../auth/AuthContext'
+import { useApi } from '../../api/use-api'
 import { IconUser, IconLock, IconDrop } from '../../components/ui/Icons'
 import { PageHeader } from '../../components/ui/PageHeader'
 import './ProfilePage.css'
@@ -20,7 +21,9 @@ const fadeUpItem = {
 
 export function ProfilePage() {
     const { user, updateUser } = useAuth()
+    const api = useApi()
 
+    const [seSalveaza, setSeSalveaza] = useState(false)
     const [editMode, setEditMode] = useState(false)
     const [parolaMode, setParolaMode] = useState(false)
     const [eroare, setEroare] = useState('')
@@ -31,6 +34,7 @@ export function ProfilePage() {
     const [oras, setOras] = useState(user?.oras ?? '')
     const [varsta, setVarsta] = useState(user?.varsta ? String(user.varsta) : '')
 
+    const [parolaCurenta, setParolaCurenta] = useState('')
     const [parolaNoua, setParolaNoua] = useState('')
     const [confirmaParola, setConfirmaParola] = useState('')
 
@@ -56,13 +60,15 @@ export function ProfilePage() {
         )
     }
 
-    function handleSubmit(event: FormEvent) {
+    const utilizator: CurrentUser = user
+
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault()
         setEroare('')
         setMesaj('')
 
-        if (!nume || !oras) {
-            setEroare('Numele și orașul sunt obligatorii.')
+        if (!nume || !oras || !telefon) {
+            setEroare('Numele, telefonul și orașul sunt obligatorii.')
             return
         }
 
@@ -72,11 +78,17 @@ export function ProfilePage() {
             return
         }
 
-        const updates = { nume, telefon, oras, varsta: varstaNumar }
-        updateUser(updates)
-        updateUserRecord(user.id, updates)
-        setEditMode(false)
-        setMesaj('Datele au fost salvate.')
+        setSeSalveaza(true)
+        try {
+            const salvat = await api.users.updateUser({ ...utilizator, nume, telefon, oras, varsta: varstaNumar })
+            updateUser(salvat)
+            setEditMode(false)
+            setMesaj('Datele au fost salvate.')
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Datele nu au putut fi salvate.')
+        } finally {
+            setSeSalveaza(false)
+        }
     }
 
     async function handleSchimbaParola(event: FormEvent) {
@@ -84,8 +96,8 @@ export function ProfilePage() {
         setEroare('')
         setMesaj('')
 
-        if (parolaNoua.length < 6) {
-            setEroare('Parola trebuie să aibă minim 6 caractere.')
+        if (parolaNoua.length < 8) {
+            setEroare('Parola nouă trebuie să aibă minim 8 caractere.')
             return
         }
 
@@ -94,12 +106,19 @@ export function ProfilePage() {
             return
         }
 
-        const hash = await hashParola(parolaNoua)
-        updateUserRecord(user.id, { parola: hash })
-        setParolaNoua('')
-        setConfirmaParola('')
-        setParolaMode(false)
-        setMesaj('Parola a fost schimbată.')
+        setSeSalveaza(true)
+        try {
+            await api.users.changePassword(parolaCurenta, parolaNoua)
+            setParolaCurenta('')
+            setParolaNoua('')
+            setConfirmaParola('')
+            setParolaMode(false)
+            setMesaj('Parola a fost schimbată.')
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Parola nu a putut fi schimbată.')
+        } finally {
+            setSeSalveaza(false)
+        }
     }
 
     return (
@@ -181,7 +200,7 @@ export function ProfilePage() {
                             </div>
                             <div className="formField">
                                 <label htmlFor="telefon">Telefon</label>
-                                <input id="telefon" value={telefon} onChange={(e) => setTelefon(e.target.value)} />
+                                <input id="telefon" value={telefon} onChange={(e) => setTelefon(e.target.value)} required />
                             </div>
                         </div>
                         <div className="profileFormRow">
@@ -202,7 +221,7 @@ export function ProfilePage() {
                             </div>
                         </div>
                         <div className="profileFormActions">
-                            <button type="submit" className="profileSubmitButton">
+                            <button type="submit" className="profileSubmitButton" disabled={seSalveaza}>
                                 Salvează modificările
                             </button>
                             <button type="button" className="profileCancelButton" onClick={() => setEditMode(false)}>
@@ -217,13 +236,25 @@ export function ProfilePage() {
                         <h2 className="profileSectionTitle">Schimbă parola</h2>
                         <div className="profileFormRow">
                             <div className="formField">
+                                <label htmlFor="parolaCurenta">Parola curentă</label>
+                                <input
+                                    id="parolaCurenta"
+                                    type="password"
+                                    value={parolaCurenta}
+                                    onChange={(e) => setParolaCurenta(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="profileFormRow">
+                            <div className="formField">
                                 <label htmlFor="parolaNoua">Parolă nouă</label>
                                 <input
                                     id="parolaNoua"
                                     type="password"
                                     value={parolaNoua}
                                     onChange={(e) => setParolaNoua(e.target.value)}
-                                    placeholder="Minim 6 caractere"
+                                    placeholder="Minim 8 caractere"
                                     required
                                 />
                             </div>
@@ -239,7 +270,7 @@ export function ProfilePage() {
                             </div>
                         </div>
                         <div className="profileFormActions">
-                            <button type="submit" className="profileSubmitButton">
+                            <button type="submit" className="profileSubmitButton" disabled={seSalveaza}>
                                 Salvează parola
                             </button>
                             <button type="button" className="profileCancelButton" onClick={() => setParolaMode(false)}>
