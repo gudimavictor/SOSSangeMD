@@ -18,13 +18,10 @@ export function esteCompatibil(grupaDonator: GrupaSanguina, grupaNecesara: Grupa
 export function esteEligibilPentruDonare(dataUltimeiDonari: string | null): boolean {
     if (!dataUltimeiDonari) return true
 
-    const ultimaDonare = new Date(dataUltimeiDonari)
-    const azi = new Date()
-    const diferentaLuni =
-        (azi.getFullYear() - ultimaDonare.getFullYear()) * 12 +
-        (azi.getMonth() - ultimaDonare.getMonth())
+    const dataUrmatoare = new Date(dataUltimeiDonari)
+    dataUrmatoare.setMonth(dataUrmatoare.getMonth() + 2)
 
-    return diferentaLuni >= 2
+    return new Date() >= dataUrmatoare
 }
 
 export function dataUrmatoareiDonari(dataUltimeiDonari: string): string {

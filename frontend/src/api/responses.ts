@@ -24,7 +24,6 @@ type ApiDonorContact = {
     respondedAt: string
 }
 
-/** Răspunsul unui donator la o cerere, cu contactul solicitantului (vizibil doar după răspuns). */
 export type MyResponse = {
     id: string
     cererId: string
@@ -35,7 +34,6 @@ export type MyResponse = {
     data: string
 }
 
-/** Donator care a răspuns la o cerere, cu contactul lui (vizibil doar solicitantului). */
 export type DonorContact = {
     id: string
     donatorId: string

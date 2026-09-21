@@ -64,8 +64,6 @@ export const toApiUrgency = (u: NivelUrgenta): ApiUrgency => urgencyToApi[u]
 export const toApiRequestStatus = (s: StatusCerere): ApiRequestStatus => requestStatusToApi[s]
 export const fromApiResponseStatus = (s: ApiResponseStatus): StatusRaspuns => responseStatusFromApi[s]
 
-// ---------- Utilizatori ----------
-
 export type ApiUser = {
     id: number
     name: string
@@ -107,8 +105,6 @@ export function userToApiBody(u: CurrentUser) {
         lastDonationDate: u.dataUltimeiDonari,
     }
 }
-
-// ---------- Cereri ----------
 
 export type ApiBloodRequest = {
     id: number

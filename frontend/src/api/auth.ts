@@ -60,10 +60,10 @@ export const createAuthApi = (request: RequestFn) => ({
         const session = getSession()
         clearSession()
         if (!session) return
-        try {
-            await request('/api/auth/logout', { method: 'POST', body: { refreshToken: session.refreshToken }, auth: false })
-        } catch {
-            // Sesiunea locală e deja ștearsă; dacă revocarea eșuează, tokenul expiră oricum.
-        }
+        await request('/api/auth/logout', {
+            method: 'POST',
+            body: { refreshToken: session.refreshToken },
+            auth: false,
+        }).catch(() => undefined)
     },
 })

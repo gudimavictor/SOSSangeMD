@@ -3,17 +3,14 @@ import type { FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import { useAuth } from '../auth/AuthContext'
-import type { GrupaSanguina } from '../auth/AuthContext'
-import { updateUser as updateUserRecord, getUsers } from '../auth/usersStore'
+import type { CurrentUser, GrupaSanguina } from '../auth/AuthContext'
+import { useApi } from '../../api/use-api'
+import { useAsync } from '../../api/useAsync'
 import { CustomSelect } from '../../components/ui/CustomSelect'
 import { CustomDatePicker } from '../../components/ui/CustomDatePicker'
 import { CircularProgress } from '../../components/ui/CircularProgress'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { esteCompatibil, esteEligibilPentruDonare, dataUrmatoareiDonari, grupeleSanguine } from '../requests/compatibilitate'
-import { mockRequests } from '../requests/mockRequests'
-import { getRequests } from '../requests/requestsStore'
-import { addResponse, aRaspunsDeja } from '../requests/requestResponsesStore'
-import { addNotification } from '../notifications/notificationsStore'
 import { IconCheck, IconDrop, IconLocation, IconPhone } from '../../components/ui/Icons'
 import './DonorPage.css'
 
@@ -44,13 +41,26 @@ function progresEligibilitate(dataUltimeiDonari: string | null) {
 
 export function DonorPage() {
     const { user, updateUser } = useAuth()
+    const api = useApi()
 
     const [editMode, setEditMode] = useState(false)
     const [grupa, setGrupa] = useState(user?.esteDonator ? user?.grupaSanguina ?? '' : '')
     const [oras, setOras] = useState(user?.esteDonator ? user?.oras ?? '' : '')
     const [dataDonare, setDataDonare] = useState(user?.dataUltimeiDonari ?? '')
-    const [, setVersiune] = useState(0)
-    const refresh = () => setVersiune((v) => v + 1)
+    const [eroare, setEroare] = useState('')
+    const [seSalveaza, setSeSalveaza] = useState(false)
+
+    const esteDonatorActiv = !!user?.esteDonator
+    const { data: cereri, error: eroareCereri } = useAsync(
+        () => api.requests.listRequests(),
+        [user?.id ?? null],
+        esteDonatorActiv,
+    )
+    const { data: raspunsuri, reload: reincarcaRaspunsuri } = useAsync(
+        () => api.responses.listMyResponses(),
+        [user?.id ?? null],
+        esteDonatorActiv,
+    )
 
     // ---------- Vizitator nelogat ----------
     if (!user) {
@@ -98,26 +108,39 @@ export function DonorPage() {
         )
     }
 
-    function handleSubmit(event: FormEvent) {
+    const utilizator: CurrentUser = user
+
+    async function salveazaUtilizator(updates: Partial<CurrentUser>) {
+        setEroare('')
+        setSeSalveaza(true)
+        try {
+            const salvat = await api.users.updateUser({ ...utilizator, ...updates })
+            updateUser(salvat)
+            return true
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Datele nu au putut fi salvate.')
+            return false
+        } finally {
+            setSeSalveaza(false)
+        }
+    }
+
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault()
         if (!grupa || !oras) return
 
-        const updates = {
+        const salvat = await salveazaUtilizator({
             esteDonator: true,
             grupaSanguina: grupa as GrupaSanguina,
             oras,
             dataUltimeiDonari: dataDonare || null,
-        }
-
-        updateUser(updates)
-        updateUserRecord(user!.id, updates)
-        setEditMode(false)
+        })
+        if (salvat) setEditMode(false)
     }
 
     function marcheazaDonareNoua() {
         const azi = new Date().toISOString().slice(0, 10)
-        updateUser({ dataUltimeiDonari: azi })
-        updateUserRecord(user!.id, { dataUltimeiDonari: azi })
+        return salveazaUtilizator({ dataUltimeiDonari: azi })
     }
 
     // ---------- Formular înregistrare / editare profil donator ----------
@@ -184,6 +207,7 @@ export function DonorPage() {
                                     className="donorSubmitButton"
                                     whileHover={{ scale: 1.01 }}
                                     whileTap={{ scale: 0.98 }}
+                                    disabled={seSalveaza}
                                 >
                                     {user.esteDonator ? 'Salvează modificările' : 'Devino donator'}
                                 </motion.button>
@@ -198,6 +222,8 @@ export function DonorPage() {
                                     </button>
                                 )}
                             </motion.div>
+
+                            {eroare && <p className="apiErrorMsg">{eroare}</p>}
                         </motion.form>
                     </div>
                 </div>
@@ -209,9 +235,7 @@ export function DonorPage() {
     const eligibil = esteEligibilPentruDonare(user.dataUltimeiDonari)
     const progres = progresEligibilitate(user.dataUltimeiDonari)
 
-    const useri = getUsers()
-
-    const cereriCompatibile = [...getRequests(), ...mockRequests].filter(
+    const cereriCompatibile = (cereri ?? []).filter(
         (r) =>
             r.status === 'activa' &&
             r.solicitantId !== user.id &&
@@ -220,33 +244,15 @@ export function DonorPage() {
             r.oras === user.oras
     )
 
-    function confirmaDisponibilitate(cererId: string, solicitantId: string, oras: string) {
-        const azi = new Date().toISOString().slice(0, 10)
-
-        addResponse({
-            id: crypto.randomUUID(),
-            cererId,
-            donatorId: user.id,
-            donatorNume: user.nume,
-            status: 'disponibil',
-            data: azi,
-        })
-
-        addNotification({
-            id: crypto.randomUUID(),
-            userId: solicitantId,
-            tip: 'confirmare',
-            titlu: 'Un donator a confirmat disponibilitatea',
-            mesaj: `${user.nume} (${user.grupaSanguina}) a confirmat că poate dona pentru cererea ta din ${oras}.`,
-            citita: false,
-            data: new Date().toISOString(),
-            link: '/cererile-mele',
-        })
-
-        updateUser({ dataUltimeiDonari: azi })
-        updateUserRecord(user.id, { dataUltimeiDonari: azi })
-
-        refresh()
+    async function confirmaDisponibilitate(cererId: string) {
+        setEroare('')
+        try {
+            await api.responses.createResponse(cererId)
+            updateUser({ dataUltimeiDonari: new Date().toISOString().slice(0, 10) })
+            reincarcaRaspunsuri()
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Disponibilitatea nu a putut fi confirmată.')
+        }
     }
 
     return (
@@ -309,6 +315,8 @@ export function DonorPage() {
 
                 <h2 className="donorSectionTitle">Cereri compatibile cu tine</h2>
 
+                {(eroare || eroareCereri) && <p className="apiErrorMsg">{eroare || eroareCereri}</p>}
+
                 {cereriCompatibile.length === 0 ? (
                     <p className="donorEmptyState">
                         Momentan nu există cereri active compatibile cu grupa și orașul tău.
@@ -321,8 +329,7 @@ export function DonorPage() {
                         animate="show"
                     >
                         {cereriCompatibile.slice(0, 3).map((r) => {
-                            const araspuns = aRaspunsDeja(r.id, user.id)
-                            const solicitant = useri.find((u) => u.id === r.solicitantId)
+                            const raspunsulMeu = raspunsuri?.find((x) => x.cererId === r.id)
                             return (
                                 <motion.div
                                     key={r.id}
@@ -338,14 +345,14 @@ export function DonorPage() {
                                     <p className="donorRequestDesc">{r.descriere}</p>
                                     <span className="donorRequestCity iconText"><IconLocation /> {r.oras}</span>
                                     <p className="donorRequestRequester">Solicitat de {r.solicitantNume}</p>
-                                    {araspuns ? (
+                                    {raspunsulMeu ? (
                                         <>
                                             <button className="donorRequestConfirmButton donorRequestConfirmButtonDone" disabled>
                                                 <span className="iconText"><IconCheck /> Ai confirmat disponibilitatea</span>
                                             </button>
-                                            {solicitant?.telefon && (
+                                            {raspunsulMeu.solicitantTelefon && (
                                                 <p className="donorRequestContact iconText">
-                                                    <IconPhone /> Contact: {solicitant.telefon}
+                                                    <IconPhone /> Contact: {raspunsulMeu.solicitantTelefon}
                                                 </p>
                                             )}
                                         </>
@@ -356,7 +363,7 @@ export function DonorPage() {
                                     ) : (
                                         <button
                                             className="donorRequestConfirmButton"
-                                            onClick={() => confirmaDisponibilitate(r.id, r.solicitantId, r.oras)}
+                                            onClick={() => confirmaDisponibilitate(r.id)}
                                         >
                                             Confirmă disponibilitatea
                                         </button>

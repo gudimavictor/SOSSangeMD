@@ -7,7 +7,6 @@ type RequestConfig = InternalAxiosRequestConfig & { _retried?: boolean; _public?
 
 let refreshInFlight: Promise<boolean> | null = null
 
-// Folosește axios „gol", ca cererea de refresh să nu treacă prin interceptorii instanței.
 function tryRefresh(baseURL: string): Promise<boolean> {
     const session = getSession()
     if (!session) return Promise.resolve(false)
@@ -49,7 +48,6 @@ function extractMessage(error: AxiosError): string {
 }
 
 export function setupInterceptors(client: AxiosInstance, baseURL: string): void {
-    // Request: atașează tokenul JWT (mai puțin la cererile marcate ca publice).
     client.interceptors.request.use((config: RequestConfig) => {
         const session = getSession()
         if (session && !config._public) {
@@ -58,7 +56,6 @@ export function setupInterceptors(client: AxiosInstance, baseURL: string): void 
         return config
     })
 
-    // Response: la 401 reînnoiește tokenul o singură dată și reia cererea; altfel deloghează.
     client.interceptors.response.use(
         (response) => response,
         async (error: AxiosError) => {

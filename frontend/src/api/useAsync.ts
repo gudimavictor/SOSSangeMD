@@ -2,10 +2,6 @@ import { useEffect, useEffectEvent, useState } from 'react'
 
 type Result<T> = { key: string; data?: T; error?: string }
 
-/**
- * Încarcă date asincron. `data` rămâne cea veche cât timp se reîncarcă (după `reload`),
- * ca lista să nu clipească după o acțiune. `deps` trebuie să fie valori primitive.
- */
 export function useAsync<T>(
     fetcher: () => Promise<T>,
     deps: readonly (string | number | boolean | null)[],
