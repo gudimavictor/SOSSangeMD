@@ -231,3 +231,34 @@
         grid-template-columns: 1fr;
     }
 }
+
+.supportLoginPrompt {
+    background: var(--canvas-surface-tint);
+    border: 1px solid var(--canvas-hairline);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(6px);
+}
+
+.supportLoginPrompt p {
+    margin: 0 0 1rem;
+    color: var(--color-text-muted);
+}
+
+.supportLoginCta {
+    display: inline-block;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+
+.supportLoginCta:hover {
+    opacity: 0.9;
+}

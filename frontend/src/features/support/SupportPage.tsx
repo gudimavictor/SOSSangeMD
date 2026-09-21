@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'motion/react'
 import { IconPhone, IconMail, IconLocation, IconClock, IconWarning, IconCheck, IconBulb } from '../../components/ui/Icons'
 import { PageHeader } from '../../components/ui/PageHeader'
-import { addSupportMessage } from './supportMessagesStore'
+import { useApi } from '../../api/use-api'
 import { useAuth } from '../auth/AuthContext'
 import './SupportPage.css'
 
@@ -60,40 +60,33 @@ const contactCards = [
 
 export function SupportPage() {
     const { user } = useAuth()
+    const api = useApi()
     const [faqDeschis, setFaqDeschis] = useState<number | null>(null)
-    const [nume, setNume] = useState(user?.nume ?? '')
-    const [email, setEmail] = useState(user?.email ?? '')
     const [mesaj, setMesaj] = useState('')
     const [trimis, setTrimis] = useState(false)
+    const [seTrimite, setSeTrimite] = useState(false)
+    const [eroare, setEroare] = useState('')
 
     function toggleFaq(index: number) {
         setFaqDeschis((prev) => (prev === index ? null : index))
     }
 
-    function handleSubmit(event: FormEvent) {
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault()
-        if (!nume || !email || !mesaj) return
+        if (!mesaj.trim() || seTrimite) return
 
-        addSupportMessage({
-            id: crypto.randomUUID(),
-            userId: user?.id ?? null,
-            nume,
-            email,
-            mesaj,
-            data: new Date().toISOString(),
-            citit: false,
-            raspuns: null,
-            raspunsData: null,
-        })
-
-        setTrimis(true)
-        if (!user) {
-            setNume('')
-            setEmail('')
+        setEroare('')
+        setSeTrimite(true)
+        try {
+            await api.support.createSupportMessage(mesaj.trim())
+            setTrimis(true)
+            setMesaj('')
+            setTimeout(() => setTrimis(false), 4000)
+        } catch (e) {
+            setEroare(e instanceof Error ? e.message : 'Mesajul nu a putut fi trimis.')
+        } finally {
+            setSeTrimite(false)
         }
-        setMesaj('')
-
-        setTimeout(() => setTrimis(false), 4000)
     }
 
     return (
@@ -191,65 +184,75 @@ export function SupportPage() {
 
                     <div className="formColumn">
                         <h2 className="supportSectionTitle">Scrie-ne</h2>
-                        <form className="supportForm" onSubmit={handleSubmit}>
-                            <div className="supportFormField">
-                                <label htmlFor="nume">Nume</label>
-                                <input
-                                    id="nume"
-                                    type="text"
-                                    value={nume}
-                                    onChange={(e) => setNume(e.target.value)}
-                                    placeholder="Numele tău"
-                                    required
-                                />
-                            </div>
-                            <div className="supportFormField">
-                                <label htmlFor="email">Email</label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="email@exemplu.md"
-                                    required
-                                />
-                            </div>
-                            <div className="supportFormField">
-                                <label htmlFor="mesaj">Mesaj</label>
-                                <textarea
-                                    id="mesaj"
-                                    rows={5}
-                                    value={mesaj}
-                                    onChange={(e) => setMesaj(e.target.value)}
-                                    placeholder="Descrie problema sau întrebarea ta..."
-                                    required
-                                />
-                            </div>
+                        {user ? (
+                            <form className="supportForm" onSubmit={handleSubmit}>
+                                <div className="supportFormField">
+                                    <label htmlFor="nume">Nume</label>
+                                    <input
+                                        id="nume"
+                                        type="text"
+                                        value={user.nume}
+                                        readOnly
+                                        required
+                                    />
+                                </div>
+                                <div className="supportFormField">
+                                    <label htmlFor="email">Email</label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        value={user.email}
+                                        readOnly
+                                        required
+                                    />
+                                </div>
+                                <div className="supportFormField">
+                                    <label htmlFor="mesaj">Mesaj</label>
+                                    <textarea
+                                        id="mesaj"
+                                        rows={5}
+                                        value={mesaj}
+                                        onChange={(e) => setMesaj(e.target.value)}
+                                        placeholder="Descrie problema sau întrebarea ta..."
+                                        required
+                                    />
+                                </div>
 
-                            <motion.button
-                                type="submit"
-                                className="supportSubmitButton"
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                Trimite mesajul
-                            </motion.button>
+                                <motion.button
+                                    type="submit"
+                                    className="supportSubmitButton"
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    disabled={seTrimite}
+                                >
+                                    {seTrimite ? 'Se trimite...' : 'Trimite mesajul'}
+                                </motion.button>
 
-                            <AnimatePresence>
-                                {trimis && (
-                                    <motion.div
-                                        className="supportSuccessBox"
-                                        initial={{ opacity: 0, y: 8 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0 }}
-                                    >
-                                        <span className="iconText">
-                                            <IconCheck /> Mesajul a fost trimis! Îți răspundem în cel mai scurt timp.
-                                        </span>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </form>
+                                {eroare && <p className="apiErrorMsg">{eroare}</p>}
+
+                                <AnimatePresence>
+                                    {trimis && (
+                                        <motion.div
+                                            className="supportSuccessBox"
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0 }}
+                                        >
+                                            <span className="iconText">
+                                                <IconCheck /> Mesajul a fost trimis! Îți răspundem în cel mai scurt timp.
+                                            </span>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </form>
+                        ) : (
+                            <div className="supportLoginPrompt">
+                                <p>Trebuie să fii autentificat ca să ne poți scrie.</p>
+                                <Link to="/login" search={{ redirect: '/suport' }} className="supportLoginCta">
+                                    Autentifică-te
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
